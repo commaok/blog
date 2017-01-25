@@ -1,0 +1,330 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go">
+		<meta name="generator" content="Hugo 0.19-DEV" />
+		<title>Compile-time assertions in Go &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="Compile-time assertions in Go" />
+<meta property="og:description" content="This post is about a little-known way to make compile-time assertions in Go. You probably shouldn&rsquo;t use it, but it is interesting to know about.
+As a warm-up, here&rsquo;s a fairly well-known form of compile-time assertions in Go: Interface satisfaction checks.
+In this code (playground), the var _ = line ensures that type W is a stringWriter, as checked for by io.WriteString.
+package main import &quot;io&quot; type W struct{} func (w W) Write(b []byte) (int, error) { return len(b), nil } func (w W) WriteString(s string) (int, error) { return len(s), nil } type stringWriter interface { WriteString(string) (int, error) } var _ stringWriter = W{} func main() { var w W io." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://commaok.xyz/post/compile-time-assertions/" />
+
+
+
+<meta property="article:published_time" content="2017-01-24T09:37:05-08:00"/>
+<meta property="article:modified_time" content="2017-01-24T09:37:05-08:00"/>
+
+
+
+
+
+
+
+
+
+
+
+	    
+	    
+<meta itemprop="name" content="Compile-time assertions in Go">
+<meta itemprop="description" content="This post is about a little-known way to make compile-time assertions in Go. You probably shouldn&rsquo;t use it, but it is interesting to know about.
+As a warm-up, here&rsquo;s a fairly well-known form of compile-time assertions in Go: Interface satisfaction checks.
+In this code (playground), the var _ = line ensures that type W is a stringWriter, as checked for by io.WriteString.
+package main import &quot;io&quot; type W struct{} func (w W) Write(b []byte) (int, error) { return len(b), nil } func (w W) WriteString(s string) (int, error) { return len(s), nil } type stringWriter interface { WriteString(string) (int, error) } var _ stringWriter = W{} func main() { var w W io.">
+
+
+<meta itemprop="dateModified" content="2017-01-24T09:37:05-08:00" />
+<meta itemprop="wordCount" content="615">
+
+
+
+<meta itemprop="keywords" content="" />
+
+	    
+
+  <meta name="twitter:card" content="summary"/>
+
+
+
+<meta name="twitter:title" content="Compile-time assertions in Go"/>
+<meta name="twitter:description" content="This post is about a little-known way to make compile-time assertions in Go. You probably shouldn&rsquo;t use it, but it is interesting to know about.
+As a warm-up, here&rsquo;s a fairly well-known form of compile-time assertions in Go: Interface satisfaction checks.
+In this code (playground), the var _ = line ensures that type W is a stringWriter, as checked for by io.WriteString.
+package main import &quot;io&quot; type W struct{} func (w W) Write(b []byte) (int, error) { return len(b), nil } func (w W) WriteString(s string) (int, error) { return len(s), nil } type stringWriter interface { WriteString(string) (int, error) } var _ stringWriter = W{} func main() { var w W io."/>
+<meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
+
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://commaok.xyz/'> <span class="arrow">←</span>Home</a>
+	
+
+	
+	<a class="cta" href="https://commaok.xyz/index.xml">Subscribe</a>
+	
+</nav>
+
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>Compile-time assertions in Go</h1>
+                    <h2 class="headline">
+                    January 24, 2017 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p>This post is about a little-known way to make compile-time assertions in Go.
+You probably shouldn&rsquo;t use it, but it is interesting to know about.</p>
+
+<p>As a warm-up, here&rsquo;s a fairly well-known form of compile-time assertions in Go: Interface satisfaction checks.</p>
+
+<p>In this code (<a href="https://play.golang.org/p/MJ6zF1oNsX">playground</a>),
+the <code>var _ =</code> line ensures that type <code>W</code> is a <code>stringWriter</code>,
+as checked for by <a href="https://golang.org/pkg/io/#WriteString"><code>io.WriteString</code></a>.</p>
+
+<pre><code class="language-go">package main
+
+import &quot;io&quot;
+
+type W struct{}
+
+func (w W) Write(b []byte) (int, error)       { return len(b), nil }
+func (w W) WriteString(s string) (int, error) { return len(s), nil }
+
+type stringWriter interface {
+	WriteString(string) (int, error)
+}
+
+var _ stringWriter = W{}
+
+func main() {
+	var w W
+	io.WriteString(w, &quot;very long string&quot;)
+}
+</code></pre>
+
+<p>If you comment out <code>W</code>&rsquo;s <code>WriteString</code> method, the code will not compile:</p>
+
+<pre><code>main.go:14: cannot use W literal (type W) as type stringWriter in assignment:
+	W does not implement stringWriter (missing WriteString method)
+</code></pre>
+
+<p>This is useful. For most types that satisfy both <code>io.Writer</code> and <code>stringWriter</code>,
+if you eliminate the <code>WriteString</code> method, everything will continue to work
+as it did before, but with worse performance.</p>
+
+<p>Rather than trying to write a fragile test for a performance regression using
+<a href="https://golang.org/pkg/testing/#AllocsPerRun"><code>testing.T.AllocsPerRun</code></a>,
+you can simply protect your code with a compile-time assertion.</p>
+
+<p>Here&rsquo;s <a href="https://github.com/golang/go/blob/go1.8rc2/src/io/multi.go#L72">a real world example of this technique from package io</a>.</p>
+
+<hr />
+
+<p>OK, onward to obscurity!</p>
+
+<p>Interface satisfaction checks are great.
+But what if you wanted to check a plain old boolean expression, like <code>1+1=2</code>?</p>
+
+<p>Consider this code (<a href="https://play.golang.org/p/mjIMWsWu4V">playground</a>):</p>
+
+<pre><code class="language-go">package main
+
+import &quot;crypto/md5&quot;
+
+type Hash [16]byte
+
+func init() {
+	if len(Hash{}) &lt; md5.Size {
+		panic(&quot;Hash is too small&quot;)
+	}
+}
+
+func main() {
+	// ...
+}
+</code></pre>
+
+<p><code>Hash</code> is perhaps some kind of abstracted hash result.
+The <code>init</code> function ensures that it will work with <a href="https://golang.org/pkg/crypto/md5/">crypto/md5</a>.
+If you change <code>Hash</code> to be (say) <code>[8]byte</code>, it&rsquo;ll panic when the process starts.
+However, this is a run-time check.
+What if we wanted it to fail earlier?</p>
+
+<p>Here&rsquo;s how. There&rsquo;s no playground link, because this doesn&rsquo;t work on the playground.</p>
+
+<pre><code class="language-go">package main
+
+import &quot;C&quot;
+
+import &quot;crypto/md5&quot;
+
+type Hash [16]byte
+
+func hashIsTooSmall()
+
+func init() {
+	if len(Hash{}) &lt; md5.Size {
+		hashIsTooSmall()
+	}
+}
+
+func main() {
+	// ...
+}
+</code></pre>
+
+<p>Now if you change <code>Hash</code> to be <code>[8]byte</code>, it will fail during compilation.
+(Actually, it fails during linking. Close enough for our purposes.)</p>
+
+<pre><code class="language-bash">$ go build .
+# demo
+main.hashIsTooSmall: call to external function
+main.init.1: relocation target main.hashIsTooSmall not defined
+main.init.1: undefined: &quot;main.hashIsTooSmall&quot;
+</code></pre>
+
+<p>What&rsquo;s going on here?</p>
+
+<p><code>hashIsTooSmall</code> is <a href="https://golang.org/ref/spec#Function_declarations">declared without a function body</a>.
+The compiler assumes that someone else will provide an implementation,
+perhaps an assembly routine.</p>
+
+<p>When the compiler can prove that <code>len(Hash{}) &lt; md5.Size</code>,
+it eliminates the code inside the if statement.
+As a result, no one uses the function <code>hashIsTooSmall</code>,
+so the linker eliminates it. No harm done.
+As soon as the assertion fails, the code inside the if statement is preserved.
+<code>hashIsTooSmall</code> can&rsquo;t be eliminated.
+The linker then notices that no one else has provided an implementation
+for the function and fails with an error, which was the goal.</p>
+
+<p>One last oddity: Why <code>import &quot;C&quot;</code>?
+The go tool knows that in normal Go code, all functions must have bodies,
+and instructs the compiler to enforce that.
+By switching to cgo, we remove that check.
+(If you run <code>go build -x</code> on the code above, without the <code>import &quot;C&quot;</code> line,
+you will see that the compiler is invoked with the <code>-complete</code> flag.)
+An alternative to adding <code>import &quot;C&quot;</code> is to <a href="https://github.com/golang/go/blob/go1.8rc2/src/os/signal/sig.s">add an empty file called <code>foo.s</code>
+to the package</a>.</p>
+
+<p>I know of only one use of this technique,
+in the <a href="https://github.com/golang/go/blob/go1.8rc2/test/fixedbugs/issue9608.dir/issue9608.go">compiler test suite</a>.
+There are other <a href="https://github.com/golang/go/blob/go1.8rc2/src/runtime/hashmap.go#L261">imaginable places to apply it</a>,
+but no one has bothered.</p>
+
+<p>And that&rsquo;s probably how it should be. :)</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                <a href="https://twitter.com/commaok">
+                        <img class="avatar" src="https://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>Gopher</span>
+                        </div>
+                    </a>
+                <section id="sharing">
+                    <a class="twitter" href="https://twitter.com/intent/tweet?text=https%3a%2f%2fcommaok.xyz%2fpost%2fcompile-time-assertions%2f - Compile-time%20assertions%20in%20Go by @commaok"><span class="icon-twitter"> Tweet</span></a>
+
+<a class="facebook" href="#" onclick="
+    window.open(
+      'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+      'facebook-share-dialog',
+      'width=626,height=436');
+    return false;"><span class="icon-facebook-rect"> Share</span>
+</a>
+
+                </section>
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/compile-time-assertions/">Compile-time assertions in Go<aside class="dates">Jan 24</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/new-blog/">new(Blog)<aside class="dates">Jan 23</aside></a>
+        </li>
+        
+   
+</ul>
+
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/commaok">
+        <i class="fa fa-github"></i>
+    </a>
+    
+    <a class="symbol" href="https://www.twitter.com/commaok">
+        <i class="fa fa-twitter"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2017 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://commaok.xyz/js/main.js"></script>
+<script src="https://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+    </body>
+</html>

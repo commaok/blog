@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Don&#39;t Panic</title>
+    <link>https://commaok.xyz/post/index.xml</link>
+    <description>Recent content in Posts on Don&#39;t Panic</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 24 Jan 2017 09:37:05 -0800</lastBuildDate>
+    <atom:link href="https://commaok.xyz/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Compile-time assertions in Go</title>
+      <link>https://commaok.xyz/post/compile-time-assertions/</link>
+      <pubDate>Tue, 24 Jan 2017 09:37:05 -0800</pubDate>
+      
+      <guid>https://commaok.xyz/post/compile-time-assertions/</guid>
+      <description>&lt;p&gt;This post is about a little-known way to make compile-time assertions in Go.
+You probably shouldn&amp;rsquo;t use it, but it is interesting to know about.&lt;/p&gt;
+
+&lt;p&gt;As a warm-up, here&amp;rsquo;s a fairly well-known form of compile-time assertions in Go: Interface satisfaction checks.&lt;/p&gt;
+
+&lt;p&gt;In this code (&lt;a href=&#34;https://play.golang.org/p/MJ6zF1oNsX&#34;&gt;playground&lt;/a&gt;),
+the &lt;code&gt;var _ =&lt;/code&gt; line ensures that type &lt;code&gt;W&lt;/code&gt; is a &lt;code&gt;stringWriter&lt;/code&gt;,
+as checked for by &lt;a href=&#34;https://golang.org/pkg/io/#WriteString&#34;&gt;&lt;code&gt;io.WriteString&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package main
+
+import &amp;quot;io&amp;quot;
+
+type W struct{}
+
+func (w W) Write(b []byte) (int, error)       { return len(b), nil }
+func (w W) WriteString(s string) (int, error) { return len(s), nil }
+
+type stringWriter interface {
+	WriteString(string) (int, error)
+}
+
+var _ stringWriter = W{}
+
+func main() {
+	var w W
+	io.WriteString(w, &amp;quot;very long string&amp;quot;)
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you comment out &lt;code&gt;W&lt;/code&gt;&amp;rsquo;s &lt;code&gt;WriteString&lt;/code&gt; method, the code will not compile:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;main.go:14: cannot use W literal (type W) as type stringWriter in assignment:
+	W does not implement stringWriter (missing WriteString method)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is useful. For most types that satisfy both &lt;code&gt;io.Writer&lt;/code&gt; and &lt;code&gt;stringWriter&lt;/code&gt;,
+if you eliminate the &lt;code&gt;WriteString&lt;/code&gt; method, everything will continue to work
+as it did before, but with worse performance.&lt;/p&gt;
+
+&lt;p&gt;Rather than trying to write a fragile test for a performance regression using
+&lt;a href=&#34;https://golang.org/pkg/testing/#AllocsPerRun&#34;&gt;&lt;code&gt;testing.T.AllocsPerRun&lt;/code&gt;&lt;/a&gt;,
+you can simply protect your code with a compile-time assertion.&lt;/p&gt;
+
+&lt;p&gt;Here&amp;rsquo;s &lt;a href=&#34;https://github.com/golang/go/blob/go1.8rc2/src/io/multi.go#L72&#34;&gt;a real world example of this technique from package io&lt;/a&gt;.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;OK, onward to obscurity!&lt;/p&gt;
+
+&lt;p&gt;Interface satisfaction checks are great.
+But what if you wanted to check a plain old boolean expression, like &lt;code&gt;1+1=2&lt;/code&gt;?&lt;/p&gt;
+
+&lt;p&gt;Consider this code (&lt;a href=&#34;https://play.golang.org/p/mjIMWsWu4V&#34;&gt;playground&lt;/a&gt;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package main
+
+import &amp;quot;crypto/md5&amp;quot;
+
+type Hash [16]byte
+
+func init() {
+	if len(Hash{}) &amp;lt; md5.Size {
+		panic(&amp;quot;Hash is too small&amp;quot;)
+	}
+}
+
+func main() {
+	// ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;Hash&lt;/code&gt; is perhaps some kind of abstracted hash result.
+The &lt;code&gt;init&lt;/code&gt; function ensures that it will work with &lt;a href=&#34;https://golang.org/pkg/crypto/md5/&#34;&gt;crypto/md5&lt;/a&gt;.
+If you change &lt;code&gt;Hash&lt;/code&gt; to be (say) &lt;code&gt;[8]byte&lt;/code&gt;, it&amp;rsquo;ll panic when the process starts.
+However, this is a run-time check.
+What if we wanted it to fail earlier?&lt;/p&gt;
+
+&lt;p&gt;Here&amp;rsquo;s how. There&amp;rsquo;s no playground link, because this doesn&amp;rsquo;t work on the playground.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package main
+
+import &amp;quot;C&amp;quot;
+
+import &amp;quot;crypto/md5&amp;quot;
+
+type Hash [16]byte
+
+func hashIsTooSmall()
+
+func init() {
+	if len(Hash{}) &amp;lt; md5.Size {
+		hashIsTooSmall()
+	}
+}
+
+func main() {
+	// ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now if you change &lt;code&gt;Hash&lt;/code&gt; to be &lt;code&gt;[8]byte&lt;/code&gt;, it will fail during compilation.
+(Actually, it fails during linking. Close enough for our purposes.)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ go build .
+# demo
+main.hashIsTooSmall: call to external function
+main.init.1: relocation target main.hashIsTooSmall not defined
+main.init.1: undefined: &amp;quot;main.hashIsTooSmall&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;What&amp;rsquo;s going on here?&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;hashIsTooSmall&lt;/code&gt; is &lt;a href=&#34;https://golang.org/ref/spec#Function_declarations&#34;&gt;declared without a function body&lt;/a&gt;.
+The compiler assumes that someone else will provide an implementation,
+perhaps an assembly routine.&lt;/p&gt;
+
+&lt;p&gt;When the compiler can prove that &lt;code&gt;len(Hash{}) &amp;lt; md5.Size&lt;/code&gt;,
+it eliminates the code inside the if statement.
+As a result, no one uses the function &lt;code&gt;hashIsTooSmall&lt;/code&gt;,
+so the linker eliminates it. No harm done.
+As soon as the assertion fails, the code inside the if statement is preserved.
+&lt;code&gt;hashIsTooSmall&lt;/code&gt; can&amp;rsquo;t be eliminated.
+The linker then notices that no one else has provided an implementation
+for the function and fails with an error, which was the goal.&lt;/p&gt;
+
+&lt;p&gt;One last oddity: Why &lt;code&gt;import &amp;quot;C&amp;quot;&lt;/code&gt;?
+The go tool knows that in normal Go code, all functions must have bodies,
+and instructs the compiler to enforce that.
+By switching to cgo, we remove that check.
+(If you run &lt;code&gt;go build -x&lt;/code&gt; on the code above, without the &lt;code&gt;import &amp;quot;C&amp;quot;&lt;/code&gt; line,
+you will see that the compiler is invoked with the &lt;code&gt;-complete&lt;/code&gt; flag.)
+An alternative to adding &lt;code&gt;import &amp;quot;C&amp;quot;&lt;/code&gt; is to &lt;a href=&#34;https://github.com/golang/go/blob/go1.8rc2/src/os/signal/sig.s&#34;&gt;add an empty file called &lt;code&gt;foo.s&lt;/code&gt;
+to the package&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;I know of only one use of this technique,
+in the &lt;a href=&#34;https://github.com/golang/go/blob/go1.8rc2/test/fixedbugs/issue9608.dir/issue9608.go&#34;&gt;compiler test suite&lt;/a&gt;.
+There are other &lt;a href=&#34;https://github.com/golang/go/blob/go1.8rc2/src/runtime/hashmap.go#L261&#34;&gt;imaginable places to apply it&lt;/a&gt;,
+but no one has bothered.&lt;/p&gt;
+
+&lt;p&gt;And that&amp;rsquo;s probably how it should be. :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>new(Blog)</title>
+      <link>https://commaok.xyz/post/new-blog/</link>
+      <pubDate>Mon, 23 Jan 2017 15:19:05 -0800</pubDate>
+      
+      <guid>https://commaok.xyz/post/new-blog/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;m going to try this blogging thing again.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ve failed at it a few times before.
+I&amp;rsquo;m going to try &lt;a href=&#34;https://jvns.ca/blog/2016/05/22/how-do-you-write-blog-posts/&#34;&gt;Julia Evans&lt;/a&gt; style this time.
+Maybe this one will stick?&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

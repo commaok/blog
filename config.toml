@@ -1,0 +1,36 @@
+languageCode = "en-us"
+title = "Don't Panic"
+baseURL = "https://commaok.xyz/"
+theme = "hugo-cactus-theme"
+publishDir = "docs"
+
+[params]
+	name = "Josh Bleecher Snyder"
+	description = "Words about Go"
+	bio = "Gopher"
+	twitter = "commaok"
+	enableRSS = true
+
+	# Navigation links
+	home = ""
+	#about = ""
+	subscribe = ""
+	# Pagination links
+	olderPosts = ""
+	newerPosts = ""
+	readMore = ""
+	copyright = ""
+	# Sharing options and author information in posts
+	aboutAuthor = "Gopher"
+	tweet = ""
+	share = ""
+	# 404 page
+	title404 = ""
+	subtitle404 = ""
+
+	# Choose a font for the social icons in the footer. Either "mono-social" or "font-awesome"
+	iconFont = "font-awesome"
+
+[social]
+    twitter  = "https://www.twitter.com/commaok"
+    github   = "https://www.github.com/commaok"
