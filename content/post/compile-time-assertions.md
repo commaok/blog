@@ -57,7 +57,7 @@ Here's [a real world example of this technique from package io](https://github.c
 OK, onward to obscurity!
 
 Interface satisfaction checks are great.
-But what if you wanted to check a plain old boolean expression, like `1+1=2`?
+But what if you wanted to check a plain old boolean expression, like `1+1==2`?
 
 Consider this code ([playground](https://play.golang.org/p/mjIMWsWu4V)):
 
@@ -85,7 +85,7 @@ If you change `Hash` to be (say) `[8]byte`, it'll panic when the process starts.
 However, this is a run-time check.
 What if we wanted it to fail earlier?
 
-Here's how. There's no playground link, because this doesn't work on the playground.
+Here's how. (There's no playground link, because this doesn't work on the playground.)
 
 ```go
 package main

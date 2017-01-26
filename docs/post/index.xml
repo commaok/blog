@@ -66,7 +66,7 @@ you can simply protect your code with a compile-time assertion.&lt;/p&gt;
 &lt;p&gt;OK, onward to obscurity!&lt;/p&gt;
 
 &lt;p&gt;Interface satisfaction checks are great.
-But what if you wanted to check a plain old boolean expression, like &lt;code&gt;1+1=2&lt;/code&gt;?&lt;/p&gt;
+But what if you wanted to check a plain old boolean expression, like &lt;code&gt;1+1==2&lt;/code&gt;?&lt;/p&gt;
 
 &lt;p&gt;Consider this code (&lt;a href=&#34;https://play.golang.org/p/mjIMWsWu4V&#34;&gt;playground&lt;/a&gt;):&lt;/p&gt;
 
@@ -93,7 +93,7 @@ If you change &lt;code&gt;Hash&lt;/code&gt; to be (say) &lt;code&gt;[8]byte&lt;/
 However, this is a run-time check.
 What if we wanted it to fail earlier?&lt;/p&gt;
 
-&lt;p&gt;Here&amp;rsquo;s how. There&amp;rsquo;s no playground link, because this doesn&amp;rsquo;t work on the playground.&lt;/p&gt;
+&lt;p&gt;Here&amp;rsquo;s how. (There&amp;rsquo;s no playground link, because this doesn&amp;rsquo;t work on the playground.)&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package main
 

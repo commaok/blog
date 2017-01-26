@@ -151,7 +151,7 @@ you can simply protect your code with a compile-time assertion.</p>
 <p>OK, onward to obscurity!</p>
 
 <p>Interface satisfaction checks are great.
-But what if you wanted to check a plain old boolean expression, like <code>1+1=2</code>?</p>
+But what if you wanted to check a plain old boolean expression, like <code>1+1==2</code>?</p>
 
 <p>Consider this code (<a href="https://play.golang.org/p/mjIMWsWu4V">playground</a>):</p>
 
@@ -178,7 +178,7 @@ If you change <code>Hash</code> to be (say) <code>[8]byte</code>, it&rsquo;ll pa
 However, this is a run-time check.
 What if we wanted it to fail earlier?</p>
 
-<p>Here&rsquo;s how. There&rsquo;s no playground link, because this doesn&rsquo;t work on the playground.</p>
+<p>Here&rsquo;s how. (There&rsquo;s no playground link, because this doesn&rsquo;t work on the playground.)</p>
 
 <pre><code class="language-go">package main
 
