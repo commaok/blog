@@ -1,6 +1,6 @@
 languageCode = "en-us"
 title = "Don't Panic"
-baseURL = "https://commaok.xyz/"
+baseURL = "http://commaok.xyz/"
 theme = "hugo-cactus-theme"
 publishDir = "docs"
 
