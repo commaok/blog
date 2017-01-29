@@ -1,0 +1,229 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go">
+		<meta name="generator" content="Hugo 0.19-DEV" />
+		<title>Picking up pennies: Disabling memory profiling &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="http://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="http://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="http://commaok.xyz/css/highlight.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="http://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="Picking up pennies: Disabling memory profiling" />
+<meta property="og:description" content="If you work on a short-lived, allocation heavy program and care about a tiny (maybe 0.5%) performance improvement, this post is for you.
+I was looking at a CPU profile of the Go compiler when I noticed something odd: An entry in mprof.go. mprof.go contains the memory profiling implementation, but I was doing cpu profiling. Was there a bug in compilebench, perhaps?
+Nope. The variable runtime.MemProfileRate controls the rate at which the runtime samples allocations." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://commaok.xyz/post/memprofilerate/" />
+
+
+
+<meta property="article:published_time" content="2017-01-28T18:06:36-08:00"/>
+<meta property="article:modified_time" content="2017-01-28T18:06:36-08:00"/>
+
+
+
+
+
+
+
+
+
+
+
+	    
+	    
+<meta itemprop="name" content="Picking up pennies: Disabling memory profiling">
+<meta itemprop="description" content="If you work on a short-lived, allocation heavy program and care about a tiny (maybe 0.5%) performance improvement, this post is for you.
+I was looking at a CPU profile of the Go compiler when I noticed something odd: An entry in mprof.go. mprof.go contains the memory profiling implementation, but I was doing cpu profiling. Was there a bug in compilebench, perhaps?
+Nope. The variable runtime.MemProfileRate controls the rate at which the runtime samples allocations.">
+
+
+<meta itemprop="dateModified" content="2017-01-28T18:06:36-08:00" />
+<meta itemprop="wordCount" content="301">
+
+
+
+<meta itemprop="keywords" content="" />
+
+	    
+
+  <meta name="twitter:card" content="summary"/>
+
+
+
+<meta name="twitter:title" content="Picking up pennies: Disabling memory profiling"/>
+<meta name="twitter:description" content="If you work on a short-lived, allocation heavy program and care about a tiny (maybe 0.5%) performance improvement, this post is for you.
+I was looking at a CPU profile of the Go compiler when I noticed something odd: An entry in mprof.go. mprof.go contains the memory profiling implementation, but I was doing cpu profiling. Was there a bug in compilebench, perhaps?
+Nope. The variable runtime.MemProfileRate controls the rate at which the runtime samples allocations."/>
+<meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
+
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='http://commaok.xyz/'> <span class="arrow">←</span>Home</a>
+	
+
+	
+	<a class="cta" href="http://commaok.xyz/index.xml">Subscribe</a>
+	
+</nav>
+
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>Picking up pennies: Disabling memory profiling</h1>
+                    <h2 class="headline">
+                    January 28, 2017 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p>If you work on a short-lived, allocation heavy program
+and care about a tiny (maybe 0.5%) performance improvement,
+this post is for you.</p>
+
+<p>I was looking at a CPU profile of the <a href="https://golang.org/cmd/compile/">Go compiler</a>
+when I noticed something odd: An entry in <a href="https://github.com/golang/go/blob/go1.8rc3/src/runtime/mprof.go"><code>mprof.go</code></a>.
+<code>mprof.go</code> contains the memory profiling implementation, but I was doing cpu profiling.
+Was there a bug in <a href="https://godoc.org/rsc.io/compilebench">compilebench</a>, perhaps?</p>
+
+<p>Nope. The variable <a href="https://golang.org/pkg/runtime/#pkg-variables"><code>runtime.MemProfileRate</code></a>
+controls the rate at which the runtime samples allocations.
+And its default value is not 0 (disabled), but <code>512 * 1024</code>.</p>
+
+<p>This is a good default.
+One sample per 500k of allocations is not much overhead.
+And when something goes wrong on a server, you want to be able to find out why,
+rather than fussing with profiling settings and then hoping it happens again.</p>
+
+<p>But if you work on a short-lived program, like a compiler,
+when something goes wrong, you probably don&rsquo;t have any mechanism for gathering ad hoc profiles.
+For any given run, you either have profiling enabled or you don&rsquo;t,
+and if something goes wrong, you just enable profiling and try again.</p>
+
+<p>And if your program is allocation-heavy, like the Go compiler,
+there might be enough memory profiling samples collected to absorb some CPU time.
+(As currently implemented, the first sample is particularly expensive,
+as it allocates a pretty large data structure.)</p>
+
+<p>And I&rsquo;m always looking for performance wins in the compiler, even little ones (hoping they add up).
+So I sent a CL to <a href="https://go-review.googlesource.com/c/35916/">disable memory profiling entirely when not explicitly requested</a>.
+The benefits aren&rsquo;t head-turning, but it&rsquo;s a very cheap, low risk 0.5% to put in the bank.
+It&rsquo;ll get reviewed for Go 1.9.</p>
+
+<p>Doing this in your own program requires nothing more than setting
+<code>runtime.MemProfileRate = 0</code> when memory profiling has not been requested.
+But please, think twice first.</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                <a href="https://twitter.com/commaok">
+                        <img class="avatar" src="http://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>Gopher</span>
+                        </div>
+                    </a>
+                <section id="sharing">
+                    <a class="twitter" href="https://twitter.com/intent/tweet?text=http%3a%2f%2fcommaok.xyz%2fpost%2fmemprofilerate%2f - Picking%20up%20pennies%3a%20Disabling%20memory%20profiling by @commaok"><span class="icon-twitter"> Tweet</span></a>
+
+<a class="facebook" href="#" onclick="
+    window.open(
+      'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+      'facebook-share-dialog',
+      'width=626,height=436');
+    return false;"><span class="icon-facebook-rect"> Share</span>
+</a>
+
+                </section>
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+    
+        
+        <li>
+            <a href="http://commaok.xyz/post/memprofilerate/">Picking up pennies: Disabling memory profiling<aside class="dates">Jan 28</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://commaok.xyz/post/compile-time-assertions/">Compile-time assertions in Go<aside class="dates">Jan 24</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://commaok.xyz/post/new-blog/">new(Blog)<aside class="dates">Jan 23</aside></a>
+        </li>
+        
+   
+</ul>
+
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/josharian">
+        <i class="fa fa-github"></i>
+    </a>
+    
+    <a class="symbol" href="https://www.twitter.com/commaok">
+        <i class="fa fa-twitter"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2017 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="http://commaok.xyz/js/main.js"></script>
+<script src="http://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+    </body>
+</html>

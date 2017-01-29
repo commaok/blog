@@ -6,8 +6,53 @@
     <description>Recent content on Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 24 Jan 2017 09:37:05 -0800</lastBuildDate>
+    <lastBuildDate>Sat, 28 Jan 2017 18:06:36 -0800</lastBuildDate>
     <atom:link href="http://commaok.xyz/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Picking up pennies: Disabling memory profiling</title>
+      <link>http://commaok.xyz/post/memprofilerate/</link>
+      <pubDate>Sat, 28 Jan 2017 18:06:36 -0800</pubDate>
+      
+      <guid>http://commaok.xyz/post/memprofilerate/</guid>
+      <description>&lt;p&gt;If you work on a short-lived, allocation heavy program
+and care about a tiny (maybe 0.5%) performance improvement,
+this post is for you.&lt;/p&gt;
+
+&lt;p&gt;I was looking at a CPU profile of the &lt;a href=&#34;https://golang.org/cmd/compile/&#34;&gt;Go compiler&lt;/a&gt;
+when I noticed something odd: An entry in &lt;a href=&#34;https://github.com/golang/go/blob/go1.8rc3/src/runtime/mprof.go&#34;&gt;&lt;code&gt;mprof.go&lt;/code&gt;&lt;/a&gt;.
+&lt;code&gt;mprof.go&lt;/code&gt; contains the memory profiling implementation, but I was doing cpu profiling.
+Was there a bug in &lt;a href=&#34;https://godoc.org/rsc.io/compilebench&#34;&gt;compilebench&lt;/a&gt;, perhaps?&lt;/p&gt;
+
+&lt;p&gt;Nope. The variable &lt;a href=&#34;https://golang.org/pkg/runtime/#pkg-variables&#34;&gt;&lt;code&gt;runtime.MemProfileRate&lt;/code&gt;&lt;/a&gt;
+controls the rate at which the runtime samples allocations.
+And its default value is not 0 (disabled), but &lt;code&gt;512 * 1024&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;This is a good default.
+One sample per 500k of allocations is not much overhead.
+And when something goes wrong on a server, you want to be able to find out why,
+rather than fussing with profiling settings and then hoping it happens again.&lt;/p&gt;
+
+&lt;p&gt;But if you work on a short-lived program, like a compiler,
+when something goes wrong, you probably don&amp;rsquo;t have any mechanism for gathering ad hoc profiles.
+For any given run, you either have profiling enabled or you don&amp;rsquo;t,
+and if something goes wrong, you just enable profiling and try again.&lt;/p&gt;
+
+&lt;p&gt;And if your program is allocation-heavy, like the Go compiler,
+there might be enough memory profiling samples collected to absorb some CPU time.
+(As currently implemented, the first sample is particularly expensive,
+as it allocates a pretty large data structure.)&lt;/p&gt;
+
+&lt;p&gt;And I&amp;rsquo;m always looking for performance wins in the compiler, even little ones (hoping they add up).
+So I sent a CL to &lt;a href=&#34;https://go-review.googlesource.com/c/35916/&#34;&gt;disable memory profiling entirely when not explicitly requested&lt;/a&gt;.
+The benefits aren&amp;rsquo;t head-turning, but it&amp;rsquo;s a very cheap, low risk 0.5% to put in the bank.
+It&amp;rsquo;ll get reviewed for Go 1.9.&lt;/p&gt;
+
+&lt;p&gt;Doing this in your own program requires nothing more than setting
+&lt;code&gt;runtime.MemProfileRate = 0&lt;/code&gt; when memory profiling has not been requested.
+But please, think twice first.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Compile-time assertions in Go</title>
