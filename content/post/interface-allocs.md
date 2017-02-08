@@ -146,7 +146,7 @@ That is:
 var staticbytes [256]byte = {0, 1, 2, 3, 4, 5, ...}
 
 i := uint8(1)
-fmt.Println({int, &staticbytes[i]})
+fmt.Println({uint8, &staticbytes[i]})
 ```
 
 There is a third new optimization proposed that is still under review,

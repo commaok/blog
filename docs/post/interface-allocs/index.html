@@ -232,7 +232,7 @@ That is:</p>
 <pre><code class="language-go">var staticbytes [256]byte = {0, 1, 2, 3, 4, 5, ...}
 
 i := uint8(1)
-fmt.Println({int, &amp;staticbytes[i]})
+fmt.Println({uint8, &amp;staticbytes[i]})
 </code></pre>
 
 <p>There is a third new optimization proposed that is still under review,
