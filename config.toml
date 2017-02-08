@@ -7,7 +7,7 @@ publishDir = "docs"
 [params]
 	name = "Josh Bleecher Snyder"
 	description = "Words about Go"
-	bio = "Gopher"
+	bio = "Gopher for hire"
 	twitter = "commaok"
 	enableRSS = true
 
@@ -21,7 +21,7 @@ publishDir = "docs"
 	readMore = ""
 	copyright = ""
 	# Sharing options and author information in posts
-	aboutAuthor = "Gopher"
+	aboutAuthor = "Gopher for hire"
 	tweet = ""
 	share = ""
 	# 404 page
