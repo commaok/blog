@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.19-DEV" />
+		<meta name="generator" content="Hugo 0.50-DEV" />
 		<title>Logging, interfaces, and allocation &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="http://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="http://commaok.xyz/css/style.css">
@@ -27,22 +27,8 @@ A couple of weeks ago, Peter Bourgon started a thread on golang-dev about standa
 type Logger interface { Log(keyvals ...interface{}) error }  Sample call:
 logger.Log(&quot;transport&quot;, &quot;HTTP&quot;, &quot;addr&quot;, addr, &quot;msg&quot;, &quot;listening&quot;)  Note that everything that goes into a logging call gets converted into an interface." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://commaok.xyz/post/interface-allocs/" />
-
-
-
-<meta property="article:published_time" content="2017-02-06T10:52:40-08:00"/>
+<meta property="og:url" content="http://commaok.xyz/post/interface-allocs/" /><meta property="article:published_time" content="2017-02-06T10:52:40-08:00"/>
 <meta property="article:modified_time" content="2017-02-06T10:52:40-08:00"/>
-
-
-
-
-
-
-
-
-
-
 
 	    
 	    
@@ -53,6 +39,7 @@ type Logger interface { Log(keyvals ...interface{}) error }  Sample call:
 logger.Log(&quot;transport&quot;, &quot;HTTP&quot;, &quot;addr&quot;, addr, &quot;msg&quot;, &quot;listening&quot;)  Note that everything that goes into a logging call gets converted into an interface.">
 
 
+<meta itemprop="datePublished" content="2017-02-06T10:52:40-08:00" />
 <meta itemprop="dateModified" content="2017-02-06T10:52:40-08:00" />
 <meta itemprop="wordCount" content="1023">
 
@@ -60,19 +47,13 @@ logger.Log(&quot;transport&quot;, &quot;HTTP&quot;, &quot;addr&quot;, addr, &quo
 
 <meta itemprop="keywords" content="" />
 
-	    
-
-  <meta name="twitter:card" content="summary"/>
-
-
-
+	    <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Logging, interfaces, and allocation"/>
 <meta name="twitter:description" content="This post is about some new compiler optimizations scheduled for Go 1.9, but I want to start with logging.
 A couple of weeks ago, Peter Bourgon started a thread on golang-dev about standardizing logging. Logging is pervasive, so performance came up quickly. The go-kit log package uses structured logging, centered on this interface:
 type Logger interface { Log(keyvals ...interface{}) error }  Sample call:
 logger.Log(&quot;transport&quot;, &quot;HTTP&quot;, &quot;addr&quot;, addr, &quot;msg&quot;, &quot;listening&quot;)  Note that everything that goes into a logging call gets converted into an interface."/>
 <meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
-
 
 	</head>
 
@@ -354,7 +335,7 @@ Write code for the present, but design APIs for the future.</p>
     
     <p class="small">
     
-        © Copyright 2017 Josh Bleecher Snyder
+        © Copyright 2018 Josh Bleecher Snyder
     
     </p>
 </footer>
