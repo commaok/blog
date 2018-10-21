@@ -3,6 +3,7 @@ title = "Don't Panic"
 baseURL = "http://commaok.xyz/"
 theme = "hugo-cactus-theme"
 publishDir = "docs"
+rssLimit = 10
 
 [params]
 	name = "Josh Bleecher Snyder"
