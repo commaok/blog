@@ -6,10 +6,128 @@
     <description>Recent content in Posts on Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 06 Feb 2017 10:52:40 -0800</lastBuildDate>
+    <lastBuildDate>Thu, 31 Jan 2019 13:53:05 -0800</lastBuildDate>
     
         <atom:link href="http://commaok.xyz/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Benchmarking package initialization</title>
+      <link>http://commaok.xyz/post/benchmark-init/</link>
+      <pubDate>Thu, 31 Jan 2019 13:53:05 -0800</pubDate>
+      
+      <guid>http://commaok.xyz/post/benchmark-init/</guid>
+      <description>&lt;p&gt;Go program execution doesn&amp;rsquo;t start at &lt;code&gt;func main&lt;/code&gt;.
+First is &lt;a href=&#34;https://github.com/golang/go/blob/9473c044f1d492a6ba49ec695042dec4365d70ca/src/runtime/asm_amd64.s#L87&#34;&gt;a bit of bootstrapping&lt;/a&gt;.
+Then the &lt;a href=&#34;https://github.com/golang/go/blob/688667716ede8b133d361db0a1d47eab24ced7f7/src/runtime/proc.go#L518&#34;&gt;runtime gets initialized&lt;/a&gt;.
+Then, package by package, the program initializes global variables and runs &lt;code&gt;init&lt;/code&gt; functions.
+Then it&amp;rsquo;s time for &lt;code&gt;main&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Usually, the startup time for a Go program is negligible,
+and irrelevant compared to its steady state performance.&lt;/p&gt;
+
+&lt;p&gt;For short-lived programs, though, startup performance can matter a lot.
+This is particularly true if &lt;a href=&#34;https://golang.org/issue/29382&#34;&gt;the program is a low level tool that is executed repeatedly by other programs&lt;/a&gt;.
+There has also been &lt;a href=&#34;https://golang.org/issue/26775&#34;&gt;recent interest in optimizing the startup impact of the standard library&lt;/a&gt;.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;So: How do you benchmark and profile program initialization?&lt;/p&gt;
+
+&lt;p&gt;If you are interested in memory allocation, &lt;a href=&#34;https://github.com/bradfitz&#34;&gt;Brad Fitzpatrick&lt;/a&gt; has &lt;a href=&#34;https://play.golang.org/p/9ervXCWzV_z&#34;&gt;a simple solution&lt;/a&gt;. This works because &lt;a href=&#34;https://commaok.xyz/post/memprofilerate/&#34;&gt;memory profiling is on by default&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;But what about execution time?&lt;/p&gt;
+
+&lt;p&gt;One obvious idea is to copy your global variables and init functions into a regular Go benchmark. This is tedious and (like most tedious things) error-prone. It also fails for a more subtle reason: The compiler generates different (slower) code for variable initialization when it occurs inside a function instead of at the top level. This is because the compiler can make fewer assumptions (although as always &lt;a href=&#34;https://golang.org/issue/29573#issuecomment-451596366&#34;&gt;there are ways to improve&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;Another idea is to hack your code to return immediately from &lt;code&gt;main&lt;/code&gt; and then use &lt;a href=&#34;https://github.com/aclements/go-misc/blob/master/benchcmd/main.go&#34;&gt;&lt;code&gt;benchcmd&lt;/code&gt;&lt;/a&gt; to benchmark and &lt;a href=&#34;https://en.wikipedia.org/wiki/Perf_%28Linux%29&#34;&gt;&lt;code&gt;perf&lt;/code&gt;&lt;/a&gt; to profile. This works on Linux, although it’d be nicer to have an option that uses standard Go tooling. Also, because initialization is generally fast, you need to do a bunch of runs to gather data, and the exec and profiler tool overhead can be considerable. (I tried using macOS’s &lt;code&gt;instruments&lt;/code&gt; for profiling the &lt;code&gt;go&lt;/code&gt; tool&amp;rsquo;s startup and found that—in addition to being generally useless—it added &lt;em&gt;300x&lt;/em&gt; overhead per run!)&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Instead, let’s &lt;a href=&#34;https://golang.org/doc/go1compat&#34;&gt;void the warranty&lt;/a&gt;!&lt;/p&gt;
+
+&lt;p&gt;Here’s &lt;a href=&#34;https://github.com/golang/go/blob/faf187fb8e2ca074711ed254c72ffbaed4383c64/src/cmd/compile/internal/gc/init.go#L58&#34;&gt;how the compiler implements package initialization&lt;/a&gt;, at least as of Go 1.12. For each package, it generates code like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;var initdone· uint8
+
+func init() {
+	if initdone· &amp;gt; 1 {
+		return
+	}
+	if initdone· == 1 {
+		throw()
+	}
+	initdone· = 1
+	// for all imported packages {
+		pkg.init()
+	// }
+	init.ializers()
+	
+	init.&amp;lt;n&amp;gt;() // call user init functions, if any
+	initdone· = 2
+	return
+}
+
+func init.ializers() {                          (0)
+	{ &amp;lt;init global variables for this package&amp;gt; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This &lt;code&gt;init&lt;/code&gt; takes the place of any &lt;code&gt;init&lt;/code&gt; functions in the package; those are renamed &lt;code&gt;init.0&lt;/code&gt;, &lt;code&gt;init.1&lt;/code&gt;, and so on.&lt;/p&gt;
+
+&lt;p&gt;If we could reset &lt;code&gt;initdone·&lt;/code&gt; to 0 and then call this &lt;code&gt;init&lt;/code&gt; function, then we’d be (re-)executing the exact code that gets executed during package initialization.&lt;/p&gt;
+
+&lt;p&gt;We can do that! We&amp;rsquo;ll use &lt;a href=&#34;https://github.com/golang/go/blob/5efe9a8f11c81116f102f56c49a9415fd992c038/src/cmd/compile/doc.go#L168&#34;&gt;&lt;code&gt;//go:linkname&lt;/code&gt;&lt;/a&gt; to get access.&lt;/p&gt;
+
+&lt;p&gt;Here&amp;rsquo;s an example, benchmarking &lt;code&gt;net/http&lt;/code&gt; package initialization:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package p_test
+
+import (
+	_ &amp;quot;net/http&amp;quot; // must import net/http, so that net/http.init actually ends up in the executable
+	&amp;quot;testing&amp;quot;
+	_ &amp;quot;unsafe&amp;quot; // must import unsafe to use go:linkname
+)
+
+//go:linkname _initdone net/http.initdone·
+var _initdone uint8
+
+//go:linkname _init net/http.init
+func _init()
+
+func BenchmarkNetHTTPInit(b *testing.B) {
+	for i := 0; i &amp;lt; b.N; i++ {
+		_initdone = 0
+		_init()
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And voila! A regular old Go benchmark that does just what we want.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Mostly. There are a few gotchas, above and beyond merely being a terrible idea.&lt;/p&gt;
+
+&lt;p&gt;First, if you do non-idempotent work in one of your &lt;code&gt;init&lt;/code&gt; functions, things could get wonky. We did just void the warranty, after all. And I don’t know what might happen if you re-initialize package runtime or testing or something else low level while running a benchmark. Almost certainly something bad.&lt;/p&gt;
+
+&lt;p&gt;Second, as written, this only measures the initialization of &lt;code&gt;net/http&lt;/code&gt; and &lt;em&gt;not any of its dependencies&lt;/em&gt;. This might or might not be want you want. You can work around this by using more &lt;code&gt;//go:linkname&lt;/code&gt; to reset &lt;code&gt;initdone·&lt;/code&gt; to 0 for all dependencies. Then, as you can see from the compiler pseudocode, a single call to &lt;code&gt;_init&lt;/code&gt; will re-initialize those packages as well.&lt;/p&gt;
+
+&lt;p&gt;Third, using &lt;code&gt;//go:linkname&lt;/code&gt; requires that the symbol we are linkname-ing to must actually be in the executable. The easiest way to do this is to import the package in question. If you are working with an internal package, that means you might need to put this code somewhere with sufficient visibility for that import to work.&lt;/p&gt;
+
+&lt;p&gt;Fourth, line number support for autogenerated code isn&amp;rsquo;t all that fabulous. If you encounter frustrating pprof output while doing this, consider &lt;a href=&#34;https://golang.org/issue/new&#34;&gt;filing bugs&lt;/a&gt;.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Now that you can benchmark, what do you do if you find a bottleneck you want to fix? Mostly, lazily initialize things instead, usually using &lt;a href=&#34;https://golang.org/pkg/sync/#Once&#34;&gt;&lt;code&gt;sync.Once&lt;/code&gt;&lt;/a&gt;, which is fast and hopefully &lt;a href=&#34;https://golang.org/cl/152697&#34;&gt;will be faster still in Go 1.13&lt;/a&gt;.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Thanks to &lt;a href=&#34;https://github.com/mvdan&#34;&gt;Daniel Martí&lt;/a&gt; for posing this question and for reading an early draft of this blog post.&lt;/p&gt;
+
+&lt;p&gt;Daniel has also created a tool based on this blog post, &lt;a href=&#34;https://github.com/mvdan/benchinit&#34;&gt;benchinit&lt;/a&gt;, so that you can &lt;a href=&#34;https://github.com/golang/go/issues/19348#issuecomment-309446070&#34;&gt;break your programs&lt;/a&gt; this way with even less effort.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Logging, interfaces, and allocation</title>

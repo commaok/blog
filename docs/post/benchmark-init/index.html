@@ -1,0 +1,298 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go">
+		<meta name="generator" content="Hugo 0.54-DEV" />
+		<title>Benchmarking package initialization &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="http://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="http://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="http://commaok.xyz/css/highlight.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="http://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="Benchmarking package initialization" />
+<meta property="og:description" content="Go program execution doesn&rsquo;t start at func main. First is a bit of bootstrapping. Then the runtime gets initialized. Then, package by package, the program initializes global variables and runs init functions. Then it&rsquo;s time for main.
+Usually, the startup time for a Go program is negligible, and irrelevant compared to its steady state performance.
+For short-lived programs, though, startup performance can matter a lot. This is particularly true if the program is a low level tool that is executed repeatedly by other programs." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://commaok.xyz/post/benchmark-init/" />
+<meta property="article:published_time" content="2019-01-31T13:53:05-08:00"/>
+<meta property="article:modified_time" content="2019-01-31T13:53:05-08:00"/>
+
+	    
+	    
+<meta itemprop="name" content="Benchmarking package initialization">
+<meta itemprop="description" content="Go program execution doesn&rsquo;t start at func main. First is a bit of bootstrapping. Then the runtime gets initialized. Then, package by package, the program initializes global variables and runs init functions. Then it&rsquo;s time for main.
+Usually, the startup time for a Go program is negligible, and irrelevant compared to its steady state performance.
+For short-lived programs, though, startup performance can matter a lot. This is particularly true if the program is a low level tool that is executed repeatedly by other programs.">
+
+
+<meta itemprop="datePublished" content="2019-01-31T13:53:05-08:00" />
+<meta itemprop="dateModified" content="2019-01-31T13:53:05-08:00" />
+<meta itemprop="wordCount" content="804">
+
+
+
+<meta itemprop="keywords" content="" />
+
+	    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Benchmarking package initialization"/>
+<meta name="twitter:description" content="Go program execution doesn&rsquo;t start at func main. First is a bit of bootstrapping. Then the runtime gets initialized. Then, package by package, the program initializes global variables and runs init functions. Then it&rsquo;s time for main.
+Usually, the startup time for a Go program is negligible, and irrelevant compared to its steady state performance.
+For short-lived programs, though, startup performance can matter a lot. This is particularly true if the program is a low level tool that is executed repeatedly by other programs."/>
+<meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='http://commaok.xyz/'> <span class="arrow">←</span>Home</a>
+	
+
+	
+	<a class="cta" href="http://commaok.xyz/index.xml">Subscribe</a>
+	
+</nav>
+
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>Benchmarking package initialization</h1>
+                    <h2 class="headline">
+                    January 31, 2019 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p>Go program execution doesn&rsquo;t start at <code>func main</code>.
+First is <a href="https://github.com/golang/go/blob/9473c044f1d492a6ba49ec695042dec4365d70ca/src/runtime/asm_amd64.s#L87">a bit of bootstrapping</a>.
+Then the <a href="https://github.com/golang/go/blob/688667716ede8b133d361db0a1d47eab24ced7f7/src/runtime/proc.go#L518">runtime gets initialized</a>.
+Then, package by package, the program initializes global variables and runs <code>init</code> functions.
+Then it&rsquo;s time for <code>main</code>.</p>
+
+<p>Usually, the startup time for a Go program is negligible,
+and irrelevant compared to its steady state performance.</p>
+
+<p>For short-lived programs, though, startup performance can matter a lot.
+This is particularly true if <a href="https://golang.org/issue/29382">the program is a low level tool that is executed repeatedly by other programs</a>.
+There has also been <a href="https://golang.org/issue/26775">recent interest in optimizing the startup impact of the standard library</a>.</p>
+
+<hr />
+
+<p>So: How do you benchmark and profile program initialization?</p>
+
+<p>If you are interested in memory allocation, <a href="https://github.com/bradfitz">Brad Fitzpatrick</a> has <a href="https://play.golang.org/p/9ervXCWzV_z">a simple solution</a>. This works because <a href="https://commaok.xyz/post/memprofilerate/">memory profiling is on by default</a>.</p>
+
+<p>But what about execution time?</p>
+
+<p>One obvious idea is to copy your global variables and init functions into a regular Go benchmark. This is tedious and (like most tedious things) error-prone. It also fails for a more subtle reason: The compiler generates different (slower) code for variable initialization when it occurs inside a function instead of at the top level. This is because the compiler can make fewer assumptions (although as always <a href="https://golang.org/issue/29573#issuecomment-451596366">there are ways to improve</a>).</p>
+
+<p>Another idea is to hack your code to return immediately from <code>main</code> and then use <a href="https://github.com/aclements/go-misc/blob/master/benchcmd/main.go"><code>benchcmd</code></a> to benchmark and <a href="https://en.wikipedia.org/wiki/Perf_%28Linux%29"><code>perf</code></a> to profile. This works on Linux, although it’d be nicer to have an option that uses standard Go tooling. Also, because initialization is generally fast, you need to do a bunch of runs to gather data, and the exec and profiler tool overhead can be considerable. (I tried using macOS’s <code>instruments</code> for profiling the <code>go</code> tool&rsquo;s startup and found that—in addition to being generally useless—it added <em>300x</em> overhead per run!)</p>
+
+<hr />
+
+<p>Instead, let’s <a href="https://golang.org/doc/go1compat">void the warranty</a>!</p>
+
+<p>Here’s <a href="https://github.com/golang/go/blob/faf187fb8e2ca074711ed254c72ffbaed4383c64/src/cmd/compile/internal/gc/init.go#L58">how the compiler implements package initialization</a>, at least as of Go 1.12. For each package, it generates code like:</p>
+
+<pre><code class="language-go">var initdone· uint8
+
+func init() {
+	if initdone· &gt; 1 {
+		return
+	}
+	if initdone· == 1 {
+		throw()
+	}
+	initdone· = 1
+	// for all imported packages {
+		pkg.init()
+	// }
+	init.ializers()
+	
+	init.&lt;n&gt;() // call user init functions, if any
+	initdone· = 2
+	return
+}
+
+func init.ializers() {                          (0)
+	{ &lt;init global variables for this package&gt; }
+}
+</code></pre>
+
+<p>This <code>init</code> takes the place of any <code>init</code> functions in the package; those are renamed <code>init.0</code>, <code>init.1</code>, and so on.</p>
+
+<p>If we could reset <code>initdone·</code> to 0 and then call this <code>init</code> function, then we’d be (re-)executing the exact code that gets executed during package initialization.</p>
+
+<p>We can do that! We&rsquo;ll use <a href="https://github.com/golang/go/blob/5efe9a8f11c81116f102f56c49a9415fd992c038/src/cmd/compile/doc.go#L168"><code>//go:linkname</code></a> to get access.</p>
+
+<p>Here&rsquo;s an example, benchmarking <code>net/http</code> package initialization:</p>
+
+<pre><code class="language-go">package p_test
+
+import (
+	_ &quot;net/http&quot; // must import net/http, so that net/http.init actually ends up in the executable
+	&quot;testing&quot;
+	_ &quot;unsafe&quot; // must import unsafe to use go:linkname
+)
+
+//go:linkname _initdone net/http.initdone·
+var _initdone uint8
+
+//go:linkname _init net/http.init
+func _init()
+
+func BenchmarkNetHTTPInit(b *testing.B) {
+	for i := 0; i &lt; b.N; i++ {
+		_initdone = 0
+		_init()
+	}
+}
+</code></pre>
+
+<p>And voila! A regular old Go benchmark that does just what we want.</p>
+
+<hr />
+
+<p>Mostly. There are a few gotchas, above and beyond merely being a terrible idea.</p>
+
+<p>First, if you do non-idempotent work in one of your <code>init</code> functions, things could get wonky. We did just void the warranty, after all. And I don’t know what might happen if you re-initialize package runtime or testing or something else low level while running a benchmark. Almost certainly something bad.</p>
+
+<p>Second, as written, this only measures the initialization of <code>net/http</code> and <em>not any of its dependencies</em>. This might or might not be want you want. You can work around this by using more <code>//go:linkname</code> to reset <code>initdone·</code> to 0 for all dependencies. Then, as you can see from the compiler pseudocode, a single call to <code>_init</code> will re-initialize those packages as well.</p>
+
+<p>Third, using <code>//go:linkname</code> requires that the symbol we are linkname-ing to must actually be in the executable. The easiest way to do this is to import the package in question. If you are working with an internal package, that means you might need to put this code somewhere with sufficient visibility for that import to work.</p>
+
+<p>Fourth, line number support for autogenerated code isn&rsquo;t all that fabulous. If you encounter frustrating pprof output while doing this, consider <a href="https://golang.org/issue/new">filing bugs</a>.</p>
+
+<hr />
+
+<p>Now that you can benchmark, what do you do if you find a bottleneck you want to fix? Mostly, lazily initialize things instead, usually using <a href="https://golang.org/pkg/sync/#Once"><code>sync.Once</code></a>, which is fast and hopefully <a href="https://golang.org/cl/152697">will be faster still in Go 1.13</a>.</p>
+
+<hr />
+
+<p>Thanks to <a href="https://github.com/mvdan">Daniel Martí</a> for posing this question and for reading an early draft of this blog post.</p>
+
+<p>Daniel has also created a tool based on this blog post, <a href="https://github.com/mvdan/benchinit">benchinit</a>, so that you can <a href="https://github.com/golang/go/issues/19348#issuecomment-309446070">break your programs</a> this way with even less effort.</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                <a href="https://twitter.com/commaok">
+                        <img class="avatar" src="http://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>Gopher for hire</span>
+                        </div>
+                    </a>
+                <section id="sharing">
+                    <a class="twitter" href="https://twitter.com/intent/tweet?text=http%3a%2f%2fcommaok.xyz%2fpost%2fbenchmark-init%2f - Benchmarking%20package%20initialization by @commaok"><span class="icon-twitter"> Tweet</span></a>
+
+<a class="facebook" href="#" onclick="
+    window.open(
+      'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+      'facebook-share-dialog',
+      'width=626,height=436');
+    return false;"><span class="icon-facebook-rect"> Share</span>
+</a>
+
+                </section>
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+    
+        
+        <li>
+            <a href="http://commaok.xyz/post/benchmark-init/">Benchmarking package initialization<aside class="dates">Jan 31</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://commaok.xyz/post/interface-allocs/">Logging, interfaces, and allocation<aside class="dates">Feb 6</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://commaok.xyz/post/memprofilerate/">Picking up pennies: Disabling memory profiling<aside class="dates">Jan 28</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://commaok.xyz/post/compile-time-assertions/">Compile-time assertions in Go<aside class="dates">Jan 24</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://commaok.xyz/post/new-blog/">new(Blog)<aside class="dates">Jan 23</aside></a>
+        </li>
+        
+   
+</ul>
+
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/josharian">
+        <i class="fa fa-github"></i>
+    </a>
+    
+    <a class="symbol" href="https://www.twitter.com/commaok">
+        <i class="fa fa-twitter"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2019 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="http://commaok.xyz/js/main.js"></script>
+<script src="http://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+    </body>
+</html>
