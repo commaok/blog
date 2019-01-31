@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.50-DEV" />
+		<meta name="generator" content="Hugo 0.54-DEV" />
 		<title>Logging, interfaces, and allocation &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="http://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="http://commaok.xyz/css/style.css">
@@ -27,7 +27,8 @@ A couple of weeks ago, Peter Bourgon started a thread on golang-dev about standa
 type Logger interface { Log(keyvals ...interface{}) error }  Sample call:
 logger.Log(&quot;transport&quot;, &quot;HTTP&quot;, &quot;addr&quot;, addr, &quot;msg&quot;, &quot;listening&quot;)  Note that everything that goes into a logging call gets converted into an interface." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://commaok.xyz/post/interface-allocs/" /><meta property="article:published_time" content="2017-02-06T10:52:40-08:00"/>
+<meta property="og:url" content="http://commaok.xyz/post/interface-allocs/" />
+<meta property="article:published_time" content="2017-02-06T10:52:40-08:00"/>
 <meta property="article:modified_time" content="2017-02-06T10:52:40-08:00"/>
 
 	    
@@ -335,7 +336,7 @@ Write code for the present, but design APIs for the future.</p>
     
     <p class="small">
     
-        © Copyright 2018 Josh Bleecher Snyder
+        © Copyright 2019 Josh Bleecher Snyder
     
     </p>
 </footer>
