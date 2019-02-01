@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Don&#39;t Panic</title>
-    <link>http://commaok.xyz/post/</link>
+    <link>https://commaok.xyz/post/</link>
     <description>Recent content in Posts on Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 31 Jan 2019 13:53:05 -0800</lastBuildDate>
     
-        <atom:link href="http://commaok.xyz/post/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="https://commaok.xyz/post/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Benchmarking package initialization</title>
-      <link>http://commaok.xyz/post/benchmark-init/</link>
+      <link>https://commaok.xyz/post/benchmark-init/</link>
       <pubDate>Thu, 31 Jan 2019 13:53:05 -0800</pubDate>
       
-      <guid>http://commaok.xyz/post/benchmark-init/</guid>
+      <guid>https://commaok.xyz/post/benchmark-init/</guid>
       <description>&lt;p&gt;Go program execution doesn&amp;rsquo;t start at &lt;code&gt;func main&lt;/code&gt;.
 First is &lt;a href=&#34;https://github.com/golang/go/blob/9473c044f1d492a6ba49ec695042dec4365d70ca/src/runtime/asm_amd64.s#L87&#34;&gt;a bit of bootstrapping&lt;/a&gt;.
 Then the &lt;a href=&#34;https://github.com/golang/go/blob/688667716ede8b133d361db0a1d47eab24ced7f7/src/runtime/proc.go#L518&#34;&gt;runtime gets initialized&lt;/a&gt;.
@@ -131,10 +131,10 @@ func BenchmarkNetHTTPInit(b *testing.B) {
     
     <item>
       <title>Logging, interfaces, and allocation</title>
-      <link>http://commaok.xyz/post/interface-allocs/</link>
+      <link>https://commaok.xyz/post/interface-allocs/</link>
       <pubDate>Mon, 06 Feb 2017 10:52:40 -0800</pubDate>
       
-      <guid>http://commaok.xyz/post/interface-allocs/</guid>
+      <guid>https://commaok.xyz/post/interface-allocs/</guid>
       <description>&lt;p&gt;This post is about some new compiler optimizations scheduled for Go 1.9,
 but I want to start with logging.&lt;/p&gt;
 
@@ -311,10 +311,10 @@ Write code for the present, but design APIs for the future.&lt;/p&gt;
     
     <item>
       <title>Picking up pennies: Disabling memory profiling</title>
-      <link>http://commaok.xyz/post/memprofilerate/</link>
+      <link>https://commaok.xyz/post/memprofilerate/</link>
       <pubDate>Sat, 28 Jan 2017 18:06:36 -0800</pubDate>
       
-      <guid>http://commaok.xyz/post/memprofilerate/</guid>
+      <guid>https://commaok.xyz/post/memprofilerate/</guid>
       <description>&lt;p&gt;If you work on a short-lived, allocation heavy program
 and care about a tiny (maybe 0.5%) performance improvement,
 this post is for you.&lt;/p&gt;
@@ -356,10 +356,10 @@ But please, think twice first.&lt;/p&gt;
     
     <item>
       <title>Compile-time assertions in Go</title>
-      <link>http://commaok.xyz/post/compile-time-assertions/</link>
+      <link>https://commaok.xyz/post/compile-time-assertions/</link>
       <pubDate>Tue, 24 Jan 2017 09:37:05 -0800</pubDate>
       
-      <guid>http://commaok.xyz/post/compile-time-assertions/</guid>
+      <guid>https://commaok.xyz/post/compile-time-assertions/</guid>
       <description>&lt;p&gt;This post is about a little-known way to make compile-time assertions in Go.
 You probably shouldn&amp;rsquo;t use it, but it is interesting to know about.&lt;/p&gt;
 
@@ -506,10 +506,10 @@ but no one has bothered.&lt;/p&gt;
     
     <item>
       <title>new(Blog)</title>
-      <link>http://commaok.xyz/post/new-blog/</link>
+      <link>https://commaok.xyz/post/new-blog/</link>
       <pubDate>Mon, 23 Jan 2017 15:19:05 -0800</pubDate>
       
-      <guid>http://commaok.xyz/post/new-blog/</guid>
+      <guid>https://commaok.xyz/post/new-blog/</guid>
       <description>&lt;p&gt;I&amp;rsquo;m going to try this blogging thing again.&lt;/p&gt;
 
 &lt;p&gt;I&amp;rsquo;ve failed at it a few times before.

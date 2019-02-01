@@ -1,6 +1,6 @@
 languageCode = "en-us"
 title = "Don't Panic"
-baseURL = "http://commaok.xyz/"
+baseURL = "https://commaok.xyz/"
 theme = "hugo-cactus-theme"
 publishDir = "docs"
 rssLimit = 10
