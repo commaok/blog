@@ -51,7 +51,7 @@ As we all know, however, there is much more to a language's ecosystem than the e
 There is culture. There is infrastructure, like conferences and training. There is tooling. There is trust.
 There is an aesthetic. (Ian Lance Taylor's takeaway from the history of C++: "A new version may have a very different feel while remaining backward compatible.")
 
-And then there is a [giant, sprawling, chaotic mess of documentation](https://twitter.com/KrauseFx/status/1082392011229937664),
+And then there is a giant, sprawling, chaotic mess of documentation,
 ranging from official docs to blog posts to Stack Overflow to mailing list archives and beyond.
 
 This organic documentary hodgepodge is invaluable.

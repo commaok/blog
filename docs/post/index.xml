@@ -72,7 +72,7 @@ about &amp;ldquo;how to make incompatible changes from Go 1 to Go 2 while breaki
 There is culture. There is infrastructure, like conferences and training. There is tooling. There is trust.
 There is an aesthetic. (Ian Lance Taylor&amp;rsquo;s takeaway from the history of C++: &amp;ldquo;A new version may have a very different feel while remaining backward compatible.&amp;rdquo;)&lt;/p&gt;
 
-&lt;p&gt;And then there is a &lt;a href=&#34;https://twitter.com/KrauseFx/status/1082392011229937664&#34;&gt;giant, sprawling, chaotic mess of documentation&lt;/a&gt;,
+&lt;p&gt;And then there is a giant, sprawling, chaotic mess of documentation,
 ranging from official docs to blog posts to Stack Overflow to mailing list archives and beyond.&lt;/p&gt;
 
 &lt;p&gt;This organic documentary hodgepodge is invaluable.
