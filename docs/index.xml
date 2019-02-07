@@ -6,10 +6,101 @@
     <description>Recent content on Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 31 Jan 2019 13:53:05 -0800</lastBuildDate>
+    <lastBuildDate>Wed, 06 Feb 2019 16:05:13 -0800</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Compatibility: Not just about code</title>
+      <link>https://commaok.xyz/post/compatibility/</link>
+      <pubDate>Wed, 06 Feb 2019 16:05:13 -0800</pubDate>
+      
+      <guid>https://commaok.xyz/post/compatibility/</guid>
+      <description>&lt;p&gt;The &lt;a href=&#34;https://golang.org/doc/go1compat&#34;&gt;Go 1 compatibility promise&lt;/a&gt;
+was designed to ensure &amp;ldquo;that Go 1 will be a firm foundation
+for the development of Go and its ecosystem.&amp;rdquo;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://blog.golang.org/go2-here-we-come&#34;&gt;Go 2 is coming.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/ianlancetaylor&#34;&gt;Ian Lance Taylor&lt;/a&gt; has written a
+masterful, thoroughly researched
+&lt;a href=&#34;https://github.com/golang/proposal/blob/master/design/28221-go2-transitions.md&#34;&gt;design document&lt;/a&gt;
+about &amp;ldquo;how to make incompatible changes from Go 1 to Go 2 while breaking as little as possible&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Interestingly, both documents are clearly geared towards code and APIs.&lt;/p&gt;
+
+&lt;p&gt;A few examples from the Go 1 compatibility promise (emphasis added):&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;It is intended that &lt;em&gt;programs&lt;/em&gt; written to the Go 1 specification will continue to &lt;em&gt;compile and run correctly, unchanged&lt;/em&gt;, over the lifetime of that specification.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;!-- --&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Compatibility is &lt;em&gt;at the source level&lt;/em&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;!-- --&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Of course, for all of these possibilities, should they arise, we would endeavor whenever feasible to update the specification, compilers, or libraries &lt;em&gt;without affecting existing code&lt;/em&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;And from the Go 2 transitions proposal (emphasis added):&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;A key feature of these options is that &lt;em&gt;code compiled&lt;/em&gt; at different language/library versions can in general all be linked together and work as expected.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;!-- --&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;While we can provide tooling to &lt;em&gt;convert pre-1.20 code into working 1.20 code&lt;/em&gt;, we can&amp;rsquo;t force package authors to run those tools.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;!-- --&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;This can be used to take incremental steps toward new language versions, and to make it easier to &lt;em&gt;share the same code&lt;/em&gt; among different language versions.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;As we all know, however, there is much more to a language&amp;rsquo;s ecosystem than the extant body of code.
+There is culture. There is infrastructure, like conferences and training. There is tooling. There is trust.
+There is an aesthetic. (Ian Lance Taylor&amp;rsquo;s takeaway from the history of C++: &amp;ldquo;A new version may have a very different feel while remaining backward compatible.&amp;rdquo;)&lt;/p&gt;
+
+&lt;p&gt;And then there is a &lt;a href=&#34;https://twitter.com/KrauseFx/status/1082392011229937664&#34;&gt;giant, sprawling, chaotic mess of documentation&lt;/a&gt;,
+ranging from official docs to blog posts to Stack Overflow to mailing list archives and beyond.&lt;/p&gt;
+
+&lt;p&gt;This organic documentary hodgepodge is invaluable.
+With the help of search engines, it ensures that most questions
+will have multiple answers written in different ways, at different levels, by different authors.
+This is a great boon, particularly to newcomers to a language.&lt;/p&gt;
+
+&lt;p&gt;A year ago or so, I needed to write something in Swift. The single biggest pain point by far
+was that when I searched for examples and discussion, I found answers written
+for Swift 2, Swift 3, and Swift 4. I ended up having to simultaneously learn three dialects
+of Swift and how to translate between them. This situation also commonly arises with popular libraries.&lt;/p&gt;
+
+&lt;p&gt;My code was brand new, so I didn&amp;rsquo;t care that the language had changed in incompatible ways.
+But it sure did break the documentation ecosystem in a deep way.
+And docs, unlike code, are impossible to &lt;a href=&#34;https://blog.golang.org/introducing-gofix&#34;&gt;go fix&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Of course, docs do go stale even when there is backwards compatibility. For example, strings.Builder
+made some old performance advice obsolete. But such breakage is relatively localized, easy to repair gradually,
+and not particularly damaging to people who find it instead of up-to-date docs.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://github.com/golang/go/issues/20706&#34;&gt;tentatively&lt;/a&gt; &lt;a href=&#34;https://github.com/golang/go/issues/19308&#34;&gt;accepted&lt;/a&gt;
+&lt;a href=&#34;https://github.com/golang/go/issues/28493&#34;&gt;Go 2&lt;/a&gt; &lt;a href=&#34;https://github.com/golang/go/issues/19113&#34;&gt;changes&lt;/a&gt;
+look unlikely to break much documentation,
+and the discussion so far on the &lt;a href=&#34;https://github.com/golang/go/labels/Go2&#34;&gt;many Go 2 proposals&lt;/a&gt; give no particular reason for concern.
+Nevertheless, as we all ponder Go 2, it&amp;rsquo;s probably worth explicitly thinking about
+compatibility in terms much broader than working code.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Benchmarking package initialization</title>
