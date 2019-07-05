@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.54-DEV" />
+		<meta name="generator" content="Hugo 0.56.0-DEV" />
 		<title>Logging, interfaces, and allocation &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
@@ -28,12 +28,11 @@ type Logger interface { Log(keyvals ...interface{}) error }  Sample call:
 logger.Log(&quot;transport&quot;, &quot;HTTP&quot;, &quot;addr&quot;, addr, &quot;msg&quot;, &quot;listening&quot;)  Note that everything that goes into a logging call gets converted into an interface." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://commaok.xyz/post/interface-allocs/" />
-<meta property="article:published_time" content="2017-02-06T10:52:40-08:00"/>
-<meta property="article:modified_time" content="2017-02-06T10:52:40-08:00"/>
+<meta property="article:published_time" content="2017-02-06T10:52:40-08:00" />
+<meta property="article:modified_time" content="2017-02-06T10:52:40-08:00" />
 
 	    
-	    
-<meta itemprop="name" content="Logging, interfaces, and allocation">
+	    <meta itemprop="name" content="Logging, interfaces, and allocation">
 <meta itemprop="description" content="This post is about some new compiler optimizations scheduled for Go 1.9, but I want to start with logging.
 A couple of weeks ago, Peter Bourgon started a thread on golang-dev about standardizing logging. Logging is pervasive, so performance came up quickly. The go-kit log package uses structured logging, centered on this interface:
 type Logger interface { Log(keyvals ...interface{}) error }  Sample call:
@@ -285,6 +284,13 @@ Write code for the present, but design APIs for the future.</p>
 
     
     
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/report-metric/">testing.B.ReportMetric<aside class="dates">Jul 3</aside></a>
+        </li>
+        
+   
     
         
         <li>

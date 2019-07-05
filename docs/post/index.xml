@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Don&#39;t Panic</title>
@@ -6,10 +5,154 @@
     <description>Recent content in Posts on Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 06 Feb 2019 16:05:13 -0800</lastBuildDate>
+    <lastBuildDate>Wed, 03 Jul 2019 18:07:05 -0800</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>testing.B.ReportMetric</title>
+      <link>https://commaok.xyz/post/report-metric/</link>
+      <pubDate>Wed, 03 Jul 2019 18:07:05 -0800</pubDate>
+      
+      <guid>https://commaok.xyz/post/report-metric/</guid>
+      <description>&lt;p&gt;My favorite new API in Go 1.13 is &lt;a href=&#34;https://tip.golang.org/pkg/testing/#B.ReportMetric&#34;&gt;&lt;code&gt;testing.B.ReportMetric&lt;/code&gt;&lt;/a&gt;. It allows you to report custom metrics from within your benchmarks.&lt;/p&gt;
+
+&lt;p&gt;When the API was &lt;a href=&#34;https://github.com/golang/go/issues/26037&#34;&gt;proposed&lt;/a&gt;, the motivating example was &lt;code&gt;package sort&lt;/code&gt;. The &lt;code&gt;package sort&lt;/code&gt; benchmarks, like all benchmarks, measure elapsed wall time and (optionally) allocations. But wall time measurements can be noisy, and the sort routines don&amp;rsquo;t allocate much. There is another really useful algorithm-level metric for a sorting routine: How many comparisons does it perform?&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s use our new to API find out. Here&amp;rsquo;s a simple sort benchmark.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package demo
+
+import (
+	&amp;quot;sort&amp;quot;
+	&amp;quot;testing&amp;quot;
+)
+
+func BenchmarkSort(b *testing.B) {
+	data := make([]int, 1&amp;lt;&amp;lt;10)
+	b.ResetTimer() // ignore big allocation
+	for i := 0; i &amp;lt; b.N; i++ {
+		for i := range data {
+			data[i] = i ^ 0x2cc
+		}
+		b.StartTimer()
+		sort.Slice(data, func(i, j int) bool {
+			return data[i] &amp;lt; data[j]
+		})
+		b.StopTimer()
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(Aside: Some of the sort benchmarks in the standard library allocate inside the loop. Oops. Carefully fixing this might make a nice first contribution for someone wanting to try their hand at the Go standard library.)&lt;/p&gt;
+
+&lt;p&gt;On my machine, executing this looks like:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ go test -bench=. -count=5
+goos: darwin
+goarch: amd64
+pkg: github.com/commaok/blog/content/post
+BenchmarkSort-8   	   19536	     60568 ns/op
+BenchmarkSort-8   	   19666	     60592 ns/op
+BenchmarkSort-8   	   19569	     60674 ns/op
+BenchmarkSort-8   	   19724	     61363 ns/op
+BenchmarkSort-8   	   19705	     60792 ns/op
+PASS
+ok  	github.com/commaok/blog/content/post	11.772s
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If the number of iterations looks funny to you, it&amp;rsquo;s because you are used to seeing round numbers there. That also &lt;a href=&#34;https://golang.org/cl/112155/&#34;&gt;changed in Go 1.13&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Now let&amp;rsquo;s use the new &lt;code&gt;testing.B.ReportMetric&lt;/code&gt; API to report the number of comparisons. To do this, we need to count the number of comparisons. Then we&amp;rsquo;ll divide by &lt;code&gt;b.N&lt;/code&gt;. The reason we must do the division ourselves is to allow metrics that aren&amp;rsquo;t naturally represented as per-op counts, such as ratios or percentiles.&lt;/p&gt;
+
+&lt;p&gt;Here&amp;rsquo;s the updated code, with added lines marked:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;func BenchmarkSort(b *testing.B) {
+	var cmps int64 // &amp;lt;--------
+	data := make([]int, 1&amp;lt;&amp;lt;10)
+	b.ResetTimer() // remove allocation
+	for i := 0; i &amp;lt; b.N; i++ {
+		for i := range data {
+			data[i] = i ^ 0x2cc
+		}
+		b.StartTimer()
+		sort.Slice(data, func(i, j int) bool {
+			cmps++ // &amp;lt;--------
+			return data[i] &amp;lt; data[j]
+		})
+		b.StopTimer()
+	}
+	b.ReportMetric(float64(cmps)/float64(b.N), &amp;quot;cmps/op&amp;quot;) // &amp;lt;--------
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Running this yields:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ go test -bench=. -count=5
+goos: darwin
+goarch: amd64
+pkg: github.com/commaok/blog/content/post
+BenchmarkSort-8   	   18523	     69874 ns/op	     10091 cmps/op
+BenchmarkSort-8   	   18654	     64621 ns/op	     10091 cmps/op
+BenchmarkSort-8   	   18657	     64589 ns/op	     10091 cmps/op
+BenchmarkSort-8   	   18774	     64367 ns/op	     10091 cmps/op
+BenchmarkSort-8   	   18704	     64408 ns/op	     10091 cmps/op
+PASS
+ok  	github.com/commaok/blog/content/post	12.062s
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that the number of comparisons is stable. This is a wonderful property when benchmarking. It means you can run your benchmarks a small number of times, without quitting your browser or trying to disable thermal scaling or worrying about how your laptop CPU may be different from your production CPUs.&lt;/p&gt;
+
+&lt;p&gt;Now let&amp;rsquo;s reach into the standard library and tweak something! There&amp;rsquo;s a function called &lt;a href=&#34;https://golang.org/src/sort/sort.go?s=5609:5622#L223&#34;&gt;&lt;code&gt;maxDepth&lt;/code&gt; inside &lt;code&gt;package sort&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;// maxDepth returns a threshold at which quicksort should switch
+// to heapsort. It returns 2*ceil(lg(n+1)).
+func maxDepth(n int) int {
+	var depth int
+	for i := n; i &amp;gt; 0; i &amp;gt;&amp;gt;= 1 {
+		depth++
+	}
+	return depth * 2
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(Aside: maxDepth should probably use &lt;code&gt;math/bits.Len&lt;/code&gt; to calculate &lt;code&gt;ceil(lg(n+1))&lt;/code&gt;. This is another candidate for a good first contribution to the Go core.)&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s make &lt;code&gt;maxDepth&lt;/code&gt; just return 0 instead and re-run our benchmark:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ go test -bench=. -count=5 -run=NONE
+goos: darwin
+goarch: amd64
+pkg: github.com/commaok/blog/content/post
+BenchmarkSort-8   	   12618	     94792 ns/op	     17426 cmps/op
+BenchmarkSort-8   	   12668	     94769 ns/op	     17426 cmps/op
+BenchmarkSort-8   	   12642	     94645 ns/op	     17426 cmps/op
+BenchmarkSort-8   	   12738	     94623 ns/op	     17426 cmps/op
+BenchmarkSort-8   	   12654	     94431 ns/op	     17426 cmps/op
+PASS
+ok  	github.com/commaok/blog/content/post	12.867s
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We can see that not only is it slower, but that it is clearly an algorithmic degradation: The number of comparisons has increased markedly.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://godoc.org/golang.org/x/perf/benchstat&#34;&gt;benchstat&lt;/a&gt; supports custom metrics, so we can use it to tell us exactly how much:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ benchstat a b
+name    old time/op   new time/op   delta
+Sort-8   64.5µs ± 0%   94.7µs ± 0%  +46.76%  (p=0.016 n=4+5)
+
+name    old cmps/op   new cmps/op  delta
+Sort-8    10.1k ± 0%    17.4k ± 0%  +72.69%  (p=0.008 n=5+5)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There&amp;rsquo;s one more trick worth worth mentioning. &lt;code&gt;testing.B.ReportMetric&lt;/code&gt; generally overrides built-in metrics. If you call &lt;code&gt;b.ReportMetric(5, &amp;quot;allocs/op&amp;quot;)&lt;/code&gt;, then &lt;code&gt;go test&lt;/code&gt; will report &lt;code&gt;5 allocs/op&lt;/code&gt;, regardless of how much your benchmark actually allocated. There&amp;rsquo;s one special case: &lt;code&gt;ns/op&lt;/code&gt;. If set to &lt;code&gt;0&lt;/code&gt;, then &lt;code&gt;ns/op&lt;/code&gt; won&amp;rsquo;t be reported at all. This is useful to avoid confusion or distraction if your benchmark&amp;rsquo;s elapsed time is meaningless. For example, &lt;a href=&#34;https://golang.org/cl/166959/&#34;&gt;one of the earliest uses of &lt;code&gt;testing.B.ReportAlloc&lt;/code&gt;&lt;/a&gt; was for a &lt;code&gt;package sync&lt;/code&gt; benchmark that reported garbage collector stop-the-world time, in percentiles. It is irrelevant how long it takes that benchmark to run; only the percentiles matter.&lt;/p&gt;
+
+&lt;p&gt;On a sad note, there&amp;rsquo;s currently &lt;a href=&#34;https://github.com/golang/go/issues/18454&#34;&gt;no good way&lt;/a&gt; to get profiling tools to tell you &lt;em&gt;where&lt;/em&gt; a particular custom metric increased.&lt;/p&gt;
+
+&lt;p&gt;What else could you use &lt;code&gt;testing.B.ReportMetric&lt;/code&gt; for? Obvious use cases include cache hit rates, I/O amounts, fast path/slow path heuristics, percentile reporting, and algorithmic improvements. (We measured comparisons during sorting here; how about swaps?) I&amp;rsquo;m sure there will be non-obvious ones as well.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Compatibility: Not just about code</title>
