@@ -30,9 +30,6 @@
                             <span>{{ .Site.Params.aboutAuthor }}</span>
                         </div>
                     {{ with .Site.Params.twitter }}</a>{{ end }}
-                <section id="sharing">
-                    {{ partial "share.html" . }}
-                </section>
             </footer>
 
             {{ template "_internal/disqus.html" . }}
