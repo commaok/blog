@@ -1,5 +1,5 @@
 +++
-date = "2019-12-16T08:12:48-07:00"
+date = "2019-12-17T08:12:48-07:00"
 title = "Interning strings in Go"
 draft = false
 +++

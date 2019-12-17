@@ -9,5 +9,632 @@
         <atom:link href="https://commaok.xyz/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
+    <item>
+      <title>Interning strings in Go</title>
+      <link>https://commaok.xyz/post/intern-strings/</link>
+      <pubDate>Tue, 17 Dec 2019 08:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/post/intern-strings/</guid>
+      <description>&lt;p&gt;This blog post covers string interning in Go.&lt;/p&gt;
+&lt;h1 id=&#34;what-is-a-string&#34;&gt;What is a string?&lt;/h1&gt;
+&lt;p&gt;In Go, a string is &lt;a href=&#34;https://golang.org/ref/spec#String_types&#34;&gt;a (possibly empty) immutable sequence of bytes&lt;/a&gt;. The critical word here for our purposes is &lt;em&gt;immutable&lt;/em&gt;. Because byte slices are mutable, converting between &lt;code&gt;string&lt;/code&gt; and &lt;code&gt;[]byte&lt;/code&gt; generally requires an alloc and copy, which is expensive.&lt;/p&gt;
+&lt;p&gt;Under the hood, strings in Go are (currently) represented &lt;a href=&#34;https://research.swtch.com/godata&#34;&gt;as a length and a pointer to the string data&lt;/a&gt;.&lt;/p&gt;
+&lt;h1 id=&#34;what-is-string-interning&#34;&gt;What is string interning?&lt;/h1&gt;
+&lt;p&gt;Consider this code:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; []byte(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;hello&amp;#34;&lt;/span&gt;)
+&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; string(&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;)
+&lt;span style=&#34;color:#a6e22e&#34;&gt;t&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; string(&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;s&lt;/code&gt; and &lt;code&gt;t&lt;/code&gt; are strings, so they both have a length and a data pointer. Their lengths are obviously the same. What about their data pointers?&lt;/p&gt;
+&lt;p&gt;The Go language doesn&#39;t provide us a direct way to find out. But we can sniff around with unsafe:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;pointer&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;) &lt;span style=&#34;color:#66d9ef&#34;&gt;uintptr&lt;/span&gt; {
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;unsafe&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Pointer&lt;/span&gt;(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;)
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;h&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;(&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;reflect&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;StringHeader&lt;/span&gt;)(&lt;span style=&#34;color:#a6e22e&#34;&gt;p&lt;/span&gt;)
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;h&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Data&lt;/span&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;(This function ought to return an &lt;code&gt;unsafe.Pointer&lt;/code&gt;. See &lt;a href=&#34;https://golang.org/issue/19367&#34;&gt;Go issue 19367&lt;/a&gt;.)&lt;/p&gt;
+&lt;p&gt;If we &lt;code&gt;fmt.Println(pointer(s), pointer(t))&lt;/code&gt;, we get something like &lt;code&gt;4302664 4302632&lt;/code&gt;. The pointers are different; there are two separate copies of the data &lt;code&gt;hello&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;(Here&#39;s a &lt;a href=&#34;https://play.golang.org/p/oyq6Pz79EGa&#34;&gt;playground link&lt;/a&gt; if you want to experiment. What happens if you change &lt;code&gt;&amp;quot;hello&amp;quot;&lt;/code&gt; to just &lt;code&gt;&amp;quot;h&amp;quot;&lt;/code&gt;? &lt;a href=&#34;https://golang.org/cl/97717&#34;&gt;Explanation.&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;Suppose you wanted instead to re-use a single copy of the data &lt;code&gt;hello&lt;/code&gt;? That&#39;s &lt;a href=&#34;https://en.wikipedia.org/wiki/String_interning&#34;&gt;string interning&lt;/a&gt;. There are two advantages to interned strings. The obvious one is that you don&#39;t need to allocate and copy the data. The other is that it speeds up string equality checks. If two strings have the same length and same data pointer, they are equal; there is no need to actually examine the bytes.&lt;/p&gt;
+&lt;p&gt;As of Go 1.14, Go doesn&#39;t intern most strings. Interning, like any form of caching, also has costs: synchronization for concurrency safety, garbage collector complexity, and extra code to execute every time a string is created. And, like caching, there are cases in which it is harmful rather than helpful. If you were processing a list of dictionary words, no word would ever occur twice, so interning strings would be waste both time and memory.&lt;/p&gt;
+&lt;h1 id=&#34;manual-string-interning&#34;&gt;Manual string interning&lt;/h1&gt;
+&lt;p&gt;It is possible to manually intern strings in Go. What we need is a way to look for an existing string to re-use given a byte slice, perhaps using something like a &lt;code&gt;map[[]byte]string&lt;/code&gt;. If a lookup succeeds, we use the existing string; if it fails, we convert and then store that string for future use.&lt;/p&gt;
+&lt;p&gt;There&#39;s only one problem: You can&#39;t use &lt;code&gt;[]byte&lt;/code&gt; as a map key.&lt;/p&gt;
+&lt;p&gt;Thanks to a &lt;a href=&#34;https://golang.org/cl/83740044&#34;&gt;long-standing compiler optimization&lt;/a&gt;, we can use a &lt;code&gt;map[string]string&lt;/code&gt; instead. The optimization is that map operations whose key is a converted byte slice don&#39;t actually generate a new string  to use during the lookup.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;m&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; make(&lt;span style=&#34;color:#66d9ef&#34;&gt;map&lt;/span&gt;[&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;]&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;)
+&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; []byte(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;hello&amp;#34;&lt;/span&gt;)
+&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; string(&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// allocates
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;_&lt;/span&gt; = &lt;span style=&#34;color:#a6e22e&#34;&gt;m&lt;/span&gt;[string(&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;)] &lt;span style=&#34;color:#75715e&#34;&gt;// doesn&amp;#39;t allocate!
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;(A similar optimization applies in other scenarios in which the compiler can prove that a converted byte slice doesn&#39;t get modified during use, such as &lt;a href=&#34;https://github.com/golang/go/blob/056a3d1c6f6f92b095f88b01d004eb2656a688c5/src/cmd/compile/internal/gc/swt.go#L249&#34;&gt;&lt;code&gt;switch string(b)&lt;/code&gt; when all switch cases are free of side-effects&lt;/a&gt;.)&lt;/p&gt;
+&lt;p&gt;The entirety of the code required to intern strings is this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;intern&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;m&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;map&lt;/span&gt;[&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;]&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt; []&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;) &lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt; {
+    &lt;span style=&#34;color:#75715e&#34;&gt;// look for an existing string to re-use
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;c&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;ok&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;m&lt;/span&gt;[string(&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;)]
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;ok&lt;/span&gt; {
+        &lt;span style=&#34;color:#75715e&#34;&gt;// found an existing string
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;c&lt;/span&gt;
+    }
+    &lt;span style=&#34;color:#75715e&#34;&gt;// didn&amp;#39;t find one, so make one and store it
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; string(&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;)
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;m&lt;/span&gt;[&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;] = &lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Pretty simple.&lt;/p&gt;
+&lt;h1 id=&#34;complications&#34;&gt;Complications&lt;/h1&gt;
+&lt;p&gt;Note that this manual interning routine pushes the problems with interning into the calling code. You need to manage concurrent access to the map; you need to decide the lifetime of the map (and thus everything in it); and you need to pay the extra cost of a map lookup every time you need a string.&lt;/p&gt;
+&lt;p&gt;Pushing these decisions onto the calling code can yield better performance. For example, suppose you were &lt;a href=&#34;https://golang.org/issue/32779&#34;&gt;decoding json into a &lt;code&gt;map[string]interface{}&lt;/code&gt;&lt;/a&gt;. The json decoder is probably not concurrent. The lifetime of the map can be tied to the json decoder. And the keys of this map are likely to be repeated frequently, which is the best case scenario for string interning; it makes the extra cost of the map lookup worth it.&lt;/p&gt;
+&lt;h1 id=&#34;a-helper-package&#34;&gt;A helper package&lt;/h1&gt;
+&lt;p&gt;If you don&#39;t want to have to think about any of these complications, and are willing to accept the slight concomitant loss of performance, and have code in which string interning may help, there&#39;s a package for that: &lt;a href=&#34;https://github.com/josharian/intern&#34;&gt;github.com/josharian/intern&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;It works by horribly abusing &lt;code&gt;sync.Pool&lt;/code&gt;. It stores interning maps in a &lt;code&gt;sync.Pool&lt;/code&gt;, retrieving them as needed. This neatly solves the concurrent access problem, because &lt;code&gt;sync.Pool&lt;/code&gt; access is concurrency-safe. It mostly solves the lifetime problem, because the contents in a &lt;code&gt;sync.Pool&lt;/code&gt; are usually &lt;a href=&#34;https://golang.org/issue/22950&#34;&gt;eventually&lt;/a&gt; garbaged collected. (For related reading about managing lifetimes, see &lt;a href=&#34;https://golang.org/issue/29696&#34;&gt;Go issue 29696&lt;/a&gt;.)&lt;/p&gt;
+&lt;h1 id=&#34;more-reading&#34;&gt;More reading&lt;/h1&gt;
+&lt;p&gt;There&#39;s lots more discussion and links about string interning in Go in &lt;a href=&#34;https://golang.org/issue/5160&#34;&gt;issue 5160&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>testing.B.ReportMetric</title>
+      <link>https://commaok.xyz/post/report-metric/</link>
+      <pubDate>Wed, 03 Jul 2019 18:07:05 -0800</pubDate>
+      
+      <guid>https://commaok.xyz/post/report-metric/</guid>
+      <description>&lt;p&gt;My favorite new API in Go 1.13 is &lt;a href=&#34;https://tip.golang.org/pkg/testing/#B.ReportMetric&#34;&gt;&lt;code&gt;testing.B.ReportMetric&lt;/code&gt;&lt;/a&gt;. It allows you to report custom metrics from within your benchmarks.&lt;/p&gt;
+&lt;p&gt;When the API was &lt;a href=&#34;https://github.com/golang/go/issues/26037&#34;&gt;proposed&lt;/a&gt;, the motivating example was &lt;code&gt;package sort&lt;/code&gt;. The &lt;code&gt;package sort&lt;/code&gt; benchmarks, like all benchmarks, measure elapsed wall time and (optionally) allocations. But wall time measurements can be noisy, and the sort routines don&#39;t allocate much. There is another really useful algorithm-level metric for a sorting routine: How many comparisons does it perform?&lt;/p&gt;
+&lt;p&gt;Let&#39;s use our new to API find out. Here&#39;s a simple sort benchmark.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;package&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;demo&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; (
+	&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;sort&amp;#34;&lt;/span&gt;
+	&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;testing&amp;#34;&lt;/span&gt;
+)
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkSort&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;testing&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;B&lt;/span&gt;) {
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;data&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; make([]&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;)
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;ResetTimer&lt;/span&gt;() &lt;span style=&#34;color:#75715e&#34;&gt;// ignore big allocation
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &amp;lt; &lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;N&lt;/span&gt;; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt; {
+		&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;range&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;data&lt;/span&gt; {
+			&lt;span style=&#34;color:#a6e22e&#34;&gt;data&lt;/span&gt;[&lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt;] = &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; ^ &lt;span style=&#34;color:#ae81ff&#34;&gt;0x2cc&lt;/span&gt;
+		}
+		&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;StartTimer&lt;/span&gt;()
+		&lt;span style=&#34;color:#a6e22e&#34;&gt;sort&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Slice&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;data&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;j&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;) &lt;span style=&#34;color:#66d9ef&#34;&gt;bool&lt;/span&gt; {
+			&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;data&lt;/span&gt;[&lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt;] &amp;lt; &lt;span style=&#34;color:#a6e22e&#34;&gt;data&lt;/span&gt;[&lt;span style=&#34;color:#a6e22e&#34;&gt;j&lt;/span&gt;]
+		})
+		&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;StopTimer&lt;/span&gt;()
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;(Aside: Some of the sort benchmarks in the standard library allocate inside the loop. Oops. Carefully fixing this might make a nice first contribution for someone wanting to try their hand at the Go standard library.)&lt;/p&gt;
+&lt;p&gt;On my machine, executing this looks like:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ go test -bench=. -count=5
+goos: darwin
+goarch: amd64
+pkg: github.com/commaok/blog/content/post
+BenchmarkSort-8   	   19536	     60568 ns/op
+BenchmarkSort-8   	   19666	     60592 ns/op
+BenchmarkSort-8   	   19569	     60674 ns/op
+BenchmarkSort-8   	   19724	     61363 ns/op
+BenchmarkSort-8   	   19705	     60792 ns/op
+PASS
+ok  	github.com/commaok/blog/content/post	11.772s
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If the number of iterations looks funny to you, it&#39;s because you are used to seeing round numbers there. That also &lt;a href=&#34;https://golang.org/cl/112155/&#34;&gt;changed in Go 1.13&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Now let&#39;s use the new &lt;code&gt;testing.B.ReportMetric&lt;/code&gt; API to report the number of comparisons. To do this, we need to count the number of comparisons. Then we&#39;ll divide by &lt;code&gt;b.N&lt;/code&gt;. The reason we must do the division ourselves is to allow metrics that aren&#39;t naturally represented as per-op counts, such as ratios or percentiles.&lt;/p&gt;
+&lt;p&gt;Here&#39;s the updated code, with added lines marked:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkSort&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;testing&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;B&lt;/span&gt;) {
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;cmps&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int64&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// &amp;lt;--------
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;data&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; make([]&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;)
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;ResetTimer&lt;/span&gt;() &lt;span style=&#34;color:#75715e&#34;&gt;// remove allocation
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &amp;lt; &lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;N&lt;/span&gt;; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt; {
+		&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;range&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;data&lt;/span&gt; {
+			&lt;span style=&#34;color:#a6e22e&#34;&gt;data&lt;/span&gt;[&lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt;] = &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; ^ &lt;span style=&#34;color:#ae81ff&#34;&gt;0x2cc&lt;/span&gt;
+		}
+		&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;StartTimer&lt;/span&gt;()
+		&lt;span style=&#34;color:#a6e22e&#34;&gt;sort&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Slice&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;data&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;j&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;) &lt;span style=&#34;color:#66d9ef&#34;&gt;bool&lt;/span&gt; {
+			&lt;span style=&#34;color:#a6e22e&#34;&gt;cmps&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// &amp;lt;--------
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;			&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;data&lt;/span&gt;[&lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt;] &amp;lt; &lt;span style=&#34;color:#a6e22e&#34;&gt;data&lt;/span&gt;[&lt;span style=&#34;color:#a6e22e&#34;&gt;j&lt;/span&gt;]
+		})
+		&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;StopTimer&lt;/span&gt;()
+	}
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;ReportMetric&lt;/span&gt;(float64(&lt;span style=&#34;color:#a6e22e&#34;&gt;cmps&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;float64(&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;N&lt;/span&gt;), &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;cmps/op&amp;#34;&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// &amp;lt;--------
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Running this yields:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ go test -bench=. -count=5
+goos: darwin
+goarch: amd64
+pkg: github.com/commaok/blog/content/post
+BenchmarkSort-8   	   18523	     69874 ns/op	     10091 cmps/op
+BenchmarkSort-8   	   18654	     64621 ns/op	     10091 cmps/op
+BenchmarkSort-8   	   18657	     64589 ns/op	     10091 cmps/op
+BenchmarkSort-8   	   18774	     64367 ns/op	     10091 cmps/op
+BenchmarkSort-8   	   18704	     64408 ns/op	     10091 cmps/op
+PASS
+ok  	github.com/commaok/blog/content/post	12.062s
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Note that the number of comparisons is stable. This is a wonderful property when benchmarking. It means you can run your benchmarks a small number of times, without quitting your browser or trying to disable thermal scaling or worrying about how your laptop CPU may be different from your production CPUs.&lt;/p&gt;
+&lt;p&gt;Now let&#39;s reach into the standard library and tweak something! There&#39;s a function called &lt;a href=&#34;https://golang.org/src/sort/sort.go?s=5609:5622#L223&#34;&gt;&lt;code&gt;maxDepth&lt;/code&gt; inside &lt;code&gt;package sort&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// maxDepth returns a threshold at which quicksort should switch
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// to heapsort. It returns 2*ceil(lg(n+1)).
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;maxDepth&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;n&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;) &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; {
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;depth&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;n&lt;/span&gt;; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &amp;gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; {
+		&lt;span style=&#34;color:#a6e22e&#34;&gt;depth&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;
+	}
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;depth&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;(Aside: maxDepth should probably use &lt;code&gt;math/bits.Len&lt;/code&gt; to calculate &lt;code&gt;ceil(lg(n+1))&lt;/code&gt;. This is another candidate for a good first contribution to the Go core.)&lt;/p&gt;
+&lt;p&gt;Let&#39;s make &lt;code&gt;maxDepth&lt;/code&gt; just return 0 instead and re-run our benchmark:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ go test -bench=. -count=5 -run=NONE
+goos: darwin
+goarch: amd64
+pkg: github.com/commaok/blog/content/post
+BenchmarkSort-8   	   12618	     94792 ns/op	     17426 cmps/op
+BenchmarkSort-8   	   12668	     94769 ns/op	     17426 cmps/op
+BenchmarkSort-8   	   12642	     94645 ns/op	     17426 cmps/op
+BenchmarkSort-8   	   12738	     94623 ns/op	     17426 cmps/op
+BenchmarkSort-8   	   12654	     94431 ns/op	     17426 cmps/op
+PASS
+ok  	github.com/commaok/blog/content/post	12.867s
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We can see that not only is it slower, but that it is clearly an algorithmic degradation: The number of comparisons has increased markedly.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://godoc.org/golang.org/x/perf/benchstat&#34;&gt;benchstat&lt;/a&gt; supports custom metrics, so we can use it to tell us exactly how much:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ benchstat a b
+name    old time/op   new time/op   delta
+Sort-8   64.5µs ± 0%   94.7µs ± 0%  +46.76%  (p=0.016 n=4+5)
+
+name    old cmps/op   new cmps/op  delta
+Sort-8    10.1k ± 0%    17.4k ± 0%  +72.69%  (p=0.008 n=5+5)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There&#39;s one more trick worth worth mentioning. &lt;code&gt;testing.B.ReportMetric&lt;/code&gt; generally overrides built-in metrics. If you call &lt;code&gt;b.ReportMetric(5, &amp;quot;allocs/op&amp;quot;)&lt;/code&gt;, then &lt;code&gt;go test&lt;/code&gt; will report &lt;code&gt;5 allocs/op&lt;/code&gt;, regardless of how much your benchmark actually allocated. There&#39;s one special case: &lt;code&gt;ns/op&lt;/code&gt;. If set to &lt;code&gt;0&lt;/code&gt;, then &lt;code&gt;ns/op&lt;/code&gt; won&#39;t be reported at all. This is useful to avoid confusion or distraction if your benchmark&#39;s elapsed time is meaningless. For example, &lt;a href=&#34;https://golang.org/cl/166959/&#34;&gt;one of the earliest uses of &lt;code&gt;testing.B.ReportAlloc&lt;/code&gt;&lt;/a&gt; was for a &lt;code&gt;package sync&lt;/code&gt; benchmark that reported garbage collector stop-the-world time, in percentiles. It is irrelevant how long it takes that benchmark to run; only the percentiles matter.&lt;/p&gt;
+&lt;p&gt;On a sad note, there&#39;s currently &lt;a href=&#34;https://github.com/golang/go/issues/18454&#34;&gt;no good way&lt;/a&gt; to get profiling tools to tell you &lt;em&gt;where&lt;/em&gt; a particular custom metric increased.&lt;/p&gt;
+&lt;p&gt;What else could you use &lt;code&gt;testing.B.ReportMetric&lt;/code&gt; for? Obvious use cases include cache hit rates, I/O amounts, fast path/slow path heuristics, percentile reporting, and algorithmic improvements. (We measured comparisons during sorting here; how about swaps?) I&#39;m sure there will be non-obvious ones as well.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Compatibility: Not just about code</title>
+      <link>https://commaok.xyz/post/compatibility/</link>
+      <pubDate>Wed, 06 Feb 2019 16:05:13 -0800</pubDate>
+      
+      <guid>https://commaok.xyz/post/compatibility/</guid>
+      <description>&lt;p&gt;The &lt;a href=&#34;https://golang.org/doc/go1compat&#34;&gt;Go 1 compatibility promise&lt;/a&gt;
+was designed to ensure &amp;ldquo;that Go 1 will be a firm foundation
+for the development of Go and its ecosystem.&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://blog.golang.org/go2-here-we-come&#34;&gt;Go 2 is coming.&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/ianlancetaylor&#34;&gt;Ian Lance Taylor&lt;/a&gt; has written a
+masterful, thoroughly researched
+&lt;a href=&#34;https://github.com/golang/proposal/blob/master/design/28221-go2-transitions.md&#34;&gt;design document&lt;/a&gt;
+about &amp;ldquo;how to make incompatible changes from Go 1 to Go 2 while breaking as little as possible&amp;rdquo;.&lt;/p&gt;
+&lt;p&gt;Interestingly, both documents are clearly geared towards code and APIs.&lt;/p&gt;
+&lt;p&gt;A few examples from the Go 1 compatibility promise (emphasis added):&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;It is intended that &lt;em&gt;programs&lt;/em&gt; written to the Go 1 specification will continue to &lt;em&gt;compile and run correctly, unchanged&lt;/em&gt;, over the lifetime of that specification.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Compatibility is &lt;em&gt;at the source level&lt;/em&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Of course, for all of these possibilities, should they arise, we would endeavor whenever feasible to update the specification, compilers, or libraries &lt;em&gt;without affecting existing code&lt;/em&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;And from the Go 2 transitions proposal (emphasis added):&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;A key feature of these options is that &lt;em&gt;code compiled&lt;/em&gt; at different language/library versions can in general all be linked together and work as expected.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;blockquote&gt;
+&lt;p&gt;While we can provide tooling to &lt;em&gt;convert pre-1.20 code into working 1.20 code&lt;/em&gt;, we can&#39;t force package authors to run those tools.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;blockquote&gt;
+&lt;p&gt;This can be used to take incremental steps toward new language versions, and to make it easier to &lt;em&gt;share the same code&lt;/em&gt; among different language versions.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;p&gt;As we all know, however, there is much more to a language&#39;s ecosystem than the extant body of code.
+There is culture. There is infrastructure, like conferences and training. There is tooling. There is trust.
+There is an aesthetic. (Ian Lance Taylor&#39;s takeaway from the history of C++: &amp;ldquo;A new version may have a very different feel while remaining backward compatible.&amp;quot;)&lt;/p&gt;
+&lt;p&gt;And then there is a giant, sprawling, chaotic mess of documentation,
+ranging from official docs to blog posts to Stack Overflow to mailing list archives and beyond.&lt;/p&gt;
+&lt;p&gt;This organic documentary hodgepodge is invaluable.
+With the help of search engines, it ensures that most questions
+will have multiple answers written in different ways, at different levels, by different authors.
+This is a great boon, particularly to newcomers to a language.&lt;/p&gt;
+&lt;p&gt;A year ago or so, I needed to write something in Swift. The single biggest pain point by far
+was that when I searched for examples and discussion, I found answers written
+for Swift 2, Swift 3, and Swift 4. I ended up having to simultaneously learn three dialects
+of Swift and how to translate between them. This situation also commonly arises with popular libraries.&lt;/p&gt;
+&lt;p&gt;My code was brand new, so I didn&#39;t care that the language had changed in incompatible ways.
+But it sure did break the documentation ecosystem in a deep way.
+And docs, unlike code, are impossible to &lt;a href=&#34;https://blog.golang.org/introducing-gofix&#34;&gt;go fix&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Of course, docs do go stale even when there is backwards compatibility. For example, strings.Builder
+made some old performance advice obsolete. But such breakage is relatively localized, easy to repair gradually,
+and not particularly damaging to people who find it instead of up-to-date docs.&lt;/p&gt;
+&lt;p&gt;The &lt;a href=&#34;https://github.com/golang/go/issues/20706&#34;&gt;tentatively&lt;/a&gt; &lt;a href=&#34;https://github.com/golang/go/issues/19308&#34;&gt;accepted&lt;/a&gt;
+&lt;a href=&#34;https://github.com/golang/go/issues/28493&#34;&gt;Go 2&lt;/a&gt; &lt;a href=&#34;https://github.com/golang/go/issues/19113&#34;&gt;changes&lt;/a&gt;
+look unlikely to break much documentation,
+and the discussion so far on the &lt;a href=&#34;https://github.com/golang/go/labels/Go2&#34;&gt;many Go 2 proposals&lt;/a&gt; give no particular reason for concern.
+Nevertheless, as we all ponder Go 2, it&#39;s probably worth explicitly thinking about
+compatibility in terms much broader than working code.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Benchmarking package initialization</title>
+      <link>https://commaok.xyz/post/benchmark-init/</link>
+      <pubDate>Thu, 31 Jan 2019 13:53:05 -0800</pubDate>
+      
+      <guid>https://commaok.xyz/post/benchmark-init/</guid>
+      <description>&lt;p&gt;Go program execution doesn&#39;t start at &lt;code&gt;func main&lt;/code&gt;.
+First is &lt;a href=&#34;https://github.com/golang/go/blob/9473c044f1d492a6ba49ec695042dec4365d70ca/src/runtime/asm_amd64.s#L87&#34;&gt;a bit of bootstrapping&lt;/a&gt;.
+Then the &lt;a href=&#34;https://github.com/golang/go/blob/688667716ede8b133d361db0a1d47eab24ced7f7/src/runtime/proc.go#L518&#34;&gt;runtime gets initialized&lt;/a&gt;.
+Then, package by package, the program initializes global variables and runs &lt;code&gt;init&lt;/code&gt; functions.
+Then it&#39;s time for &lt;code&gt;main&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Usually, the startup time for a Go program is negligible,
+and irrelevant compared to its steady state performance.&lt;/p&gt;
+&lt;p&gt;For short-lived programs, though, startup performance can matter a lot.
+This is particularly true if &lt;a href=&#34;https://golang.org/issue/29382&#34;&gt;the program is a low level tool that is executed repeatedly by other programs&lt;/a&gt;.
+There has also been &lt;a href=&#34;https://golang.org/issue/26775&#34;&gt;recent interest in optimizing the startup impact of the standard library&lt;/a&gt;.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;So: How do you benchmark and profile program initialization?&lt;/p&gt;
+&lt;p&gt;If you are interested in memory allocation, &lt;a href=&#34;https://github.com/bradfitz&#34;&gt;Brad Fitzpatrick&lt;/a&gt; has &lt;a href=&#34;https://play.golang.org/p/9ervXCWzV_z&#34;&gt;a simple solution&lt;/a&gt;. This works because &lt;a href=&#34;https://commaok.xyz/post/memprofilerate/&#34;&gt;memory profiling is on by default&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;But what about execution time?&lt;/p&gt;
+&lt;p&gt;One obvious idea is to copy your global variables and init functions into a regular Go benchmark. This is tedious and (like most tedious things) error-prone. It also fails for a more subtle reason: The compiler generates different (slower) code for variable initialization when it occurs inside a function instead of at the top level. This is because the compiler can make fewer assumptions (although as always &lt;a href=&#34;https://golang.org/issue/29573#issuecomment-451596366&#34;&gt;there are ways to improve&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;Another idea is to hack your code to return immediately from &lt;code&gt;main&lt;/code&gt; and then use &lt;a href=&#34;https://github.com/aclements/go-misc/blob/master/benchcmd/main.go&#34;&gt;&lt;code&gt;benchcmd&lt;/code&gt;&lt;/a&gt; to benchmark and &lt;a href=&#34;https://en.wikipedia.org/wiki/Perf_%28Linux%29&#34;&gt;&lt;code&gt;perf&lt;/code&gt;&lt;/a&gt; to profile. This works on Linux, although it’d be nicer to have an option that uses standard Go tooling. Also, because initialization is generally fast, you need to do a bunch of runs to gather data, and the exec and profiler tool overhead can be considerable. (I tried using macOS’s &lt;code&gt;instruments&lt;/code&gt; for profiling the &lt;code&gt;go&lt;/code&gt; tool&#39;s startup and found that—in addition to being generally useless—it added &lt;em&gt;300x&lt;/em&gt; overhead per run!)&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Instead, let’s &lt;a href=&#34;https://golang.org/doc/go1compat&#34;&gt;void the warranty&lt;/a&gt;!&lt;/p&gt;
+&lt;p&gt;Here’s &lt;a href=&#34;https://github.com/golang/go/blob/faf187fb8e2ca074711ed254c72ffbaed4383c64/src/cmd/compile/internal/gc/init.go#L58&#34;&gt;how the compiler implements package initialization&lt;/a&gt;, at least as of Go 1.12. For each package, it generates code like:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;initdone&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;·&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;uint8&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;init&lt;/span&gt;() {
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;initdone&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;·&lt;/span&gt; &amp;gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; {
+		&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt;
+	}
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;initdone&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;·&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; {
+		&lt;span style=&#34;color:#a6e22e&#34;&gt;throw&lt;/span&gt;()
+	}
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;initdone&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;·&lt;/span&gt; = &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+	&lt;span style=&#34;color:#75715e&#34;&gt;// for all imported packages {
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;		&lt;span style=&#34;color:#a6e22e&#34;&gt;pkg&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;init&lt;/span&gt;()
+	&lt;span style=&#34;color:#75715e&#34;&gt;// }
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;init&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;ializers&lt;/span&gt;()
+	
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;init&lt;/span&gt;.&amp;lt;&lt;span style=&#34;color:#a6e22e&#34;&gt;n&lt;/span&gt;&amp;gt;() &lt;span style=&#34;color:#75715e&#34;&gt;// call user init functions, if any
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;initdone&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;·&lt;/span&gt; = &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt;
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;init&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;ializers&lt;/span&gt;() {                          (&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
+	{ &amp;lt;&lt;span style=&#34;color:#a6e22e&#34;&gt;init&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;global&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;variables&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;this&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;package&lt;/span&gt;&amp;gt; }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This &lt;code&gt;init&lt;/code&gt; takes the place of any &lt;code&gt;init&lt;/code&gt; functions in the package; those are renamed &lt;code&gt;init.0&lt;/code&gt;, &lt;code&gt;init.1&lt;/code&gt;, and so on.&lt;/p&gt;
+&lt;p&gt;If we could reset &lt;code&gt;initdone·&lt;/code&gt; to 0 and then call this &lt;code&gt;init&lt;/code&gt; function, then we’d be (re-)executing the exact code that gets executed during package initialization.&lt;/p&gt;
+&lt;p&gt;We can do that! We&#39;ll use &lt;a href=&#34;https://github.com/golang/go/blob/5efe9a8f11c81116f102f56c49a9415fd992c038/src/cmd/compile/doc.go#L168&#34;&gt;&lt;code&gt;//go:linkname&lt;/code&gt;&lt;/a&gt; to get access.&lt;/p&gt;
+&lt;p&gt;Here&#39;s an example, benchmarking &lt;code&gt;net/http&lt;/code&gt; package initialization:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;package&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;p_test&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; (
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;_&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;net/http&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// must import net/http, so that net/http.init actually ends up in the executable
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;testing&amp;#34;&lt;/span&gt;
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;_&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;unsafe&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// must import unsafe to use go:linkname
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;)
+
+&lt;span style=&#34;color:#75715e&#34;&gt;//go:linkname _initdone net/http.initdone·
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_initdone&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;uint8&lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;//go:linkname _init net/http.init
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_init&lt;/span&gt;()
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkNetHTTPInit&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;testing&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;B&lt;/span&gt;) {
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &amp;lt; &lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;N&lt;/span&gt;; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt; {
+		&lt;span style=&#34;color:#a6e22e&#34;&gt;_initdone&lt;/span&gt; = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+		&lt;span style=&#34;color:#a6e22e&#34;&gt;_init&lt;/span&gt;()
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;And voila! A regular old Go benchmark that does just what we want.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Mostly. There are a few gotchas, above and beyond merely being a terrible idea.&lt;/p&gt;
+&lt;p&gt;First, if you do non-idempotent work in one of your &lt;code&gt;init&lt;/code&gt; functions, things could get wonky. We did just void the warranty, after all. And I don’t know what might happen if you re-initialize package runtime or testing or something else low level while running a benchmark. Almost certainly something bad.&lt;/p&gt;
+&lt;p&gt;Second, as written, this only measures the initialization of &lt;code&gt;net/http&lt;/code&gt; and &lt;em&gt;not any of its dependencies&lt;/em&gt;. This might or might not be want you want. You can work around this by using more &lt;code&gt;//go:linkname&lt;/code&gt; to reset &lt;code&gt;initdone·&lt;/code&gt; to 0 for all dependencies. Then, as you can see from the compiler pseudocode, a single call to &lt;code&gt;_init&lt;/code&gt; will re-initialize those packages as well.&lt;/p&gt;
+&lt;p&gt;Third, using &lt;code&gt;//go:linkname&lt;/code&gt; requires that the symbol we are linkname-ing to must actually be in the executable. The easiest way to do this is to import the package in question. If you are working with an internal package, that means you might need to put this code somewhere with sufficient visibility for that import to work.&lt;/p&gt;
+&lt;p&gt;Fourth, line number support for autogenerated code isn&#39;t all that fabulous. If you encounter frustrating pprof output while doing this, consider &lt;a href=&#34;https://golang.org/issue/new&#34;&gt;filing bugs&lt;/a&gt;.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Now that you can benchmark, what do you do if you find a bottleneck you want to fix? Mostly, lazily initialize things instead, usually using &lt;a href=&#34;https://golang.org/pkg/sync/#Once&#34;&gt;&lt;code&gt;sync.Once&lt;/code&gt;&lt;/a&gt;, which is fast and hopefully &lt;a href=&#34;https://golang.org/cl/152697&#34;&gt;will be faster still in Go 1.13&lt;/a&gt;.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Thanks to &lt;a href=&#34;https://github.com/mvdan&#34;&gt;Daniel Martí&lt;/a&gt; for posing this question and for reading an early draft of this blog post.&lt;/p&gt;
+&lt;p&gt;Daniel has also created a tool based on this blog post, &lt;a href=&#34;https://github.com/mvdan/benchinit&#34;&gt;benchinit&lt;/a&gt;, so that you can &lt;a href=&#34;https://github.com/golang/go/issues/19348#issuecomment-309446070&#34;&gt;break your programs&lt;/a&gt; this way with even less effort.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Logging, interfaces, and allocation</title>
+      <link>https://commaok.xyz/post/interface-allocs/</link>
+      <pubDate>Mon, 06 Feb 2017 10:52:40 -0800</pubDate>
+      
+      <guid>https://commaok.xyz/post/interface-allocs/</guid>
+      <description>&lt;p&gt;This post is about some new compiler optimizations scheduled for Go 1.9,
+but I want to start with logging.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;A couple of weeks ago, Peter Bourgon started a
+&lt;a href=&#34;https://groups.google.com/forum/#!topic/golang-dev/F3l9Iz1JX4g&#34;&gt;thread on golang-dev about standardizing logging&lt;/a&gt;.
+Logging is pervasive, so performance came up quickly.
+The &lt;a href=&#34;https://github.com/go-kit/kit/tree/master/log&#34;&gt;go-kit log package&lt;/a&gt; uses structured logging,
+centered on this interface:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Logger&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;interface&lt;/span&gt; {
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;Log&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;keyvals&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;interface&lt;/span&gt;{}) &lt;span style=&#34;color:#66d9ef&#34;&gt;error&lt;/span&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Sample call:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;logger&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Log&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;transport&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;HTTP&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;addr&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;addr&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;msg&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;listening&amp;#34;&lt;/span&gt;)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Note that everything that goes into a logging call gets converted into an interface.
+This means that it allocates a lot.&lt;/p&gt;
+&lt;p&gt;Compare with another structured logger, &lt;a href=&#34;https://github.com/uber-go/zap&#34;&gt;zap&lt;/a&gt;.
+Zap has uglier call sites, specifically to avoid using interfaces, in order to be zero-allocation:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;logger&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Info&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Failed to fetch URL.&amp;#34;&lt;/span&gt;,
+  &lt;span style=&#34;color:#a6e22e&#34;&gt;zap&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;String&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;url&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;url&lt;/span&gt;),
+  &lt;span style=&#34;color:#a6e22e&#34;&gt;zap&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Int&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;attempt&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;tryNum&lt;/span&gt;),
+  &lt;span style=&#34;color:#a6e22e&#34;&gt;zap&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Duration&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;backoff&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;sleepFor&lt;/span&gt;),
+)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The arguments to &lt;code&gt;logger.Info&lt;/code&gt; have type &lt;code&gt;logger.Field&lt;/code&gt;.
+&lt;code&gt;logger.Field&lt;/code&gt; is a kind of union-ish struct
+that includes a type and a field each for a &lt;code&gt;string&lt;/code&gt;, an &lt;code&gt;int&lt;/code&gt;, and an &lt;code&gt;interface{}&lt;/code&gt;.
+Thus interfaces are not necessary to pass the most common kinds of values.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Enough about logging. Why does converting a concrete value to an interface sometime allocate?&lt;/p&gt;
+&lt;p&gt;Interfaces are represented as two words, a type pointer and a value pointer.
+Russ Cox wrote a &lt;a href=&#34;https://research.swtch.com/interfaces&#34;&gt;lovely explanation of this&lt;/a&gt;,
+which I will not attempt to repeat. Just go read it.&lt;/p&gt;
+&lt;p&gt;His post is slightly out of date, however.
+He points out an obvious optimization: When the value is pointer-sized or smaller,
+we can just put the value directly into the second interface word.
+However, with the advent of concurrent garbage collection,
+&lt;a href=&#34;https://golang.org/issue/8405&#34;&gt;that optimization got eliminated&lt;/a&gt;.
+Now the second word in the interface is always a pointer.&lt;/p&gt;
+&lt;p&gt;Consider:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Before Go 1.4, this code did not allocate,
+because the value &lt;code&gt;1&lt;/code&gt; could be put directly into the second interface word.&lt;/p&gt;
+&lt;p&gt;That is, the compiler treated it something like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;({&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;})
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;where &lt;code&gt;{typ, val}&lt;/code&gt; represents the two words in an interface.&lt;/p&gt;
+&lt;p&gt;As of Go 1.4, this code started allocating, because &lt;code&gt;1&lt;/code&gt; is not a pointer,
+and the second word must contain a pointer.
+So instead the compiler+runtime conspired to turn it into something roughly like:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; new(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// allocates!
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; = &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;({&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt;})
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This was painful, and there was much wringing of hands and gnashing of teeth.&lt;/p&gt;
+&lt;p&gt;The &lt;a href=&#34;https://github.com/golang/go/commit/22701339817a591cd352ecd43b0439b84dbe8095&#34;&gt;first significant optimization to remove allocations&lt;/a&gt;
+was added a bit later. It kicked in when the resulting interface did not escape.
+In that case, the temporary value could be put on the stack instead of the heap.
+Using our example code above:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; new(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;) &lt;span style=&#34;color:#75715e&#34;&gt;// now doesn&amp;#39;t allocate, as long as e doesn&amp;#39;t escape
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; = &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;e&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;interface&lt;/span&gt;{} = {&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt;}
+&lt;span style=&#34;color:#75715e&#34;&gt;// do things with e that don&amp;#39;t make it escape
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Unfortunately, many interfaces do escape, including those used in calls
+to &lt;code&gt;fmt.Println&lt;/code&gt; and in our logging examples above.&lt;/p&gt;
+&lt;p&gt;Happily, Go 1.9 will bring a few more optimizations,
+in part inspired by the logging conversation.
+(Unless those optimizations get reverted in the next six months,
+which is always a possibility.)&lt;/p&gt;
+&lt;p&gt;The first optimization is &lt;a href=&#34;https://golang.org/issue/18704&#34;&gt;to not allocate to convert a constant to an interface&lt;/a&gt;.
+So &lt;code&gt;fmt.Println(1)&lt;/code&gt; will no longer allocate. The compiler puts
+the value &lt;code&gt;1&lt;/code&gt; in a readonly global, roughly like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; = &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// at the top level, marked as readonly
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;({&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt;})
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This is possible because constants are immutable,
+and will thus be the same every time the interface conversion is reached,
+including recursively and concurrently.&lt;/p&gt;
+&lt;p&gt;This was inspired directly by the logging discussion.
+In structured logging, many of the arguments are constants&amp;ndash;
+almost certainly all the keys, and probably a few of the values.
+Recall the go-kit example:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;logger&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Log&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;transport&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;HTTP&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;addr&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;addr&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;msg&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;listening&amp;#34;&lt;/span&gt;)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This code drops from 6 allocations to 1, because five of the arguments are constant strings.&lt;/p&gt;
+&lt;p&gt;The second new optimization is &lt;a href=&#34;https://golang.org/issue/17725&#34;&gt;to not allocate to convert bools and bytes to interfaces&lt;/a&gt;.
+This optimization works by adding a global &lt;code&gt;[256]byte&lt;/code&gt; array called &lt;code&gt;staticbytes&lt;/code&gt; to every binary,
+where &lt;code&gt;staticbytes[b] = b&lt;/code&gt; for all b.
+When the compiler wants to put a bool or uint8 or other single-byte value
+into an interface, instead of allocating, it calculates a pointer into this array.
+That is:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;staticbytes&lt;/span&gt; [&lt;span style=&#34;color:#ae81ff&#34;&gt;256&lt;/span&gt;]&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt; = {&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;, &lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;}
+
+&lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; uint8(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;)
+&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;({&lt;span style=&#34;color:#66d9ef&#34;&gt;uint8&lt;/span&gt;, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;staticbytes&lt;/span&gt;[&lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt;]})
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;There is a third new optimization proposed that is still under review,
+which is &lt;a href=&#34;https://golang.org/cl/36476&#34;&gt;to not allocate to convert common zero values in an interface&lt;/a&gt;.
+It applies to integers, floats, strings, and slices.
+This optimization works by checking at runtime whether the value is &lt;code&gt;0&lt;/code&gt; (or &lt;code&gt;&amp;quot;&amp;quot;&lt;/code&gt; or &lt;code&gt;nil&lt;/code&gt;).
+If so, it uses a pointer to &lt;a href=&#34;https://github.com/golang/go/blob/go1.8rc3/src/runtime/hashmap.go#L1182&#34;&gt;an existing large chunk of zeroed memory&lt;/a&gt;
+rather than allocating some memory and zeroing it.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;If all goes well, Go 1.9 should eliminate a fair number of allocations during interface conversions.
+But it won&#39;t eliminate all of them, which leaves performance still on the table as the logging discussion continues.&lt;/p&gt;
+&lt;p&gt;The interplay between implementation decisions and APIs is interesting.&lt;/p&gt;
+&lt;p&gt;Picking an API requires thinking about the performance consequences.
+It is not an accident that &lt;code&gt;io.Reader&lt;/code&gt; requires/allows callers to bring their own buffer.&lt;/p&gt;
+&lt;p&gt;Performance is in no small part a consequence of the implementation decisions.
+We have seen in this post that the implementation details of interfaces can substantially alter
+what code allocates.&lt;/p&gt;
+&lt;p&gt;And yet those very implementation decisions depend on what kind of code people write.
+The compiler and runtime authors want to optimize real, common code.
+For example, the &lt;a href=&#34;https://golang.org/issue/8405&#34;&gt;decision to in Go 1.4 to keep interface values at two words instead of changing them to three&lt;/a&gt;,
+which made &lt;code&gt;fmt.Println(1)&lt;/code&gt; allocate, was based on looking at the kind of code people wrote.&lt;/p&gt;
+&lt;p&gt;Since the kind of code people write is often shaped heavily by the APIs they use,
+we have the kind of organic feedback loop that is fascinating and sometimes challenging to manage.&lt;/p&gt;
+&lt;p&gt;Not a terribly deep observation, perhaps, but there is one takeaway:
+If you&#39;re designing an API and worrying about performance,
+keep in mind not just what the existing compiler and runtime actually do,
+but what they could do.
+Write code for the present, but design APIs for the future.&lt;/p&gt;
+&lt;p&gt;And if you&#39;re not sure, ask. It worked (a bit) for logging.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Picking up pennies: Disabling memory profiling</title>
+      <link>https://commaok.xyz/post/memprofilerate/</link>
+      <pubDate>Sat, 28 Jan 2017 18:06:36 -0800</pubDate>
+      
+      <guid>https://commaok.xyz/post/memprofilerate/</guid>
+      <description>&lt;p&gt;If you work on a short-lived, allocation heavy program
+and care about a tiny (maybe 0.5%) performance improvement,
+this post is for you.&lt;/p&gt;
+&lt;p&gt;I was looking at a CPU profile of the &lt;a href=&#34;https://golang.org/cmd/compile/&#34;&gt;Go compiler&lt;/a&gt;
+when I noticed something odd: An entry in &lt;a href=&#34;https://github.com/golang/go/blob/go1.8rc3/src/runtime/mprof.go&#34;&gt;&lt;code&gt;mprof.go&lt;/code&gt;&lt;/a&gt;.
+&lt;code&gt;mprof.go&lt;/code&gt; contains the memory profiling implementation, but I was doing cpu profiling.
+Was there a bug in &lt;a href=&#34;https://godoc.org/rsc.io/compilebench&#34;&gt;compilebench&lt;/a&gt;, perhaps?&lt;/p&gt;
+&lt;p&gt;Nope. The variable &lt;a href=&#34;https://golang.org/pkg/runtime/#pkg-variables&#34;&gt;&lt;code&gt;runtime.MemProfileRate&lt;/code&gt;&lt;/a&gt;
+controls the rate at which the runtime samples allocations.
+And its default value is not 0 (disabled), but &lt;code&gt;512 * 1024&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;This is a good default.
+One sample per 500k of allocations is not much overhead.
+And when something goes wrong on a server, you want to be able to find out why,
+rather than fussing with profiling settings and then hoping it happens again.&lt;/p&gt;
+&lt;p&gt;But if you work on a short-lived program, like a compiler,
+when something goes wrong, you probably don&#39;t have any mechanism for gathering ad hoc profiles.
+For any given run, you either have profiling enabled or you don&#39;t,
+and if something goes wrong, you just enable profiling and try again.&lt;/p&gt;
+&lt;p&gt;And if your program is allocation-heavy, like the Go compiler,
+there might be enough memory profiling samples collected to absorb some CPU time.
+(As currently implemented, the first sample is particularly expensive,
+as it allocates a pretty large data structure.)&lt;/p&gt;
+&lt;p&gt;And I&#39;m always looking for performance wins in the compiler, even little ones (hoping they add up).
+So I sent a CL to &lt;a href=&#34;https://go-review.googlesource.com/c/35916/&#34;&gt;disable memory profiling entirely when not explicitly requested&lt;/a&gt;.
+The benefits aren&#39;t head-turning, but it&#39;s a very cheap, low risk 0.5% to put in the bank.
+It&#39;ll get reviewed for Go 1.9.&lt;/p&gt;
+&lt;p&gt;Doing this in your own program requires nothing more than setting
+&lt;code&gt;runtime.MemProfileRate = 0&lt;/code&gt; when memory profiling has not been requested.
+But please, think twice first.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Compile-time assertions in Go</title>
+      <link>https://commaok.xyz/post/compile-time-assertions/</link>
+      <pubDate>Tue, 24 Jan 2017 09:37:05 -0800</pubDate>
+      
+      <guid>https://commaok.xyz/post/compile-time-assertions/</guid>
+      <description>&lt;p&gt;This post is about a little-known way to make compile-time assertions in Go.
+You probably shouldn&#39;t use it, but it is interesting to know about.&lt;/p&gt;
+&lt;p&gt;As a warm-up, here&#39;s a fairly well-known form of compile-time assertions in Go: Interface satisfaction checks.&lt;/p&gt;
+&lt;p&gt;In this code (&lt;a href=&#34;https://play.golang.org/p/MJ6zF1oNsX&#34;&gt;playground&lt;/a&gt;),
+the &lt;code&gt;var _ =&lt;/code&gt; line ensures that type &lt;code&gt;W&lt;/code&gt; is a &lt;code&gt;stringWriter&lt;/code&gt;,
+as checked for by &lt;a href=&#34;https://golang.org/pkg/io/#WriteString&#34;&gt;&lt;code&gt;io.WriteString&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;package&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;io&amp;#34;&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;W&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt;{}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; (&lt;span style=&#34;color:#a6e22e&#34;&gt;w&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;W&lt;/span&gt;) &lt;span style=&#34;color:#a6e22e&#34;&gt;Write&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt; []&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;) (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;error&lt;/span&gt;)       { &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; len(&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;), &lt;span style=&#34;color:#66d9ef&#34;&gt;nil&lt;/span&gt; }
+&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; (&lt;span style=&#34;color:#a6e22e&#34;&gt;w&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;W&lt;/span&gt;) &lt;span style=&#34;color:#a6e22e&#34;&gt;WriteString&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;) (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;error&lt;/span&gt;) { &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; len(&lt;span style=&#34;color:#a6e22e&#34;&gt;s&lt;/span&gt;), &lt;span style=&#34;color:#66d9ef&#34;&gt;nil&lt;/span&gt; }
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;stringWriter&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;interface&lt;/span&gt; {
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;WriteString&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;) (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;error&lt;/span&gt;)
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;stringWriter&lt;/span&gt; = &lt;span style=&#34;color:#a6e22e&#34;&gt;W&lt;/span&gt;{}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;() {
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;w&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;W&lt;/span&gt;
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;io&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;WriteString&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;w&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;very long string&amp;#34;&lt;/span&gt;)
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If you comment out &lt;code&gt;W&lt;/code&gt;&#39;s &lt;code&gt;WriteString&lt;/code&gt; method, the code will not compile:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;main.go:14: cannot use W literal (type W) as type stringWriter in assignment:
+	W does not implement stringWriter (missing WriteString method)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is useful. For most types that satisfy both &lt;code&gt;io.Writer&lt;/code&gt; and &lt;code&gt;stringWriter&lt;/code&gt;,
+if you eliminate the &lt;code&gt;WriteString&lt;/code&gt; method, everything will continue to work
+as it did before, but with worse performance.&lt;/p&gt;
+&lt;p&gt;Rather than trying to write a fragile test for a performance regression using
+&lt;a href=&#34;https://golang.org/pkg/testing/#AllocsPerRun&#34;&gt;&lt;code&gt;testing.T.AllocsPerRun&lt;/code&gt;&lt;/a&gt;,
+you can simply protect your code with a compile-time assertion.&lt;/p&gt;
+&lt;p&gt;Here&#39;s &lt;a href=&#34;https://github.com/golang/go/blob/go1.8rc2/src/io/multi.go#L72&#34;&gt;a real world example of this technique from package io&lt;/a&gt;.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;OK, onward to obscurity!&lt;/p&gt;
+&lt;p&gt;Interface satisfaction checks are great.
+But what if you wanted to check a plain old boolean expression, like &lt;code&gt;1+1==2&lt;/code&gt;?&lt;/p&gt;
+&lt;p&gt;Consider this code (&lt;a href=&#34;https://play.golang.org/p/mjIMWsWu4V&#34;&gt;playground&lt;/a&gt;):&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;package&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;crypto/md5&amp;#34;&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Hash&lt;/span&gt; [&lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt;]&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;init&lt;/span&gt;() {
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; len(&lt;span style=&#34;color:#a6e22e&#34;&gt;Hash&lt;/span&gt;{}) &amp;lt; &lt;span style=&#34;color:#a6e22e&#34;&gt;md5&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Size&lt;/span&gt; {
+		panic(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Hash is too small&amp;#34;&lt;/span&gt;)
+	}
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;() {
+	&lt;span style=&#34;color:#75715e&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;Hash&lt;/code&gt; is perhaps some kind of abstracted hash result.
+The &lt;code&gt;init&lt;/code&gt; function ensures that it will work with &lt;a href=&#34;https://golang.org/pkg/crypto/md5/&#34;&gt;crypto/md5&lt;/a&gt;.
+If you change &lt;code&gt;Hash&lt;/code&gt; to be (say) &lt;code&gt;[8]byte&lt;/code&gt;, it&#39;ll panic when the process starts.
+However, this is a run-time check.
+What if we wanted it to fail earlier?&lt;/p&gt;
+&lt;p&gt;Here&#39;s how. (There&#39;s no playground link, because this doesn&#39;t work on the playground.)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;package&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;C&amp;#34;&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;crypto/md5&amp;#34;&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Hash&lt;/span&gt; [&lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt;]&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;hashIsTooSmall&lt;/span&gt;()
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;init&lt;/span&gt;() {
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; len(&lt;span style=&#34;color:#a6e22e&#34;&gt;Hash&lt;/span&gt;{}) &amp;lt; &lt;span style=&#34;color:#a6e22e&#34;&gt;md5&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Size&lt;/span&gt; {
+		&lt;span style=&#34;color:#a6e22e&#34;&gt;hashIsTooSmall&lt;/span&gt;()
+	}
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;() {
+	&lt;span style=&#34;color:#75715e&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now if you change &lt;code&gt;Hash&lt;/code&gt; to be &lt;code&gt;[8]byte&lt;/code&gt;, it will fail during compilation.
+(Actually, it fails during linking. Close enough for our purposes.)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ go build .
+&lt;span style=&#34;color:#75715e&#34;&gt;# demo&lt;/span&gt;
+main.hashIsTooSmall: call to external &lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt;
+main.init.1: relocation target main.hashIsTooSmall not defined
+main.init.1: undefined: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;main.hashIsTooSmall&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;What&#39;s going on here?&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;hashIsTooSmall&lt;/code&gt; is &lt;a href=&#34;https://golang.org/ref/spec#Function_declarations&#34;&gt;declared without a function body&lt;/a&gt;.
+The compiler assumes that someone else will provide an implementation,
+perhaps an assembly routine.&lt;/p&gt;
+&lt;p&gt;When the compiler can prove that &lt;code&gt;len(Hash{}) &amp;lt; md5.Size&lt;/code&gt;,
+it eliminates the code inside the if statement.
+As a result, no one uses the function &lt;code&gt;hashIsTooSmall&lt;/code&gt;,
+so the linker eliminates it. No harm done.
+As soon as the assertion fails, the code inside the if statement is preserved.
+&lt;code&gt;hashIsTooSmall&lt;/code&gt; can&#39;t be eliminated.
+The linker then notices that no one else has provided an implementation
+for the function and fails with an error, which was the goal.&lt;/p&gt;
+&lt;p&gt;One last oddity: Why &lt;code&gt;import &amp;quot;C&amp;quot;&lt;/code&gt;?
+The go tool knows that in normal Go code, all functions must have bodies,
+and instructs the compiler to enforce that.
+By switching to cgo, we remove that check.
+(If you run &lt;code&gt;go build -x&lt;/code&gt; on the code above, without the &lt;code&gt;import &amp;quot;C&amp;quot;&lt;/code&gt; line,
+you will see that the compiler is invoked with the &lt;code&gt;-complete&lt;/code&gt; flag.)
+An alternative to adding &lt;code&gt;import &amp;quot;C&amp;quot;&lt;/code&gt; is to &lt;a href=&#34;https://github.com/golang/go/blob/go1.8rc2/src/os/signal/sig.s&#34;&gt;add an empty file called &lt;code&gt;foo.s&lt;/code&gt;
+to the package&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I know of only one use of this technique,
+in the &lt;a href=&#34;https://github.com/golang/go/blob/go1.8rc2/test/fixedbugs/issue9608.dir/issue9608.go&#34;&gt;compiler test suite&lt;/a&gt;.
+There are other &lt;a href=&#34;https://github.com/golang/go/blob/go1.8rc2/src/runtime/hashmap.go#L261&#34;&gt;imaginable places to apply it&lt;/a&gt;,
+but no one has bothered.&lt;/p&gt;
+&lt;p&gt;And that&#39;s probably how it should be. :)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>new(Blog)</title>
+      <link>https://commaok.xyz/post/new-blog/</link>
+      <pubDate>Mon, 23 Jan 2017 15:19:05 -0800</pubDate>
+      
+      <guid>https://commaok.xyz/post/new-blog/</guid>
+      <description>&lt;p&gt;I&#39;m going to try this blogging thing again.&lt;/p&gt;
+&lt;p&gt;I&#39;ve failed at it a few times before.
+I&#39;m going to try &lt;a href=&#34;https://jvns.ca/blog/2016/05/22/how-do-you-write-blog-posts/&#34;&gt;Julia Evans&lt;/a&gt; style this time.
+Maybe this one will stick?&lt;/p&gt;
+</description>
+    </item>
+    
   </channel>
 </rss>

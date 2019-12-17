@@ -5,7 +5,7 @@
     <description>Recent content in Posts on Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 16 Dec 2019 08:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Tue, 17 Dec 2019 08:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/post/index.xml" rel="self" type="application/rss+xml" />
     
@@ -13,7 +13,7 @@
     <item>
       <title>Interning strings in Go</title>
       <link>https://commaok.xyz/post/intern-strings/</link>
-      <pubDate>Mon, 16 Dec 2019 08:12:48 -0700</pubDate>
+      <pubDate>Tue, 17 Dec 2019 08:12:48 -0700</pubDate>
       
       <guid>https://commaok.xyz/post/intern-strings/</guid>
       <description>&lt;p&gt;This blog post covers string interning in Go.&lt;/p&gt;
