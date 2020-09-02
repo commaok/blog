@@ -3,17 +3,22 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://commaok.xyz/</loc>
-    <lastmod>2020-04-30T08:12:48-07:00</lastmod>
+    <loc>https://commaok.xyz/post/discovering-size-classes/</loc>
+    <lastmod>2020-09-01T09:12:48-07:00</lastmod>
   </url>
   
   <url>
-    <loc>https://commaok.xyz/post/no-line-numbers/</loc>
-    <lastmod>2020-04-30T08:12:48-07:00</lastmod>
+    <loc>https://commaok.xyz/</loc>
+    <lastmod>2020-09-01T09:12:48-07:00</lastmod>
   </url>
   
   <url>
     <loc>https://commaok.xyz/post/</loc>
+    <lastmod>2020-09-01T09:12:48-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://commaok.xyz/post/no-line-numbers/</loc>
     <lastmod>2020-04-30T08:12:48-07:00</lastmod>
   </url>
   

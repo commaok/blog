@@ -5,10 +5,43 @@
     <description>Recent content in Posts on Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 30 Apr 2020 08:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Tue, 01 Sep 2020 09:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Discovering alloc size classes in Go</title>
+      <link>https://commaok.xyz/post/discovering-size-classes/</link>
+      <pubDate>Tue, 01 Sep 2020 09:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/post/discovering-size-classes/</guid>
+      <description>&lt;p&gt;As of Go 1.15, the Go runtime&#39;s &lt;a href=&#34;https://github.com/golang/go/blob/12c01f7/src/runtime/malloc.go&#34;&gt;memory allocator&lt;/a&gt; doesn&#39;t always allocate exactly the number of bytes required for an object. Instead, it rounds up to the nearest &lt;em&gt;size class&lt;/em&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;T&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; {
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int64&lt;/span&gt;
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Type &lt;code&gt;T&lt;/code&gt; has a size of 9 bytes, but allocating a &lt;code&gt;T&lt;/code&gt; will use 16 bytes.&lt;/p&gt;
+&lt;p&gt;If you&#39;re trying to &lt;a href=&#34;https://go-review.googlesource.com/c/go/+/41797/&#34;&gt;reduce the memory usage of a program that allocates a lot of one particular type of object&lt;/a&gt;, it&#39;s good to be aware of the size classes, as the impact of shrinking the object will be a step function.&lt;/p&gt;
+&lt;h1 id=&#34;what-are-the-size-classes&#34;&gt;What are the size classes?&lt;/h1&gt;
+&lt;p&gt;The easiest way to find out the size classes is to &lt;a href=&#34;https://github.com/golang/go/blob/12c01f7698cd257b7d2e4795b0f8a971ec8533b6/src/runtime/sizeclasses.go&#34;&gt;read the source&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;It&#39;s also possible to discover them at run time!&lt;/p&gt;
+&lt;p&gt;The trick is to use &lt;code&gt;append&lt;/code&gt;. &lt;code&gt;append&lt;/code&gt; gets to choose the capacity of the returned slice. And, as you would hope, &lt;code&gt;append&lt;/code&gt; is &lt;a href=&#34;https://github.com/golang/go/blob/12c01f7698cd257b7d2e4795b0f8a971ec8533b6/src/runtime/slice.go#L201&#34;&gt;aware of the allocator&lt;/a&gt;; it picks a cap that fills as much as possible of the size class it selected.&lt;/p&gt;
+&lt;p&gt;We are going to start with a nil slice, cap 0. We will then append &lt;code&gt;n&lt;/code&gt; bytes to it. &lt;code&gt;append&lt;/code&gt; will helpfully round &lt;code&gt;n&lt;/code&gt; up to the nearest size class as the new cap.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;sizeup&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;n&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;) &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; {
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; append([]byte(&lt;span style=&#34;color:#66d9ef&#34;&gt;nil&lt;/span&gt;), make([]&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;n&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;)
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; cap(&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;)
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If you &lt;a href=&#34;https://play.golang.org/p/hAfgbpwa45t&#34;&gt;run this in a loop&lt;/a&gt;, you get a nice size class list. In the unlikely event that you were going to do this in a real program, you&#39;d probably calculate the size classes at startup and cache them.&lt;/p&gt;
+&lt;p&gt;This technique relies on an implementation detail, but hey, the mere existence of size classes is also an implementation detail.&lt;/p&gt;
+&lt;h1 id=&#34;who-cares&#34;&gt;Who cares?&lt;/h1&gt;
+&lt;p&gt;In particularly performance sensitive code, it sometimes makes sense to overallocate a slice, to avoid allocation in subsequent appends, such as in &lt;a href=&#34;https://github.com/golang/go/blob/master/src/math/big/nat.go#L68&#34;&gt;math/big&lt;/a&gt;. When deciding how much to overallocate, you might want to be size-class aware, so as not to waste capacity that is effectively free. See &lt;a href=&#34;https://github.com/golang/go/issues/24204&#34;&gt;#24204&lt;/a&gt; for interesting related discussion.&lt;/p&gt;
+&lt;p&gt;And there&#39;s an interesting generics connection. People are fond of pointing out that generics would obviate the need for &lt;code&gt;append&lt;/code&gt;. You could implement it yourself. But if you want your custom &lt;code&gt;append&lt;/code&gt; to be as optimized as the runtime&#39;s, you need to be aware of the size classes.&lt;/p&gt;
+&lt;h1 id=&#34;why-not-hard-code-the-size-classes&#34;&gt;Why not hard-code the size classes?&lt;/h1&gt;
+&lt;p&gt;They change.&lt;/p&gt;
+&lt;p&gt;Hard-coding the size classes, per-release, behind build tags, is a fine idea. But they&#39;re also pretty easy to calculate.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Life without line numbers</title>

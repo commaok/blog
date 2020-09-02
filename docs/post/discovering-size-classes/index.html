@@ -1,0 +1,232 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go">
+		<meta name="generator" content="Hugo 0.62.0-DEV" />
+		<title>Discovering alloc size classes in Go &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="Discovering alloc size classes in Go" />
+<meta property="og:description" content="As of Go 1.15, the Go runtime&#39;s memory allocator doesn&#39;t always allocate exactly the number of bytes required for an object. Instead, it rounds up to the nearest size class.
+type T struct { i int64 b byte } Type T has a size of 9 bytes, but allocating a T will use 16 bytes.
+If you&#39;re trying to reduce the memory usage of a program that allocates a lot of one particular type of object, it&#39;s good to be aware of the size classes, as the impact of shrinking the object will be a step function." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://commaok.xyz/post/discovering-size-classes/" />
+<meta property="article:published_time" content="2020-09-01T09:12:48-07:00" />
+<meta property="article:modified_time" content="2020-09-01T09:12:48-07:00" />
+
+	    
+	    <meta itemprop="name" content="Discovering alloc size classes in Go">
+<meta itemprop="description" content="As of Go 1.15, the Go runtime&#39;s memory allocator doesn&#39;t always allocate exactly the number of bytes required for an object. Instead, it rounds up to the nearest size class.
+type T struct { i int64 b byte } Type T has a size of 9 bytes, but allocating a T will use 16 bytes.
+If you&#39;re trying to reduce the memory usage of a program that allocates a lot of one particular type of object, it&#39;s good to be aware of the size classes, as the impact of shrinking the object will be a step function.">
+<meta itemprop="datePublished" content="2020-09-01T09:12:48-07:00" />
+<meta itemprop="dateModified" content="2020-09-01T09:12:48-07:00" />
+<meta itemprop="wordCount" content="404">
+
+
+
+<meta itemprop="keywords" content="" />
+	    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Discovering alloc size classes in Go"/>
+<meta name="twitter:description" content="As of Go 1.15, the Go runtime&#39;s memory allocator doesn&#39;t always allocate exactly the number of bytes required for an object. Instead, it rounds up to the nearest size class.
+type T struct { i int64 b byte } Type T has a size of 9 bytes, but allocating a T will use 16 bytes.
+If you&#39;re trying to reduce the memory usage of a program that allocates a lot of one particular type of object, it&#39;s good to be aware of the size classes, as the impact of shrinking the object will be a step function."/>
+<meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://commaok.xyz/'>Home</a>
+	
+
+	
+	<a class="cta" href="https://commaok.xyz/index.xml">RSS</a>
+	
+</nav>
+
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>Discovering alloc size classes in Go</h1>
+                    <h2 class="headline">
+                    September 1, 2020 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p>As of Go 1.15, the Go runtime's <a href="https://github.com/golang/go/blob/12c01f7/src/runtime/malloc.go">memory allocator</a> doesn't always allocate exactly the number of bytes required for an object. Instead, it rounds up to the nearest <em>size class</em>.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">T</span> <span style="color:#66d9ef">struct</span> {
+    <span style="color:#a6e22e">i</span> <span style="color:#66d9ef">int64</span>
+    <span style="color:#a6e22e">b</span> <span style="color:#66d9ef">byte</span>
+}
+</code></pre></div><p>Type <code>T</code> has a size of 9 bytes, but allocating a <code>T</code> will use 16 bytes.</p>
+<p>If you're trying to <a href="https://go-review.googlesource.com/c/go/+/41797/">reduce the memory usage of a program that allocates a lot of one particular type of object</a>, it's good to be aware of the size classes, as the impact of shrinking the object will be a step function.</p>
+<h1 id="what-are-the-size-classes">What are the size classes?</h1>
+<p>The easiest way to find out the size classes is to <a href="https://github.com/golang/go/blob/12c01f7698cd257b7d2e4795b0f8a971ec8533b6/src/runtime/sizeclasses.go">read the source</a>.</p>
+<p>It's also possible to discover them at run time!</p>
+<p>The trick is to use <code>append</code>. <code>append</code> gets to choose the capacity of the returned slice. And, as you would hope, <code>append</code> is <a href="https://github.com/golang/go/blob/12c01f7698cd257b7d2e4795b0f8a971ec8533b6/src/runtime/slice.go#L201">aware of the allocator</a>; it picks a cap that fills as much as possible of the size class it selected.</p>
+<p>We are going to start with a nil slice, cap 0. We will then append <code>n</code> bytes to it. <code>append</code> will helpfully round <code>n</code> up to the nearest size class as the new cap.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">sizeup</span>(<span style="color:#a6e22e">n</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">int</span> {
+	<span style="color:#a6e22e">b</span> <span style="color:#f92672">:=</span> append([]byte(<span style="color:#66d9ef">nil</span>), make([]<span style="color:#66d9ef">byte</span>, <span style="color:#a6e22e">n</span>)<span style="color:#f92672">...</span>)
+	<span style="color:#66d9ef">return</span> cap(<span style="color:#a6e22e">b</span>)
+}
+</code></pre></div><p>If you <a href="https://play.golang.org/p/hAfgbpwa45t">run this in a loop</a>, you get a nice size class list. In the unlikely event that you were going to do this in a real program, you'd probably calculate the size classes at startup and cache them.</p>
+<p>This technique relies on an implementation detail, but hey, the mere existence of size classes is also an implementation detail.</p>
+<h1 id="who-cares">Who cares?</h1>
+<p>In particularly performance sensitive code, it sometimes makes sense to overallocate a slice, to avoid allocation in subsequent appends, such as in <a href="https://github.com/golang/go/blob/master/src/math/big/nat.go#L68">math/big</a>. When deciding how much to overallocate, you might want to be size-class aware, so as not to waste capacity that is effectively free. See <a href="https://github.com/golang/go/issues/24204">#24204</a> for interesting related discussion.</p>
+<p>And there's an interesting generics connection. People are fond of pointing out that generics would obviate the need for <code>append</code>. You could implement it yourself. But if you want your custom <code>append</code> to be as optimized as the runtime's, you need to be aware of the size classes.</p>
+<h1 id="why-not-hard-code-the-size-classes">Why not hard-code the size classes?</h1>
+<p>They change.</p>
+<p>Hard-coding the size classes, per-release, behind build tags, is a fine idea. But they're also pretty easy to calculate.</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                <a href="https://twitter.com/commaok">
+                        <img class="avatar" src="https://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>Go GDE</span>
+                        </div>
+                    </a>
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/discovering-size-classes/">Discovering alloc size classes in Go<aside class="dates">Sep 1</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/no-line-numbers/">Life without line numbers<aside class="dates">Apr 30</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/intern-strings/">Interning strings in Go<aside class="dates">Dec 17</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/report-metric/">testing.B.ReportMetric<aside class="dates">Jul 3</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/compatibility/">Compatibility: Not just about code<aside class="dates">Feb 6</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/benchmark-init/">Benchmarking package initialization<aside class="dates">Jan 31</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/interface-allocs/">Logging, interfaces, and allocation<aside class="dates">Feb 6</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/memprofilerate/">Picking up pennies: Disabling memory profiling<aside class="dates">Jan 28</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/compile-time-assertions/">Compile-time assertions in Go<aside class="dates">Jan 24</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/new-blog/">new(Blog)<aside class="dates">Jan 23</aside></a>
+        </li>
+        
+   
+</ul>
+
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/josharian">
+        <i class="fa fa-github"></i>
+    </a>
+    
+    <a class="symbol" href="https://www.twitter.com/commaok">
+        <i class="fa fa-twitter"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2020 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://commaok.xyz/js/main.js"></script>
+<script src="https://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+    </body>
+</html>
