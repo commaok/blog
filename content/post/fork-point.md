@@ -4,7 +4,7 @@ title = "git rebase --fork-point considered harmful (by me)"
 draft = false
 +++
 
-This is the first blog post I've written that isn't about Go. Feel free to stop reading now.
+This is the first blog post I've written that isn't about Go, and it's pretty weedy. Feel free to stop reading now.
 
 This is a git [experience report](https://github.com/golang/go/wiki/ExperienceReports) based on something that bit me hard today, despite being quite experienced with git. Play along!
 
@@ -54,7 +54,7 @@ Oh, and better put `main` back where it belongs.
 ```
 $ git checkout main
 Switched to branch 'main'
-$ git reset --hard head~1
+$ git reset --hard HEAD~1
 HEAD is now at ac2d8e7 initial commit
 ```
 
