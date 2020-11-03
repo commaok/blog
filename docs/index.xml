@@ -5,10 +5,110 @@
     <description>Recent content on Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 28 Oct 2020 09:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Mon, 02 Nov 2020 09:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>git rebase --fork-point considered harmful (by me)</title>
+      <link>https://commaok.xyz/post/fork-point/</link>
+      <pubDate>Mon, 02 Nov 2020 09:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/post/fork-point/</guid>
+      <description>&lt;p&gt;This is the first blog post I&#39;ve written that isn&#39;t about Go, and it&#39;s pretty weedy. Feel free to stop reading now.&lt;/p&gt;
+&lt;p&gt;This is a git &lt;a href=&#34;https://github.com/golang/go/wiki/ExperienceReports&#34;&gt;experience report&lt;/a&gt; based on something that bit me hard today, despite being quite experienced with git. Play along!&lt;/p&gt;
+&lt;h1 id=&#34;prologue&#34;&gt;Prologue&lt;/h1&gt;
+&lt;p&gt;Initialize a repo. Create two commits.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ git init .
+Initialized empty Git repository in &amp;lt;redacted&amp;gt;
+
+$ touch readme
+$ git add readme
+$ git commit -a -m &amp;quot;initial commit&amp;quot;
+[main (root-commit) ac2d8e7] initial commit
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 readme
+
+$ touch readme.2
+$ git add readme.2
+$ git commit -a -m &amp;quot;another commit&amp;quot;
+[main fb0f7fe] another commit
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 readme.2
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;So far, pretty mundane. Here&#39;s what the repo looks like:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ git log --all --decorate --oneline --graph
+* fb0f7fe (HEAD -&amp;gt; main) another commit
+* ac2d8e7 initial commit
+&lt;/code&gt;&lt;/pre&gt;&lt;h1 id=&#34;oops&#34;&gt;Oops&lt;/h1&gt;
+&lt;p&gt;I meant to create &lt;code&gt;readme.2&lt;/code&gt; on a branch. No problem. Let&#39;s create that branch now.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ git checkout -b branch
+Branch &#39;branch&#39; set up to track local branch &#39;main&#39; by rebasing.
+Switched to a new branch &#39;branch&#39;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Oh, and better put &lt;code&gt;main&lt;/code&gt; back where it belongs.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ git checkout main
+Switched to branch &#39;main&#39;
+$ git reset --hard head~1
+HEAD is now at ac2d8e7 initial commit
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now the repo looks like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ git log --all --decorate --oneline --graph
+* 95cc2c0 (branch) another commit
+* 20a231b (HEAD -&amp;gt; main) initial commit
+&lt;/code&gt;&lt;/pre&gt;&lt;h1 id=&#34;bug-fix&#34;&gt;Bug fix&lt;/h1&gt;
+&lt;p&gt;Let&#39;s fix a bug on main.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ echo &amp;quot;nothing to see here&amp;quot; &amp;gt; readme
+$ git commit -a -m &amp;quot;fill out the readme&amp;quot;
+[main eebece5] fill out the readme
+ 1 file changed, 1 insertion(+)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now &lt;code&gt;main&lt;/code&gt; and &lt;code&gt;branch&lt;/code&gt; have diverged a bit.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ git log --all --decorate --oneline --graph
+* eebece5 (HEAD -&amp;gt; main) fill out the readme
+| * fb0f7fe (branch) another commit
+|/  
+* ac2d8e7 initial commit
+&lt;/code&gt;&lt;/pre&gt;&lt;h1 id=&#34;time-to-rebase&#34;&gt;Time to rebase&lt;/h1&gt;
+&lt;p&gt;Let&#39;s get &lt;code&gt;branch&lt;/code&gt; rebased onto &lt;code&gt;main&lt;/code&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ git checkout branch
+Switched to branch &#39;branch&#39;
+Your branch and &#39;main&#39; have diverged,
+and have 1 and 1 different commits each, respectively.
+  (use &amp;quot;git pull&amp;quot; to merge the remote branch into yours)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Before reading any further, stop. Summon your git fu. What will happen when we run &lt;code&gt;git rebase&lt;/code&gt;?&lt;/p&gt;
+&lt;p&gt;If you&#39;re like me, you expect something like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;* 7a8805e (HEAD -&amp;gt; branch) another commit
+* eebece5 (main) fill out the readme
+* ac2d8e7 initial commit
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Three commits. &lt;code&gt;branch&lt;/code&gt; has been rebased on top of &lt;code&gt;main&lt;/code&gt;, so it is one commit ahead of it.&lt;/p&gt;
+&lt;p&gt;OK, let&#39;s find out what really happens.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ git rebase
+Successfully rebased and updated refs/heads/branch.
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Moment of truth.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ git log --all --decorate --oneline --graph
+* eebece5 (HEAD -&amp;gt; branch, main) fill out the readme
+* ac2d8e7 initial commit
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are only two commits. &lt;code&gt;branch&lt;/code&gt; and &lt;code&gt;main&lt;/code&gt; are on the same commit.&lt;/p&gt;
+&lt;p&gt;What happened to the third commit? It&#39;s gone.&lt;/p&gt;
+&lt;h1 id=&#34;denouement&#34;&gt;Denouement&lt;/h1&gt;
+&lt;p&gt;What happened was &lt;code&gt;--fork-point&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The first step to a rebase (and many other operations) is to find a &lt;a href=&#34;https://git-scm.com/docs/git-merge-base&#34;&gt;merge base&lt;/a&gt;. This is some shared commit in history, common ground from which to trace divergent paths.&lt;/p&gt;
+&lt;p&gt;The most obvious way to find a merge base is by looking at the graph for the most recent commit reachable by everyone.&lt;/p&gt;
+&lt;p&gt;But inspecting the graph doesn&#39;t always get you the ideal result. What if you intentionally abandoned some commits on &lt;code&gt;main&lt;/code&gt;? Looking just at the graph to find the merge base might accidentally resuscitate them. There&#39;s a &lt;a href=&#34;https://git-scm.com/docs/git-merge-base#_discussion_on_fork_point_mode&#34;&gt;fully worked example&lt;/a&gt; in the git docs.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;--fork-point&lt;/code&gt; flag is a clever attempt to work around this. &lt;code&gt;git rebase&lt;/code&gt; describes it thus:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Use reflog to find a better common ancestor between &lt;code&gt;upstream&lt;/code&gt; and &lt;code&gt;branch&lt;/code&gt; when calculating which commits have been introduced by &lt;code&gt;branch&lt;/code&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;The &lt;a href=&#34;https://git-scm.com/docs/git-reflog&#34;&gt;git reflog&lt;/a&gt; is a log of changes made to git refs. (If you don&#39;t know what a &amp;ldquo;ref&amp;rdquo; is, substitute the word &amp;ldquo;branch&amp;rdquo;.) It&#39;s meta version control. It tracks what you did with your version control over time.&lt;/p&gt;
+&lt;p&gt;The reflog is quite useful if you make a horrible mistake. You can poke through the reflog to find a lost commit.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;--fork-point&lt;/code&gt; looks through the &lt;em&gt;temporal history of your git repo&lt;/em&gt; to pick a merge base, &amp;ldquo;allowing you to replay only the commits on your topic, excluding the commits the other side later discarded.&amp;rdquo; In this context, &amp;ldquo;later&amp;rdquo; really means later in time, not &amp;ldquo;descendent of&amp;rdquo; in abstract git graph world.&lt;/p&gt;
+&lt;p&gt;And here we have the explanation for what happened. I discovered I had committed on &lt;code&gt;main&lt;/code&gt; by accident, and &lt;em&gt;reset &lt;code&gt;main&lt;/code&gt; to the previous commit&lt;/em&gt;. From &lt;code&gt;--fork-point&lt;/code&gt;&#39;s perspective, the &lt;code&gt;main&lt;/code&gt; branch had &lt;em&gt;discarded&lt;/em&gt; the commit on &lt;code&gt;branch&lt;/code&gt;. Therefore it was not included when we selected a merge base to rebase &lt;code&gt;branch&lt;/code&gt; onto &lt;code&gt;main&lt;/code&gt;.&lt;/p&gt;
+&lt;h1 id=&#34;whats-wrong-here&#34;&gt;What&#39;s wrong here?&lt;/h1&gt;
+&lt;p&gt;To my mind, two things went wrong here.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;--fork-point&lt;/code&gt; assumes that discarded commits were discarded &lt;em&gt;because they were unwanted&lt;/em&gt;. But that is not always true. In my case, they were discarded because they were unwanted &lt;em&gt;at that moment&lt;/em&gt;. Adding more clever heuristics might help some here, but I suspect it&#39;s impossible to infer intent, which is what is required.&lt;/p&gt;
+&lt;p&gt;The bigger issue is that the behavior of &lt;code&gt;git rebase&lt;/code&gt; now depends on (almost) invisible, inscrutable state. The ability to mentally model what a command will do is critical to being able to use any tool. It&#39;s pretty easy to view a git graph; it is the default view for most git UIs. And it&#39;s not too hard as a human to pick out the topological merge base from there. The reflog is all but invisible. And it is definitely not easy for a human to process.&lt;/p&gt;
+&lt;h1 id=&#34;the-fix&#34;&gt;The fix&lt;/h1&gt;
+&lt;p&gt;The solution is obviously more flags. My git config&#39;s &lt;code&gt;[alias]&lt;/code&gt; section now includes &lt;code&gt;r = rebase --no-fork-point&lt;/code&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Generating safer Go code</title>
