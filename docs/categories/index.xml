@@ -10,6 +10,91 @@
     
     
     <item>
+      <title>What happens when you load into x0 on RISC-V?</title>
+      <link>https://commaok.xyz/post/riscv_isa_blog_post/</link>
+      <pubDate>Wed, 17 Feb 2021 10:00:00 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/post/riscv_isa_blog_post/</guid>
+      <description>&lt;p&gt;A small thing of which I am irrationally proud: I was the proximate cause for the addition of a sentence to the &lt;a href=&#34;https://github.com/riscv/riscv-isa-manual/releases/download/draft-20200727-8088ba4/riscv-spec.pdf&#34;&gt;RISC-V ISA spec&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Here&#39;s the sentence:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Loads with a destination of x0 must still raise any exceptions and cause any other side effects even though the load value is discarded.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;It&#39;s OK if you have no idea what that means. You will soon.&lt;/p&gt;
+&lt;p&gt;Here&#39;s the story.&lt;/p&gt;
+&lt;h1 id=&#34;background&#34;&gt;Background&lt;/h1&gt;
+&lt;p&gt;In the summer of 2016, I wrote most of the initial RISC-V Go compiler implementation. (&lt;a href=&#34;https://github.com/prattmic&#34;&gt;Michael Pratt&lt;/a&gt; and &lt;a href=&#34;https://github.com/bbarenblat&#34;&gt;Benjamin Barenblat&lt;/a&gt; worked on the assembler, linker, and runtime, and other people &lt;a href=&#34;https://github.com/sorear&#34;&gt;jumped in&lt;/a&gt; and &lt;a href=&#34;https://github.com/4a6f656c&#34;&gt;ultimately completed the port&lt;/a&gt;.)&lt;/p&gt;
+&lt;p&gt;I was writing the first version of the RISC-V SSA lowering rules. Those rules turn a generic, architecture-independent description of Go code into a RISC-V-specific set of operations that ultimately get lowered into RISC-V instructions.&lt;/p&gt;
+&lt;p&gt;One of those lowering rules specified how to lower a nil check.&lt;/p&gt;
+&lt;h1 id=&#34;nil-checks-in-the-go-compiler&#34;&gt;Nil checks in the Go compiler&lt;/h1&gt;
+&lt;p&gt;Consider this code:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;T&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; {
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;a&lt;/span&gt; [&lt;span style=&#34;color:#ae81ff&#34;&gt;5000&lt;/span&gt;]&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// we&amp;#39;ll explain this later
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;bool&lt;/span&gt;
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;f&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;t&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;T&lt;/span&gt;) {
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;_&lt;/span&gt; = &lt;span style=&#34;color:#a6e22e&#34;&gt;t&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;b&lt;/span&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;f&lt;/code&gt; does &lt;em&gt;almost&lt;/em&gt; nothing. But not nothing. &lt;code&gt;f&lt;/code&gt; evaluates &lt;code&gt;t.b&lt;/code&gt; for side-effects. If &lt;code&gt;t&lt;/code&gt; is nil, &lt;code&gt;f&lt;/code&gt; panics.&lt;/p&gt;
+&lt;p&gt;In the Go compiler, this is (unsurprisingly) called a nil check. The compiler arranges to execute an instruction that will fault if &lt;code&gt;t&lt;/code&gt; is nil.&lt;/p&gt;
+&lt;p&gt;On amd64, &lt;code&gt;f&lt;/code&gt; compiles to three instructions:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;MOVQ	&amp;quot;&amp;quot;.t+8(SP), AX
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Get the value of &lt;code&gt;t&lt;/code&gt; off of the stack and put it in the &lt;code&gt;AX&lt;/code&gt; register.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;TESTB	AL, (AX)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Load the value pointed to by &lt;code&gt;AX&lt;/code&gt; and do something with it. The parens around &lt;code&gt;AX&lt;/code&gt; mean dereference the pointer in the &lt;code&gt;AX&lt;/code&gt; register. It doesn&#39;t matter here what the &lt;code&gt;TESTB&lt;/code&gt; instruction does; it was chosen because it is short to encode. It&#39;s the deferencing that matters. If the load faults, the runtime will receive a signal and turn that into a panic.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;RET
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Return from the function. We only reach this instruction if we don&#39;t panic first.&lt;/p&gt;
+&lt;h1 id=&#34;implicit-nil-checks&#34;&gt;Implicit nil checks&lt;/h1&gt;
+&lt;p&gt;Why does type &lt;code&gt;T&lt;/code&gt; above contain a &lt;code&gt;[5000]byte&lt;/code&gt; field?&lt;/p&gt;
+&lt;p&gt;There are &lt;em&gt;lots&lt;/em&gt; of nil checks in a typical Go program. As an optimization, the runtime allocates a &lt;em&gt;guard page&lt;/em&gt; at address 0, typically with size 4096 bytes. Any loads from an address &amp;lt; 4096 will fault.&lt;/p&gt;
+&lt;p&gt;As a result, if you&#39;re dereferencing a struct field with a small offset, we can directly attempt to load from the calculated address of that struct field. If the pointer is zero, then the calculated address will be &amp;lt; 4096, and it&#39;ll fault. There&#39;s no need for a separate, explicit nil check.&lt;/p&gt;
+&lt;p&gt;For example, if I had used &lt;code&gt;[20]byte&lt;/code&gt; above, then &lt;code&gt;*t.b&lt;/code&gt; requires loading from &lt;code&gt;t&lt;/code&gt; plus 20. If &lt;code&gt;t&lt;/code&gt; is nil (0), then that address is 20, which is located in the guard page.&lt;/p&gt;
+&lt;p&gt;Since we have a &lt;code&gt;[5000]byte&lt;/code&gt; field above, the guard page isn&#39;t enough, so we need an explicit nil check.&lt;/p&gt;
+&lt;p&gt;This makes it sounds like explicit nil checks are exceedingly rare. They&#39;re not; they show up in other ways too.&lt;/p&gt;
+&lt;h1 id=&#34;back-to-risc-v&#34;&gt;Back to RISC-V&lt;/h1&gt;
+&lt;p&gt;I had to decide how RISC-V should lower explicit nil checks.&lt;/p&gt;
+&lt;p&gt;RISC-V has a dedicated &lt;em&gt;zero register&lt;/em&gt;, &lt;code&gt;x0&lt;/code&gt;. It always holds the value zero, and writes to it are discarded. It&#39;s like &lt;code&gt;/dev/null&lt;/code&gt; and &lt;code&gt;/dev/zero&lt;/code&gt; rolled into one.&lt;/p&gt;
+&lt;p&gt;It sounds like just the thing for a nil check: We can derefence the pointer and load the value into &lt;code&gt;x0&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Here&#39;s &lt;code&gt;f&lt;/code&gt;, compiled for RISC-V:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;LD	&amp;quot;&amp;quot;.t+8(SP), X3
+LB	(X3), X0
+JALR	X0, X1
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is almost identical to the amd64 version. The first instruction loads the pointer from the stack. The second instruction dereferences it into &lt;code&gt;x0&lt;/code&gt;. The final instruction returns.&lt;/p&gt;
+&lt;p&gt;There was only one problem: Would it work?&lt;/p&gt;
+&lt;h1 id=&#34;an-ambiguity-in-the-spec&#34;&gt;An ambiguity in the spec&lt;/h1&gt;
+&lt;p&gt;If you&#39;re loading a value in order to discard it, do you really need to load it at all? if you&#39;re writing to &lt;code&gt;x0&lt;/code&gt;, maybe you can just skip it.&lt;/p&gt;
+&lt;p&gt;There is an analog from amd64. The &lt;code&gt;CMOV&lt;/code&gt; instruction does a conditional move. If a flag is set, then it loads or moves a value, and not otherwise. It shows up when compiling code like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;g&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;x&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;) &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; {
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;y&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;x&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; {
+		&lt;span style=&#34;color:#a6e22e&#34;&gt;y&lt;/span&gt; = &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;
+	}
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;y&lt;/span&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The core of this function compiled for amd64 is:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;TESTQ	AX, AX
+MOVL	$1, AX
+MOVL	$3, CX
+CMOVQEQ	CX, AX
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;TESTQ&lt;/code&gt; sets the &lt;code&gt;EQ&lt;/code&gt; flag if x is 0. The next two instructions put 1 in &lt;code&gt;AX&lt;/code&gt; and 3 in &lt;code&gt;CX&lt;/code&gt;. Last, if the &lt;code&gt;EQ&lt;/code&gt; flag is set, we move &lt;code&gt;CX&lt;/code&gt; into &lt;code&gt;AX&lt;/code&gt;. &lt;code&gt;AX&lt;/code&gt; now holds the correct value of y to return.&lt;/p&gt;
+&lt;p&gt;If a &lt;code&gt;CMOV&lt;/code&gt; instruction includes a load from memory, that load is done unconditionally, even though the write of that value into the destination register is conditional.&lt;/p&gt;
+&lt;p&gt;I knew (and know) approximately nothing about hardware, but I can guess why this is a good decision. If you&#39;re doing out of order execution, you might not know yet what the flags are going to be when you reach that &lt;code&gt;CMOV&lt;/code&gt; instruction. But memory loads are slow. We want to start that memory load early for maximum benefit. So it is useful to be able to do the load unconditionally, even if it is inconvenient for compiler developers.&lt;/p&gt;
+&lt;p&gt;But the same consideration doesn&#39;t really apply to RISC-V. There&#39;s no uncertainty about whether the instruction writes to &lt;code&gt;x0&lt;/code&gt;. Skipping the load would be easy and cheap.&lt;/p&gt;
+&lt;h1 id=&#34;denouement&#34;&gt;Denouement&lt;/h1&gt;
+&lt;p&gt;I asked my co-conspirators, and one of them asked &lt;a href=&#34;https://www.sifive.com/about/andrew-waterman&#34;&gt;Andrew Waterman&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;He replied:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;We debated this hole in the spec at length, but neglected to write down the conclusion.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The main reason we went with this definition is cleaner semantics for memory-mapped I/O loads that trigger side effects. The opposite choice is also defensible (it gives you a non-binding prefetch instruction for free).&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Light-years ahead of me, unsurprisingly. But convenient for Go&#39;s nil checks. And me having asked did help tie up one little loose end.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>git rebase --fork-point considered harmful (by me)</title>
       <link>https://commaok.xyz/post/fork-point/</link>
       <pubDate>Mon, 02 Nov 2020 09:12:48 -0700</pubDate>
