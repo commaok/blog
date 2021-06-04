@@ -8,7 +8,7 @@ rssLimit = 10
 [params]
 	name = "Josh Bleecher Snyder"
 	description = "Words about Go"
-	bio = "Gopher at large (currently burrowed)"
+	bio = "Gopher (currently working at Tailscale)"
 	twitter = "commaok"
 	enableRSS = true
 
