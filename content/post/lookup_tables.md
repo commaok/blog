@@ -60,7 +60,7 @@ This doesn’t actually reduce any of the other post-lookup-table work, but it s
 
 Note that the table has grown from 9 uint32s to 32 uint32s. This is probably acceptable.
 
-# A small step forward
+# A small step
 
 The [next iteration](https://lemire.me/blog/2021/05/28/computing-the-number-of-digits-of-an-integer-quickly/#comment-585555) looks like this:
 
@@ -82,7 +82,7 @@ The non-lookup calculations here have gotten simpler. The table is a lot more co
 
 The basic idea is the same as before. Add an offset to each base 2 range to translate base 2 transitions onto base 10 transitions. But now we also tack on extra amounts to make our post-lookup calculations computationally cheaper: a single shift, instead of a multiply, a shift, and an increment. Adding `table[3]` to 9 and 10 make them 255 and 256. `log2(255) / 4` is 1 and `log2(256) / 4` is 2, as desired.
 
-# A great leap forward
+# A great leap
 
 That’s where I left it. Then [Kendall Willets stepped in and made a marvelous leap](https://lemire.me/blog/2021/05/28/computing-the-number-of-digits-of-an-integer-quickly/#comment-585916). The code below is from [Daniel Lemire’s follow-up blog post laying out Kendall's approach](https://lemire.me/blog/2021/06/03/computing-the-number-of-digits-of-an-integer-even-faster/):
 

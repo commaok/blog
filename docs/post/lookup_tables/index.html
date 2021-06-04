@@ -37,7 +37,7 @@ And yet we often do not use them to their full potential. This post is the story
 A good starting point In a recent blog post, Daniel Lemire rediscovered a technique for calculating the base ten length of a uint32. Start by calculating integer log2(x), do an approximate integer division to translate log2(x) to log10(x), and then fix up the result as needed.">
 <meta itemprop="datePublished" content="2021-06-03T10:00:00-07:00" />
 <meta itemprop="dateModified" content="2021-06-03T10:00:00-07:00" />
-<meta itemprop="wordCount" content="1003">
+<meta itemprop="wordCount" content="1001">
 
 
 
@@ -111,7 +111,7 @@ x <span style="color:#f92672">+</span><span style="color:#f92672">=</span> table
 </code></pre></div><p>Consider the inputs 9 and 10. We start with integer log2, which yields 3 in both cases. Then we add <code>table[3]</code>, which is 6. This transforms 9 and 10 into 15 and 16. Now if we take the integer log2 again we get 3 and 4. Integer division and an increment yields the correct result (1 and 2).</p>
 <p>This doesn’t actually reduce any of the other post-lookup-table work, but it sets us up to do so.</p>
 <p>Note that the table has grown from 9 uint32s to 32 uint32s. This is probably acceptable.</p>
-<h1 id="a-small-step-forward">A small step forward</h1>
+<h1 id="a-small-step">A small step</h1>
 <p>The <a href="https://lemire.me/blog/2021/05/28/computing-the-number-of-digits-of-an-integer-quickly/#comment-585555">next iteration</a> looks like this:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">static</span> uint64_t table[] <span style="color:#f92672">=</span> {
 	<span style="color:#ae81ff">16</span>, <span style="color:#ae81ff">14</span>, <span style="color:#ae81ff">12</span>, <span style="color:#ae81ff">246</span>, <span style="color:#ae81ff">240</span>, <span style="color:#ae81ff">224</span>, <span style="color:#ae81ff">3996</span>, <span style="color:#ae81ff">3968</span>, <span style="color:#ae81ff">3840</span>,
@@ -126,7 +126,7 @@ uint64_t n <span style="color:#f92672">=</span> (uint64_t)(x) <span style="color
 <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">int_log2</span>(n) <span style="color:#f92672">&gt;</span><span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">2</span>;
 </code></pre></div><p>The non-lookup calculations here have gotten simpler. The table is a lot more complex, but that’s OK. That complexity is computationally free! The table has also grown again, from 32 uint32s to 32 uint64s. If speed matters, this is probably acceptable. (And if it doesn't matter, go implement something obvious instead.)</p>
 <p>The basic idea is the same as before. Add an offset to each base 2 range to translate base 2 transitions onto base 10 transitions. But now we also tack on extra amounts to make our post-lookup calculations computationally cheaper: a single shift, instead of a multiply, a shift, and an increment. Adding <code>table[3]</code> to 9 and 10 make them 255 and 256. <code>log2(255) / 4</code> is 1 and <code>log2(256) / 4</code> is 2, as desired.</p>
-<h1 id="a-great-leap-forward">A great leap forward</h1>
+<h1 id="a-great-leap">A great leap</h1>
 <p>That’s where I left it. Then <a href="https://lemire.me/blog/2021/05/28/computing-the-number-of-digits-of-an-integer-quickly/#comment-585916">Kendall Willets stepped in and made a marvelous leap</a>. The code below is from <a href="https://lemire.me/blog/2021/06/03/computing-the-number-of-digits-of-an-integer-even-faster/">Daniel Lemire’s follow-up blog post laying out Kendall's approach</a>:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">static</span> uint64_t table[] <span style="color:#f92672">=</span> {
       <span style="color:#ae81ff">4294967296</span>,  <span style="color:#ae81ff">8589934582</span>,  <span style="color:#ae81ff">8589934582</span>,
@@ -165,7 +165,7 @@ uint64_t n <span style="color:#f92672">=</span> (uint64_t)(x) <span style="color
                         <img class="avatar" src="https://commaok.xyz/images/avatar.png">
                         <div>
                             <span class="dark">Josh Bleecher Snyder</span>
-                            <span>Go GDE</span>
+                            <span>Go GDE, @Tailscale</span>
                         </div>
                     </a>
             </footer>
