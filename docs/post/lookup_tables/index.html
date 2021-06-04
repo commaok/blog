@@ -1,0 +1,290 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go">
+		<meta name="generator" content="Hugo 0.62.0-DEV" />
+		<title>Make your lookup table do more &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="Make your lookup table do more" />
+<meta property="og:description" content="Lookup tables are powerful micro-optimization tools, because they implement arbitrary transformations in cheap constant time.
+And yet we often do not use them to their full potential. This post is the story of one example.
+A good starting point In a recent blog post, Daniel Lemire rediscovered a technique for calculating the base ten length of a uint32. Start by calculating integer log2(x), do an approximate integer division to translate log2(x) to log10(x), and then fix up the result as needed." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://commaok.xyz/post/lookup_tables/" />
+<meta property="article:published_time" content="2021-06-03T10:00:00-07:00" />
+<meta property="article:modified_time" content="2021-06-03T10:00:00-07:00" />
+
+	    
+	    <meta itemprop="name" content="Make your lookup table do more">
+<meta itemprop="description" content="Lookup tables are powerful micro-optimization tools, because they implement arbitrary transformations in cheap constant time.
+And yet we often do not use them to their full potential. This post is the story of one example.
+A good starting point In a recent blog post, Daniel Lemire rediscovered a technique for calculating the base ten length of a uint32. Start by calculating integer log2(x), do an approximate integer division to translate log2(x) to log10(x), and then fix up the result as needed.">
+<meta itemprop="datePublished" content="2021-06-03T10:00:00-07:00" />
+<meta itemprop="dateModified" content="2021-06-03T10:00:00-07:00" />
+<meta itemprop="wordCount" content="1003">
+
+
+
+<meta itemprop="keywords" content="" />
+	    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Make your lookup table do more"/>
+<meta name="twitter:description" content="Lookup tables are powerful micro-optimization tools, because they implement arbitrary transformations in cheap constant time.
+And yet we often do not use them to their full potential. This post is the story of one example.
+A good starting point In a recent blog post, Daniel Lemire rediscovered a technique for calculating the base ten length of a uint32. Start by calculating integer log2(x), do an approximate integer division to translate log2(x) to log10(x), and then fix up the result as needed."/>
+<meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://commaok.xyz/'>Home</a>
+	
+
+	
+	<a class="cta" href="https://commaok.xyz/index.xml">RSS</a>
+	
+</nav>
+
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>Make your lookup table do more</h1>
+                    <h2 class="headline">
+                    June 3, 2021 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p>Lookup tables are powerful micro-optimization tools, because they implement arbitrary transformations in cheap constant time.</p>
+<p>And yet we often do not use them to their full potential. This post is the story of one example.</p>
+<h1 id="a-good-starting-point">A good starting point</h1>
+<p>In a recent blog post, <a href="https://lemire.me/blog/2021/05/28/computing-the-number-of-digits-of-an-integer-quickly/#comment-585804">Daniel Lemire rediscovered a technique for calculating the base ten length of a uint32</a>. Start by calculating integer <code>log2(x)</code>, do an approximate integer division to translate <code>log2(x)</code> to <code>log10(x)</code>, and then fix up the result as needed.</p>
+<p>His code, with some annotations:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">static</span> uint32_t table[] <span style="color:#f92672">=</span> {
+	<span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">99</span>, <span style="color:#ae81ff">999</span>, <span style="color:#ae81ff">9999</span>, <span style="color:#ae81ff">99999</span>, <span style="color:#ae81ff">999999</span>,
+	<span style="color:#ae81ff">9999999</span>, <span style="color:#ae81ff">99999999</span>, <span style="color:#ae81ff">999999999</span>,
+};
+<span style="color:#66d9ef">int</span> y <span style="color:#f92672">=</span> (<span style="color:#ae81ff">9</span> <span style="color:#f92672">*</span> int_log2(x)) <span style="color:#f92672">&gt;</span><span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">5</span>; <span style="color:#75715e">// log10(2) ~= 0.301, 9/32 ~= 0.281
+</span><span style="color:#75715e"></span>y <span style="color:#f92672">+</span><span style="color:#f92672">=</span> x <span style="color:#f92672">&gt;</span> table[y]; <span style="color:#75715e">// use lookup table to discover off-by-one due to using integer math
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">return</span> y <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>;
+</code></pre></div><p>The initial calculation gets us close to the right answer. The lookup table steps in to handles numbers like 9 and 10. <code>log2(9)</code> is equal to <code>log2(10)</code>, so we need some way to distinguish them. <code>9 * log2(x) &gt;&gt; 5</code> yields 0 for both 9 and 10. Comparing <code>x</code> to <code>table[0]</code> tells us to increment the result for 10, but not for 9. Then we increment again, yielding the correct result: 1 for 9, 2 for 10.</p>
+<p>But lookup tables let us do arbitrary transformations, and we're getting only a single bit out of it: Increment or not. For example, maybe we could work that increment at the end of the function into the lookup table somehow. (Yes, that increment is free on amd64 architectures with a good enough compiler by using the <code>ADC</code> instruction.)</p>
+<h1 id="some-groundwork">Some groundwork</h1>
+<p>If we used a lookup table to modify the original input, then we would be in a better place to absorb some of the later work. For any given power of two range (e.g. 8–15), there is at most one transition from an n digit number to an n+1 digit number. For the range 8–15, that transition is from 9 to 10. For the range 16–31, there isn’t one.</p>
+<p>My <a href="https://lemire.me/blog/2021/05/28/computing-the-number-of-digits-of-an-integer-quickly/#comment-585476">first attempt at using this observation</a> was to use a lookup table to translate base 2 transitions (7 to 8) to line up with base 10 transitions (9 to 10).</p>
+<p>My code:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">static</span> uint32_t table[] <span style="color:#f92672">=</span> {
+	<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, (<span style="color:#ae81ff">1</span><span style="color:#f92672">&lt;</span><span style="color:#f92672">&lt;</span><span style="color:#ae81ff">4</span>) <span style="color:#f92672">-</span> <span style="color:#ae81ff">10</span>,
+	<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, (<span style="color:#ae81ff">1</span><span style="color:#f92672">&lt;</span><span style="color:#f92672">&lt;</span><span style="color:#ae81ff">7</span>) <span style="color:#f92672">-</span> <span style="color:#ae81ff">100</span>,
+	<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, (<span style="color:#ae81ff">1</span><span style="color:#f92672">&lt;</span><span style="color:#f92672">&lt;</span><span style="color:#ae81ff">10</span>) <span style="color:#f92672">-</span> <span style="color:#ae81ff">1000</span>,
+	<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, (<span style="color:#ae81ff">1</span><span style="color:#f92672">&lt;</span><span style="color:#f92672">&lt;</span><span style="color:#ae81ff">14</span>) <span style="color:#f92672">-</span> <span style="color:#ae81ff">10000</span>,
+	<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, (<span style="color:#ae81ff">1</span><span style="color:#f92672">&lt;</span><span style="color:#f92672">&lt;</span><span style="color:#ae81ff">17</span>) <span style="color:#f92672">-</span> <span style="color:#ae81ff">100000</span>,
+	<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, (<span style="color:#ae81ff">1</span><span style="color:#f92672">&lt;</span><span style="color:#f92672">&lt;</span><span style="color:#ae81ff">20</span>) <span style="color:#f92672">-</span> <span style="color:#ae81ff">1000000</span>,
+	<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, (<span style="color:#ae81ff">1</span><span style="color:#f92672">&lt;</span><span style="color:#f92672">&lt;</span><span style="color:#ae81ff">24</span>) <span style="color:#f92672">-</span> <span style="color:#ae81ff">10000000</span>,
+	<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, (<span style="color:#ae81ff">1</span><span style="color:#f92672">&lt;</span><span style="color:#f92672">&lt;</span><span style="color:#ae81ff">27</span>) <span style="color:#f92672">-</span> <span style="color:#ae81ff">100000000</span>,
+	<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, (<span style="color:#ae81ff">1</span><span style="color:#f92672">&lt;</span><span style="color:#f92672">&lt;</span><span style="color:#ae81ff">30</span>) <span style="color:#f92672">-</span> <span style="color:#ae81ff">1000000000</span>,
+	<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>,
+};
+x <span style="color:#f92672">+</span><span style="color:#f92672">=</span> table[int_log2(x)]; <span style="color:#75715e">// adjust input to align base 2 and base 10 transitions
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> ans <span style="color:#f92672">=</span> (<span style="color:#ae81ff">77</span><span style="color:#f92672">*</span>int_log2(x)) <span style="color:#f92672">&gt;</span><span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">8</span>; <span style="color:#75715e">// log10(2) ~= 0.301, 77x/256 ~= 0.301
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">return</span> ans <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>;
+</code></pre></div><p>Consider the inputs 9 and 10. We start with integer log2, which yields 3 in both cases. Then we add <code>table[3]</code>, which is 6. This transforms 9 and 10 into 15 and 16. Now if we take the integer log2 again we get 3 and 4. Integer division and an increment yields the correct result (1 and 2).</p>
+<p>This doesn’t actually reduce any of the other post-lookup-table work, but it sets us up to do so.</p>
+<p>Note that the table has grown from 9 uint32s to 32 uint32s. This is probably acceptable.</p>
+<h1 id="a-small-step-forward">A small step forward</h1>
+<p>The <a href="https://lemire.me/blog/2021/05/28/computing-the-number-of-digits-of-an-integer-quickly/#comment-585555">next iteration</a> looks like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">static</span> uint64_t table[] <span style="color:#f92672">=</span> {
+	<span style="color:#ae81ff">16</span>, <span style="color:#ae81ff">14</span>, <span style="color:#ae81ff">12</span>, <span style="color:#ae81ff">246</span>, <span style="color:#ae81ff">240</span>, <span style="color:#ae81ff">224</span>, <span style="color:#ae81ff">3996</span>, <span style="color:#ae81ff">3968</span>, <span style="color:#ae81ff">3840</span>,
+	<span style="color:#ae81ff">64536</span>, <span style="color:#ae81ff">64512</span>, <span style="color:#ae81ff">63488</span>, <span style="color:#ae81ff">61440</span>, <span style="color:#ae81ff">1038576</span>, <span style="color:#ae81ff">1032192</span>,
+	<span style="color:#ae81ff">1015808</span>, <span style="color:#ae81ff">16677216</span>, <span style="color:#ae81ff">16646144</span>, <span style="color:#ae81ff">16515072</span>, <span style="color:#ae81ff">267435456</span>,
+	<span style="color:#ae81ff">267386880</span>, <span style="color:#ae81ff">266338304</span>, <span style="color:#ae81ff">264241152</span>, <span style="color:#ae81ff">4284967296</span>,
+	<span style="color:#ae81ff">4278190080</span>, <span style="color:#ae81ff">4261412864</span>, <span style="color:#ae81ff">68619476736</span>, <span style="color:#ae81ff">68585259008</span>,
+	<span style="color:#ae81ff">68451041280</span>, <span style="color:#ae81ff">1098511627776</span>, <span style="color:#ae81ff">1098437885952</span>,
+	<span style="color:#ae81ff">1097364144128</span>,
+};
+uint64_t n <span style="color:#f92672">=</span> (uint64_t)(x) <span style="color:#f92672">+</span> table[int_log2(x)];
+<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">int_log2</span>(n) <span style="color:#f92672">&gt;</span><span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">2</span>;
+</code></pre></div><p>The non-lookup calculations here have gotten simpler. The table is a lot more complex, but that’s OK. That complexity is computationally free! The table has also grown again, from 32 uint32s to 32 uint64s. If speed matters, this is probably acceptable. (And if it doesn't matter, go implement something obvious instead.)</p>
+<p>The basic idea is the same as before. Add an offset to each base 2 range to translate base 2 transitions onto base 10 transitions. But now we also tack on extra amounts to make our post-lookup calculations computationally cheaper: a single shift, instead of a multiply, a shift, and an increment. Adding <code>table[3]</code> to 9 and 10 make them 255 and 256. <code>log2(255) / 4</code> is 1 and <code>log2(256) / 4</code> is 2, as desired.</p>
+<h1 id="a-great-leap-forward">A great leap forward</h1>
+<p>That’s where I left it. Then <a href="https://lemire.me/blog/2021/05/28/computing-the-number-of-digits-of-an-integer-quickly/#comment-585916">Kendall Willets stepped in and made a marvelous leap</a>. The code below is from <a href="https://lemire.me/blog/2021/06/03/computing-the-number-of-digits-of-an-integer-even-faster/">Daniel Lemire’s follow-up blog post laying out Kendall's approach</a>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">static</span> uint64_t table[] <span style="color:#f92672">=</span> {
+      <span style="color:#ae81ff">4294967296</span>,  <span style="color:#ae81ff">8589934582</span>,  <span style="color:#ae81ff">8589934582</span>,
+	  <span style="color:#ae81ff">8589934582</span>,  <span style="color:#ae81ff">12884901788</span>, <span style="color:#ae81ff">12884901788</span>,
+	  <span style="color:#ae81ff">12884901788</span>, <span style="color:#ae81ff">17179868184</span>, <span style="color:#ae81ff">17179868184</span>,
+	  <span style="color:#ae81ff">17179868184</span>, <span style="color:#ae81ff">21474826480</span>, <span style="color:#ae81ff">21474826480</span>,
+	  <span style="color:#ae81ff">21474826480</span>, <span style="color:#ae81ff">21474826480</span>, <span style="color:#ae81ff">25769703776</span>,
+      <span style="color:#ae81ff">25769703776</span>, <span style="color:#ae81ff">25769703776</span>, <span style="color:#ae81ff">30063771072</span>,
+	  <span style="color:#ae81ff">30063771072</span>, <span style="color:#ae81ff">30063771072</span>, <span style="color:#ae81ff">34349738368</span>,
+	  <span style="color:#ae81ff">34349738368</span>, <span style="color:#ae81ff">34349738368</span>, <span style="color:#ae81ff">34349738368</span>,
+	  <span style="color:#ae81ff">38554705664</span>, <span style="color:#ae81ff">38554705664</span>, <span style="color:#ae81ff">38554705664</span>,
+	  <span style="color:#ae81ff">41949672960</span>, <span style="color:#ae81ff">41949672960</span>, <span style="color:#ae81ff">41949672960</span>,
+      <span style="color:#ae81ff">42949672960</span>, <span style="color:#ae81ff">42949672960</span>,
+};
+<span style="color:#66d9ef">return</span> (x <span style="color:#f92672">+</span> table[int_log2(x)]) <span style="color:#f92672">&gt;</span><span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">32</span>;
+</code></pre></div><p>Lookup tables can implement arbitrary functions! Kendall embeds two pieces of information in a uint64: the integer log10 for that base 2 range in the top 32 bits and the transition translation (if any) in the bottom 32 bits. The table is eye-watering, but your CPU doesn't care.</p>
+<p>Consider 9 and 10 again. <code>table[3]</code> is <code>8589934582</code>, which is <code>(2&lt;&lt;32) - 10</code>. Adding 9 and 10 to that yields <code>(2&lt;&lt;32) - 1</code> and <code>2&lt;&lt;32</code>. If we now shift right 32 bits, this yields 1 and 2 respectively. Voilà!</p>
+<p>We now require only an integer log2, a table lookup, an addition, and a shift. Not bad.</p>
+<p>My three takeaways:</p>
+<ul>
+<li>
+<p>Lookup tables implement arbitrary transformations at a constant cost. If you have one in your code, it’s worth asking whether it can do more work for you.</p>
+</li>
+<li>
+<p>Open collaboration can be delightful, with thoughtful people. Three people’s combined insights and refinements broke new ground (I believe) on an old question. I'm not sure any of us would have gotten there alone.</p>
+</li>
+<li>
+<p>This is an existence proof that there are websites on the internet where it’s worth reading the comments.</p>
+</li>
+</ul>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                <a href="https://twitter.com/commaok">
+                        <img class="avatar" src="https://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>Go GDE</span>
+                        </div>
+                    </a>
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/lookup_tables/">Make your lookup table do more<aside class="dates">Jun 3</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/riscv_isa_blog_post/">What happens when you load into x0 on RISC-V?<aside class="dates">Feb 17</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/fork-point/">git rebase --fork-point considered harmful (by me)<aside class="dates">Nov 2</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/safer-generated-code/">Generating safer Go code<aside class="dates">Oct 28</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/discovering-size-classes/">Discovering alloc size classes in Go<aside class="dates">Sep 1</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/no-line-numbers/">Life without line numbers<aside class="dates">Apr 30</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/intern-strings/">Interning strings in Go<aside class="dates">Dec 17</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/report-metric/">testing.B.ReportMetric<aside class="dates">Jul 3</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/compatibility/">Compatibility: Not just about code<aside class="dates">Feb 6</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/benchmark-init/">Benchmarking package initialization<aside class="dates">Jan 31</aside></a>
+        </li>
+        
+   
+</ul>
+
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/josharian">
+        <i class="fa fa-github"></i>
+    </a>
+    
+    <a class="symbol" href="https://www.twitter.com/commaok">
+        <i class="fa fa-twitter"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2021 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://commaok.xyz/js/main.js"></script>
+<script src="https://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+    </body>
+</html>
