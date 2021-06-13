@@ -26,12 +26,12 @@
 Please help! It is easy, fast, and important.
 This post is about how, what, and why to test.
 Installation Pre-releases can be downloaded using go get. For example:
-$ go get golang.org/dl/go1.14beta1 $ go1.14beta1 download $ go1.14beta1 test your/favorite/package A list of pre-releases is available at https://godoc.org/golang.org/dl.
+$ go install golang.org/dl/go1.17beta1@latest $ go1.17beta1 download $ go1.17beta1 test your/favorite/package A complete list of pre-releases is available at https://pkg.go.dev/golang.org/dl.
 Betas Betas are early looks at a new release." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://commaok.xyz/post/test-beta/" />
-<meta property="article:published_time" content="2019-12-18T08:12:48-07:00" />
-<meta property="article:modified_time" content="2019-12-18T08:12:48-07:00" />
+<meta property="article:published_time" content="2021-06-13T08:12:48-07:00" />
+<meta property="article:modified_time" content="2021-06-13T08:12:48-07:00" />
 
 	    
 	    <meta itemprop="name" content="How to test a Go beta or RC">
@@ -39,11 +39,11 @@ Betas Betas are early looks at a new release." />
 Please help! It is easy, fast, and important.
 This post is about how, what, and why to test.
 Installation Pre-releases can be downloaded using go get. For example:
-$ go get golang.org/dl/go1.14beta1 $ go1.14beta1 download $ go1.14beta1 test your/favorite/package A list of pre-releases is available at https://godoc.org/golang.org/dl.
+$ go install golang.org/dl/go1.17beta1@latest $ go1.17beta1 download $ go1.17beta1 test your/favorite/package A complete list of pre-releases is available at https://pkg.go.dev/golang.org/dl.
 Betas Betas are early looks at a new release.">
-<meta itemprop="datePublished" content="2019-12-18T08:12:48-07:00" />
-<meta itemprop="dateModified" content="2019-12-18T08:12:48-07:00" />
-<meta itemprop="wordCount" content="645">
+<meta itemprop="datePublished" content="2021-06-13T08:12:48-07:00" />
+<meta itemprop="dateModified" content="2021-06-13T08:12:48-07:00" />
+<meta itemprop="wordCount" content="646">
 
 
 
@@ -54,7 +54,7 @@ Betas Betas are early looks at a new release.">
 Please help! It is easy, fast, and important.
 This post is about how, what, and why to test.
 Installation Pre-releases can be downloaded using go get. For example:
-$ go get golang.org/dl/go1.14beta1 $ go1.14beta1 download $ go1.14beta1 test your/favorite/package A list of pre-releases is available at https://godoc.org/golang.org/dl.
+$ go install golang.org/dl/go1.17beta1@latest $ go1.17beta1 download $ go1.17beta1 test your/favorite/package A complete list of pre-releases is available at https://pkg.go.dev/golang.org/dl.
 Betas Betas are early looks at a new release."/>
 <meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
 
@@ -78,7 +78,7 @@ Betas Betas are early looks at a new release."/>
                 <header>
                     <h1>How to test a Go beta or RC</h1>
                     <h2 class="headline">
-                    December 18, 2019 
+                    June 13, 2021 
                     <br>
                     
                     </h2>
@@ -90,30 +90,30 @@ the Go team <a href="https://groups.google.com/forum/#!forum/golang-announce">as
 <p>This post is about how, what, and why to test.</p>
 <h1 id="installation">Installation</h1>
 <p>Pre-releases can be downloaded using <code>go get</code>. For example:</p>
-<pre><code>$ go get golang.org/dl/go1.14beta1
-$ go1.14beta1 download
-$ go1.14beta1 test your/favorite/package
-</code></pre><p>A list of pre-releases is available at <a href="https://godoc.org/golang.org/dl">https://godoc.org/golang.org/dl</a>.</p>
+<pre><code>$ go install golang.org/dl/go1.17beta1@latest
+$ go1.17beta1 download
+$ go1.17beta1 test your/favorite/package
+</code></pre><p>A complete list of pre-releases is available at <a href="https://pkg.go.dev/golang.org/dl">https://pkg.go.dev/golang.org/dl</a>.</p>
 <h1 id="betas">Betas</h1>
 <p>Betas are early looks at a new release. They sometimes have known bugs. Critical bugs are uncommon but not unheard of. New APIs may still change in response to feedback. You should not use a beta release in production.</p>
-<p>Here's what you should do with a Go beta release, ordered from <em>easy and fast</em> to <em>pretty involved</em>. Even if you only do the first item or two, it is helpful.</p>
+<p>Here's what you should do with a Go beta release, ordered from <strong>easy and fast</strong> to <strong>pretty involved</strong>. Even if you only do the first item or two, it is helpful!</p>
 <ol>
 <li>Run your tests locally. Investigate and <a href="https://golang.org/issue/new">report</a> any new failures.</li>
-<li>Read <a href="https://tip.golang.org/doc/go1.14">the draft release notes</a>. (Adjust the link appropriately for newer releases.) If you see anything concerning, <a href="https://golang.org/issue/new">file an issue to discuss</a>.</li>
+<li>Read <a href="https://tip.golang.org/doc/go1.17">the draft release notes</a>. (You may have to edit this link appropriately for newer releases.) If you see anything concerning, <a href="https://golang.org/issue/new">file an issue to discuss</a>.</li>
 <li>Run your benchmarks locally. Investigate and <a href="https://golang.org/issue/new">report</a> performance regressions.</li>
 <li>If you have a staging server, CI, or anywhere you can run more involved tests, use the pre-release version there, and <a href="https://golang.org/issue/new">file any issues you encounter</a>.</li>
-<li>Look over <a href="https://github.com/golang/go/blob/master/api/go1.14.txt">the API diffs</a>. (Again, adjust link as appropriate.) If you see anything concerning, <a href="https://golang.org/issue/new">file an issue to discuss</a>.</li>
+<li>Look over <a href="https://github.com/golang/go/blob/master/api/go1.17.txt">the API diffs</a>. (Again, adjust link as appropriate.) If you see anything concerning, <a href="https://golang.org/issue/new">file an issue to discuss</a>.</li>
 </ol>
 <h1 id="release-candidiates">Release candidiates</h1>
 <p>Release candidates are generally free of known serious bugs. (Google tests release candidates on their live servers.) APIs should be stable.</p>
-<p>The list of things to do with a Go RC is the same as with betas, except that, if you have the bandwidth and means, you may want to try running a production load with it, on a small subset of servers.</p>
+<p>The list of things to do with a Go RC is the same as with betas, except that, if you have the bandwidth and means, you may want to try running it in production, on a small subset of servers.</p>
 <h1 id="i-dont-have-that-much-time">I don't have that much time</h1>
 <p>It is not atypical to have one or two betas and one or two RCs. That's a lot of testing. What if you only have a small amount of time to contribute to helping Go have bug-free releases?</p>
-<p>If you can only do one thing, run your tests locally using the first beta. It takes just a few minutes. The earlier bugs get caught, the more likely it is they can be fixed, and fixed well.</p>
-<p>If you can do only a little bit more, please read the release notes at some point; earlier is better. You'd probably do that when the release came out anyway. By reading it early, there's still a chance of fixing any problems you spot.</p>
+<p>If you can only do one thing, <strong>run your tests locally using the first beta</strong>. It takes just a few minutes. The earlier bugs get caught, the more likely it is they can be fixed, and fixed well.</p>
+<p>If you can do a little bit more, please <strong>read the release notes early</strong>. You'd probably read them when the release came out anyway. By reading it early, there's still a chance of fixing any problems you see.</p>
 <h1 id="why-test-betas-and-rcs">Why test betas and RCs?</h1>
-<p>Programming languages, and their tooling and communities, are complex creatures. People use them in marvelous and unusual ways. And programming languages are software too, and you know what that means. Despite the Go contributors&rsquo; best efforts, the Go issue tracker has its fair share of frustrated programmers who have discovered too late that a new release doesn't work for them: a subtle behavior change, a rare performance regression, an API that is not quite right.</p>
-<p>Once a release is out, fixing these problems becomes harder and sometimes even impossible. Security problems get prompt fixes, but anything short of that, even a critical bug, won't see a fix for a month, at the next point release. Non-critical bugs won't be fixed until the next full Go release, six months out. And in many cases, thanks to the <a href="https://golang.org/doc/go1compat">Go 1 Compatibility Promise</a>, we may simply be stuck forever with whatever the problem is.</p>
+<p>Programming languages, and their tooling and communities, are complex creatures. People use them in marvelous and unusual ways. And programming languages are software too, and you know what that means. Despite the Go contributors&rsquo; best efforts, the Go issue tracker has its fair share of frustrated programmers who have discovered too late that a new release doesn't work for them: a subtle behavior change, a rare performance regression, an API design that is not quite right.</p>
+<p>Once a release is out, fixing these problems becomes harder and sometimes even impossible. Security problems get prompt fixes, but anything short of that, even a critical bug, won't see a fix for a month, at the next point release. Non-critical bugs won't be fixed until the next full Go release, six months out, at the earliest. And in many cases, thanks to the <a href="https://golang.org/doc/go1compat">Go 1 Compatibility Promise</a>, we may simply be stuck forever with whatever the problem is.</p>
 <p>Betas and RCs are our only chance as a community to catch many issues while there's still time to really fix them.</p>
 <h1 id="bonus">Bonus</h1>
 <p>Consider adding the &ldquo;tip&rdquo; version of Go to your CI. This is especially helpful in catching problems very early, but it does add a fair bit of work: Before filing issues, you need to check <a href="https://build.golang.org/">the build dashboard</a> and investigate a bit to determine whether any failure is worth reporting.</p>
@@ -125,7 +125,7 @@ $ go1.14beta1 test your/favorite/package
                         <img class="avatar" src="https://commaok.xyz/images/avatar.png">
                         <div>
                             <span class="dark">Josh Bleecher Snyder</span>
-                            <span>Go GDE</span>
+                            <span>Go GDE, @Tailscale</span>
                         </div>
                     </a>
             </footer>
@@ -140,14 +140,49 @@ $ go1.14beta1 test your/favorite/package
     
         
         <li>
-            <a href="https://commaok.xyz/post/no-line-numbers/">Life without line numbers<aside class="dates">Apr 30</aside></a>
+            <a href="https://commaok.xyz/post/test-beta/">How to test a Go beta or RC<aside class="dates">Jun 13</aside></a>
         </li>
         
    
     
         
         <li>
-            <a href="https://commaok.xyz/post/test-beta/">How to test a Go beta or RC<aside class="dates">Dec 18</aside></a>
+            <a href="https://commaok.xyz/post/lookup_tables/">Make your lookup table do more<aside class="dates">Jun 3</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/riscv_isa_blog_post/">What happens when you load into x0 on RISC-V?<aside class="dates">Feb 17</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/fork-point/">git rebase --fork-point considered harmful (by me)<aside class="dates">Nov 2</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/safer-generated-code/">Generating safer Go code<aside class="dates">Oct 28</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/discovering-size-classes/">Discovering alloc size classes in Go<aside class="dates">Sep 1</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/no-line-numbers/">Life without line numbers<aside class="dates">Apr 30</aside></a>
         </li>
         
    
@@ -169,41 +204,6 @@ $ go1.14beta1 test your/favorite/package
         
         <li>
             <a href="https://commaok.xyz/post/compatibility/">Compatibility: Not just about code<aside class="dates">Feb 6</aside></a>
-        </li>
-        
-   
-    
-        
-        <li>
-            <a href="https://commaok.xyz/post/benchmark-init/">Benchmarking package initialization<aside class="dates">Jan 31</aside></a>
-        </li>
-        
-   
-    
-        
-        <li>
-            <a href="https://commaok.xyz/post/interface-allocs/">Logging, interfaces, and allocation<aside class="dates">Feb 6</aside></a>
-        </li>
-        
-   
-    
-        
-        <li>
-            <a href="https://commaok.xyz/post/memprofilerate/">Picking up pennies: Disabling memory profiling<aside class="dates">Jan 28</aside></a>
-        </li>
-        
-   
-    
-        
-        <li>
-            <a href="https://commaok.xyz/post/compile-time-assertions/">Compile-time assertions in Go<aside class="dates">Jan 24</aside></a>
-        </li>
-        
-   
-    
-        
-        <li>
-            <a href="https://commaok.xyz/post/new-blog/">new(Blog)<aside class="dates">Jan 23</aside></a>
         </li>
         
    
@@ -230,7 +230,7 @@ $ go1.14beta1 test your/favorite/package
     
     <p class="small">
     
-        © Copyright 2020 Josh Bleecher Snyder
+        © Copyright 2021 Josh Bleecher Snyder
     
     </p>
 </footer>

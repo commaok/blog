@@ -10,6 +10,48 @@
     
     
     <item>
+      <title>How to test a Go beta or RC</title>
+      <link>https://commaok.xyz/post/test-beta/</link>
+      <pubDate>Sun, 13 Jun 2021 08:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/post/test-beta/</guid>
+      <description>&lt;p&gt;Around this time in the &lt;a href=&#34;https://github.com/golang/go/wiki/Go-Release-Cycle&#34;&gt;Go release cycle&lt;/a&gt;,
+the Go team &lt;a href=&#34;https://groups.google.com/forum/#!forum/golang-announce&#34;&gt;asks people to test Go betas and release candidates&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Please help! It is easy, fast, and important.&lt;/p&gt;
+&lt;p&gt;This post is about how, what, and why to test.&lt;/p&gt;
+&lt;h1 id=&#34;installation&#34;&gt;Installation&lt;/h1&gt;
+&lt;p&gt;Pre-releases can be downloaded using &lt;code&gt;go get&lt;/code&gt;. For example:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ go install golang.org/dl/go1.17beta1@latest
+$ go1.17beta1 download
+$ go1.17beta1 test your/favorite/package
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;A complete list of pre-releases is available at &lt;a href=&#34;https://pkg.go.dev/golang.org/dl&#34;&gt;https://pkg.go.dev/golang.org/dl&lt;/a&gt;.&lt;/p&gt;
+&lt;h1 id=&#34;betas&#34;&gt;Betas&lt;/h1&gt;
+&lt;p&gt;Betas are early looks at a new release. They sometimes have known bugs. Critical bugs are uncommon but not unheard of. New APIs may still change in response to feedback. You should not use a beta release in production.&lt;/p&gt;
+&lt;p&gt;Here&#39;s what you should do with a Go beta release, ordered from &lt;strong&gt;easy and fast&lt;/strong&gt; to &lt;strong&gt;pretty involved&lt;/strong&gt;. Even if you only do the first item or two, it is helpful!&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Run your tests locally. Investigate and &lt;a href=&#34;https://golang.org/issue/new&#34;&gt;report&lt;/a&gt; any new failures.&lt;/li&gt;
+&lt;li&gt;Read &lt;a href=&#34;https://tip.golang.org/doc/go1.17&#34;&gt;the draft release notes&lt;/a&gt;. (You may have to edit this link appropriately for newer releases.) If you see anything concerning, &lt;a href=&#34;https://golang.org/issue/new&#34;&gt;file an issue to discuss&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Run your benchmarks locally. Investigate and &lt;a href=&#34;https://golang.org/issue/new&#34;&gt;report&lt;/a&gt; performance regressions.&lt;/li&gt;
+&lt;li&gt;If you have a staging server, CI, or anywhere you can run more involved tests, use the pre-release version there, and &lt;a href=&#34;https://golang.org/issue/new&#34;&gt;file any issues you encounter&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Look over &lt;a href=&#34;https://github.com/golang/go/blob/master/api/go1.17.txt&#34;&gt;the API diffs&lt;/a&gt;. (Again, adjust link as appropriate.) If you see anything concerning, &lt;a href=&#34;https://golang.org/issue/new&#34;&gt;file an issue to discuss&lt;/a&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h1 id=&#34;release-candidiates&#34;&gt;Release candidiates&lt;/h1&gt;
+&lt;p&gt;Release candidates are generally free of known serious bugs. (Google tests release candidates on their live servers.) APIs should be stable.&lt;/p&gt;
+&lt;p&gt;The list of things to do with a Go RC is the same as with betas, except that, if you have the bandwidth and means, you may want to try running it in production, on a small subset of servers.&lt;/p&gt;
+&lt;h1 id=&#34;i-dont-have-that-much-time&#34;&gt;I don&#39;t have that much time&lt;/h1&gt;
+&lt;p&gt;It is not atypical to have one or two betas and one or two RCs. That&#39;s a lot of testing. What if you only have a small amount of time to contribute to helping Go have bug-free releases?&lt;/p&gt;
+&lt;p&gt;If you can only do one thing, &lt;strong&gt;run your tests locally using the first beta&lt;/strong&gt;. It takes just a few minutes. The earlier bugs get caught, the more likely it is they can be fixed, and fixed well.&lt;/p&gt;
+&lt;p&gt;If you can do a little bit more, please &lt;strong&gt;read the release notes early&lt;/strong&gt;. You&#39;d probably read them when the release came out anyway. By reading it early, there&#39;s still a chance of fixing any problems you see.&lt;/p&gt;
+&lt;h1 id=&#34;why-test-betas-and-rcs&#34;&gt;Why test betas and RCs?&lt;/h1&gt;
+&lt;p&gt;Programming languages, and their tooling and communities, are complex creatures. People use them in marvelous and unusual ways. And programming languages are software too, and you know what that means. Despite the Go contributors&amp;rsquo; best efforts, the Go issue tracker has its fair share of frustrated programmers who have discovered too late that a new release doesn&#39;t work for them: a subtle behavior change, a rare performance regression, an API design that is not quite right.&lt;/p&gt;
+&lt;p&gt;Once a release is out, fixing these problems becomes harder and sometimes even impossible. Security problems get prompt fixes, but anything short of that, even a critical bug, won&#39;t see a fix for a month, at the next point release. Non-critical bugs won&#39;t be fixed until the next full Go release, six months out, at the earliest. And in many cases, thanks to the &lt;a href=&#34;https://golang.org/doc/go1compat&#34;&gt;Go 1 Compatibility Promise&lt;/a&gt;, we may simply be stuck forever with whatever the problem is.&lt;/p&gt;
+&lt;p&gt;Betas and RCs are our only chance as a community to catch many issues while there&#39;s still time to really fix them.&lt;/p&gt;
+&lt;h1 id=&#34;bonus&#34;&gt;Bonus&lt;/h1&gt;
+&lt;p&gt;Consider adding the &amp;ldquo;tip&amp;rdquo; version of Go to your CI. This is especially helpful in catching problems very early, but it does add a fair bit of work: Before filing issues, you need to check &lt;a href=&#34;https://build.golang.org/&#34;&gt;the build dashboard&lt;/a&gt; and investigate a bit to determine whether any failure is worth reporting.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Make your lookup table do more</title>
       <link>https://commaok.xyz/post/lookup_tables/</link>
       <pubDate>Thu, 03 Jun 2021 10:00:00 -0700</pubDate>
