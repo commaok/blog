@@ -1,98 +1,60 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  
   <url>
     <loc>https://commaok.xyz/</loc>
     <lastmod>2021-06-13T08:12:48-07:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/test-beta/</loc>
     <lastmod>2021-06-13T08:12:48-07:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/</loc>
     <lastmod>2021-06-13T08:12:48-07:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/lookup_tables/</loc>
     <lastmod>2021-06-03T10:00:00-07:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/riscv_isa_blog_post/</loc>
     <lastmod>2021-02-17T10:00:00-07:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/fork-point/</loc>
     <lastmod>2020-11-02T09:12:48-07:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/safer-generated-code/</loc>
     <lastmod>2020-10-28T09:12:48-07:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/discovering-size-classes/</loc>
     <lastmod>2020-09-01T09:12:48-07:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/no-line-numbers/</loc>
     <lastmod>2020-04-30T08:12:48-07:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/intern-strings/</loc>
     <lastmod>2019-12-17T08:12:48-07:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/report-metric/</loc>
     <lastmod>2019-07-03T18:07:05-08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/compatibility/</loc>
     <lastmod>2019-02-06T16:05:13-08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/benchmark-init/</loc>
     <lastmod>2019-01-31T13:53:05-08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/interface-allocs/</loc>
     <lastmod>2017-02-06T10:52:40-08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/memprofilerate/</loc>
     <lastmod>2017-01-28T18:06:36-08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/compile-time-assertions/</loc>
     <lastmod>2017-01-24T09:37:05-08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/post/new-blog/</loc>
     <lastmod>2017-01-23T15:19:05-08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/categories/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://commaok.xyz/tags/</loc>
   </url>
-  
 </urlset>

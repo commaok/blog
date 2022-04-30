@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.62.0-DEV" />
+		<meta name="generator" content="Hugo 0.98.0" />
 		<title>Generating safer Go code &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
@@ -22,36 +22,33 @@
 		
 
 		<meta property="og:title" content="Generating safer Go code" />
-<meta property="og:description" content="It&#39;s easy to forget to call go generate when you need to. Failure to regenerate can mean nasty bugs.
+<meta property="og:description" content="It&rsquo;s easy to forget to call go generate when you need to. Failure to regenerate can mean nasty bugs.
 Venerable gopher Rog Peppe found an excellent technique for guarding against this class of bugs. Like many good ideas, it is obvious in retrospect.
  Generate code that will not compile if needs to be regenerated.
- I&#39;ll illustrate this with two examples.
+ I&rsquo;ll illustrate this with two examples.
 stringer The first example comes directly from Rog, in the stringer command." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://commaok.xyz/post/safer-generated-code/" />
+<meta property="og:url" content="https://commaok.xyz/post/safer-generated-code/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2020-10-28T09:12:48-07:00" />
 <meta property="article:modified_time" content="2020-10-28T09:12:48-07:00" />
 
+
 	    
 	    <meta itemprop="name" content="Generating safer Go code">
-<meta itemprop="description" content="It&#39;s easy to forget to call go generate when you need to. Failure to regenerate can mean nasty bugs.
+<meta itemprop="description" content="It&rsquo;s easy to forget to call go generate when you need to. Failure to regenerate can mean nasty bugs.
 Venerable gopher Rog Peppe found an excellent technique for guarding against this class of bugs. Like many good ideas, it is obvious in retrospect.
  Generate code that will not compile if needs to be regenerated.
- I&#39;ll illustrate this with two examples.
-stringer The first example comes directly from Rog, in the stringer command.">
-<meta itemprop="datePublished" content="2020-10-28T09:12:48-07:00" />
+ I&rsquo;ll illustrate this with two examples.
+stringer The first example comes directly from Rog, in the stringer command."><meta itemprop="datePublished" content="2020-10-28T09:12:48-07:00" />
 <meta itemprop="dateModified" content="2020-10-28T09:12:48-07:00" />
 <meta itemprop="wordCount" content="671">
-
-
-
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Generating safer Go code"/>
-<meta name="twitter:description" content="It&#39;s easy to forget to call go generate when you need to. Failure to regenerate can mean nasty bugs.
+<meta name="twitter:description" content="It&rsquo;s easy to forget to call go generate when you need to. Failure to regenerate can mean nasty bugs.
 Venerable gopher Rog Peppe found an excellent technique for guarding against this class of bugs. Like many good ideas, it is obvious in retrospect.
  Generate code that will not compile if needs to be regenerated.
- I&#39;ll illustrate this with two examples.
+ I&rsquo;ll illustrate this with two examples.
 stringer The first example comes directly from Rog, in the stringer command."/>
 <meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
 
@@ -81,30 +78,30 @@ stringer The first example comes directly from Rog, in the stringer command."/>
                     </h2>
                 </header>
                 <section id="post-body">
-                    <p>It's easy to forget to call <code>go generate</code> when you need to. Failure to regenerate can mean nasty bugs.</p>
+                    <p>It&rsquo;s easy to forget to call <code>go generate</code> when you need to. Failure to regenerate can mean nasty bugs.</p>
 <p>Venerable gopher <a href="https://github.com/rogpeppe/">Rog Peppe</a> found an excellent technique for guarding against this class of bugs. Like many good ideas, it is obvious in retrospect.</p>
 <blockquote>
 <p>Generate code that will not compile if needs to be regenerated.</p>
 </blockquote>
-<p>I'll illustrate this with two examples.</p>
+<p>I&rsquo;ll illustrate this with two examples.</p>
 <h3 id="stringer">stringer</h3>
 <p>The first example comes directly from Rog, in the <a href="https://pkg.go.dev/golang.org/x/tools/cmd/stringer"><code>stringer</code></a> command. <code>stringer</code> generates a <code>String() string</code> method for integer types that have defined constants.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">T</span> <span style="color:#66d9ef">int</span>
-
-<span style="color:#66d9ef">const</span> (
-    <span style="color:#a6e22e">One</span> <span style="color:#a6e22e">T</span> = <span style="color:#ae81ff">1</span>
-    <span style="color:#a6e22e">Two</span> <span style="color:#a6e22e">T</span> = <span style="color:#ae81ff">2</span>
-)
-</code></pre></div><p><code>stringer</code> will generate a method that returns <code>&quot;One&quot;</code> for <code>1</code>, <code>&quot;Two&quot;</code> for <code>2</code>, and <code>&quot;T(3)&quot;</code> for <code>3</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">T</span> <span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">One</span> <span style="color:#a6e22e">T</span> = <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Two</span> <span style="color:#a6e22e">T</span> = <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p><code>stringer</code> will generate a method that returns <code>&quot;One&quot;</code> for <code>1</code>, <code>&quot;Two&quot;</code> for <code>2</code>, and <code>&quot;T(3)&quot;</code> for <code>3</code>.</p>
 <p>What if you now change the value of <code>One</code> to be <code>3</code> and forget to re-generate?</p>
 <p>Well, <code>stringer</code> also generated this function:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">_</span>() {
-	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">x</span> [<span style="color:#ae81ff">1</span>]<span style="color:#66d9ef">struct</span>{}
-	<span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">x</span>[<span style="color:#a6e22e">One</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]
-	<span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">x</span>[<span style="color:#a6e22e">Two</span><span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>]
-}
-</code></pre></div><p>The function is named <code>_</code>, which means it is impossible to call it. The compiler won't even bother generating code for it. It will, however, typecheck it. And typechecking is where the magic happens.</p>
-<p>When the value of <code>One</code> is <code>1</code>, <code>x[One-1]</code> evaluates to <code>x[0]</code>. Since <code>x</code> has length <code>1</code>, that's OK.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">_</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">x</span> [<span style="color:#ae81ff">1</span>]<span style="color:#66d9ef">struct</span>{}
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">x</span>[<span style="color:#a6e22e">One</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">x</span>[<span style="color:#a6e22e">Two</span><span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The function is named <code>_</code>, which means it is impossible to call it. The compiler won&rsquo;t even bother generating code for it. It will, however, typecheck it. And typechecking is where the magic happens.</p>
+<p>When the value of <code>One</code> is <code>1</code>, <code>x[One-1]</code> evaluates to <code>x[0]</code>. Since <code>x</code> has length <code>1</code>, that&rsquo;s OK.</p>
 <p>When the value of <code>One</code> is <code>3</code>, <code>x[One-1]</code> evaluates to <code>x[2]</code>. But <code>x</code> only has length <code>1</code>! Attempts to compile this generate a compiler error: <code>invalid array index One - 1 (out of bounds for 1-element array)</code>.</p>
 <p>The function <em>recorded the values of the constants when stringer was run</em> and <em>fails to compile if those values change</em>.</p>
 <h3 id="cloner">cloner</h3>
@@ -113,27 +110,27 @@ stringer The first example comes directly from Rog, in the stringer command."/>
 <p>The output of <code>cloner</code> depends on the input struct fields. How can we trigger a compilation failure if we forget to re-run the tool after changing an input struct?</p>
 <p>The trick is to duplicate the original struct in the generated code and then attempt to convert from the original struct to the current struct.</p>
 <p>We start with this input code:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">T</span> <span style="color:#66d9ef">struct</span> {
-	<span style="color:#a6e22e">X</span> <span style="color:#66d9ef">int</span>
-}
-</code></pre></div><p>After generating a <code>Clone</code> method for <code>T</code>, <code>cloner</code> also generates:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">T</span>(<span style="color:#66d9ef">struct</span> {
-	<span style="color:#a6e22e">X</span> <span style="color:#66d9ef">int</span>
-}{})
-</code></pre></div><p>Here we've written out the exact form of <code>T</code> when we generated the code, and assigned it to <code>_</code>, which the compiler can discard. However, it still must be typechecked.</p>
-<p>Suppose we now change the type <code>T</code>. Let's add a new field.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">T</span> <span style="color:#66d9ef">struct</span> {
-	<span style="color:#a6e22e">X</span> <span style="color:#66d9ef">int</span>
-	<span style="color:#a6e22e">Y</span> <span style="color:#66d9ef">string</span>
-}
-</code></pre></div><p>The conversion now fails: It's not possible to convert a <code>struct { X int }</code> to a <code>struct { X int; Y string }</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">T</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">X</span> <span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>After generating a <code>Clone</code> method for <code>T</code>, <code>cloner</code> also generates:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">T</span>(<span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">X</span> <span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span>}{})
+</span></span></code></pre></div><p>Here we&rsquo;ve written out the exact form of <code>T</code> when we generated the code, and assigned it to <code>_</code>, which the compiler can discard. However, it still must be typechecked.</p>
+<p>Suppose we now change the type <code>T</code>. Let&rsquo;s add a new field.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">T</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">X</span> <span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Y</span> <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The conversion now fails: It&rsquo;s not possible to convert a <code>struct { X int }</code> to a <code>struct { X int; Y string }</code>.</p>
 <p>Similar to stringer, cloner <em>recorded the types when cloner was run</em> and now <em>fails to compile if those types change</em>.</p>
 <h3 id="compile-time-assertion-taxonomy">Compile-time assertion taxonomy</h3>
-<p>We've seen two forms of assertions that can trigger during typechecking: x == y and a struct's fields are unchanged.</p>
-<p>There are others. For example, you can use conversions to assert that a type implements an interface. You can use conversion to uint to assert that one untyped constant is greater than or equal to than another. (You can't convert a negative constant to uint.)</p>
+<p>We&rsquo;ve seen two forms of assertions that can trigger during typechecking: x == y and a struct&rsquo;s fields are unchanged.</p>
+<p>There are others. For example, you can use conversions to assert that a type implements an interface. You can use conversion to uint to assert that one untyped constant is greater than or equal to than another. (You can&rsquo;t convert a negative constant to uint.)</p>
 <p>There are some obscure ones, of questionable utility. For example, you could assert that two concrete types are distinct by putting them both as cases in a type switch, which disallows duplicate types.</p>
-<p>I don't know of any attempt to exhaustively list compile-time assertions (aside from the spec) and how they can be used, with examples. Someone please make one!</p>
-<p>Matthew Dempsky has <a href="https://github.com/golang/go/issues/34868">proposed that Go add explicit compile time assertions</a> for boolean expressions. (That doesn't cover relationships between types, although maybe generics would break some new ground here.) And I've written about a quirky way that you can write <a href="https://commaok.xyz/post/compile-time-assertions/">link-time assertions</a> in Go.</p>
+<p>I don&rsquo;t know of any attempt to exhaustively list compile-time assertions (aside from the spec) and how they can be used, with examples. Someone please make one!</p>
+<p>Matthew Dempsky has <a href="https://github.com/golang/go/issues/34868">proposed that Go add explicit compile time assertions</a> for boolean expressions. (That doesn&rsquo;t cover relationships between types, although maybe generics would break some new ground here.) And I&rsquo;ve written about a quirky way that you can write <a href="https://commaok.xyz/post/compile-time-assertions/">link-time assertions</a> in Go.</p>
 <h3 id="call-to-action">Call to action</h3>
 <p>If you maintain a code generator, please check whether you can use this technique to protect your users from bugs. One obvious category is generated serialization/deserialization routines. There are almost certainly others.</p>
 
@@ -249,7 +246,7 @@ stringer The first example comes directly from Rog, in the stringer command."/>
     
     <p class="small">
     
-        © Copyright 2021 Josh Bleecher Snyder
+        © Copyright 2022 Josh Bleecher Snyder
     
     </p>
 </footer>

@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.62.0-DEV" />
+		<meta name="generator" content="Hugo 0.98.0" />
 		<title>testing.B.ReportMetric &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
@@ -23,27 +23,24 @@
 
 		<meta property="og:title" content="testing.B.ReportMetric" />
 <meta property="og:description" content="My favorite new API in Go 1.13 is testing.B.ReportMetric. It allows you to report custom metrics from within your benchmarks.
-When the API was proposed, the motivating example was package sort. The package sort benchmarks, like all benchmarks, measure elapsed wall time and (optionally) allocations. But wall time measurements can be noisy, and the sort routines don&#39;t allocate much. There is another really useful algorithm-level metric for a sorting routine: How many comparisons does it perform?" />
+When the API was proposed, the motivating example was package sort. The package sort benchmarks, like all benchmarks, measure elapsed wall time and (optionally) allocations. But wall time measurements can be noisy, and the sort routines don&rsquo;t allocate much. There is another really useful algorithm-level metric for a sorting routine: How many comparisons does it perform?" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://commaok.xyz/post/report-metric/" />
+<meta property="og:url" content="https://commaok.xyz/post/report-metric/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2019-07-03T18:07:05-08:00" />
 <meta property="article:modified_time" content="2019-07-03T18:07:05-08:00" />
+
 
 	    
 	    <meta itemprop="name" content="testing.B.ReportMetric">
 <meta itemprop="description" content="My favorite new API in Go 1.13 is testing.B.ReportMetric. It allows you to report custom metrics from within your benchmarks.
-When the API was proposed, the motivating example was package sort. The package sort benchmarks, like all benchmarks, measure elapsed wall time and (optionally) allocations. But wall time measurements can be noisy, and the sort routines don&#39;t allocate much. There is another really useful algorithm-level metric for a sorting routine: How many comparisons does it perform?">
-<meta itemprop="datePublished" content="2019-07-03T18:07:05-08:00" />
+When the API was proposed, the motivating example was package sort. The package sort benchmarks, like all benchmarks, measure elapsed wall time and (optionally) allocations. But wall time measurements can be noisy, and the sort routines don&rsquo;t allocate much. There is another really useful algorithm-level metric for a sorting routine: How many comparisons does it perform?"><meta itemprop="datePublished" content="2019-07-03T18:07:05-08:00" />
 <meta itemprop="dateModified" content="2019-07-03T18:07:05-08:00" />
 <meta itemprop="wordCount" content="848">
-
-
-
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="testing.B.ReportMetric"/>
 <meta name="twitter:description" content="My favorite new API in Go 1.13 is testing.B.ReportMetric. It allows you to report custom metrics from within your benchmarks.
-When the API was proposed, the motivating example was package sort. The package sort benchmarks, like all benchmarks, measure elapsed wall time and (optionally) allocations. But wall time measurements can be noisy, and the sort routines don&#39;t allocate much. There is another really useful algorithm-level metric for a sorting routine: How many comparisons does it perform?"/>
+When the API was proposed, the motivating example was package sort. The package sort benchmarks, like all benchmarks, measure elapsed wall time and (optionally) allocations. But wall time measurements can be noisy, and the sort routines don&rsquo;t allocate much. There is another really useful algorithm-level metric for a sorting routine: How many comparisons does it perform?"/>
 <meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
 
 	</head>
@@ -73,32 +70,32 @@ When the API was proposed, the motivating example was package sort. The package 
                 </header>
                 <section id="post-body">
                     <p>My favorite new API in Go 1.13 is <a href="https://tip.golang.org/pkg/testing/#B.ReportMetric"><code>testing.B.ReportMetric</code></a>. It allows you to report custom metrics from within your benchmarks.</p>
-<p>When the API was <a href="https://github.com/golang/go/issues/26037">proposed</a>, the motivating example was <code>package sort</code>. The <code>package sort</code> benchmarks, like all benchmarks, measure elapsed wall time and (optionally) allocations. But wall time measurements can be noisy, and the sort routines don't allocate much. There is another really useful algorithm-level metric for a sorting routine: How many comparisons does it perform?</p>
-<p>Let's use our new to API find out. Here's a simple sort benchmark.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">demo</span>
-
-<span style="color:#f92672">import</span> (
-	<span style="color:#e6db74">&#34;sort&#34;</span>
-	<span style="color:#e6db74">&#34;testing&#34;</span>
-)
-
-<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">BenchmarkSort</span>(<span style="color:#a6e22e">b</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">B</span>) {
-	<span style="color:#a6e22e">data</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">&lt;&lt;</span><span style="color:#ae81ff">10</span>)
-	<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">ResetTimer</span>() <span style="color:#75715e">// ignore big allocation
-</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">N</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
-		<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">data</span> {
-			<span style="color:#a6e22e">data</span>[<span style="color:#a6e22e">i</span>] = <span style="color:#a6e22e">i</span> ^ <span style="color:#ae81ff">0x2cc</span>
-		}
-		<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">StartTimer</span>()
-		<span style="color:#a6e22e">sort</span>.<span style="color:#a6e22e">Slice</span>(<span style="color:#a6e22e">data</span>, <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">bool</span> {
-			<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">data</span>[<span style="color:#a6e22e">i</span>] &lt; <span style="color:#a6e22e">data</span>[<span style="color:#a6e22e">j</span>]
-		})
-		<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">StopTimer</span>()
-	}
-}
-</code></pre></div><p>(Aside: Some of the sort benchmarks in the standard library allocate inside the loop. Oops. Carefully fixing this might make a nice first contribution for someone wanting to try their hand at the Go standard library.)</p>
+<p>When the API was <a href="https://github.com/golang/go/issues/26037">proposed</a>, the motivating example was <code>package sort</code>. The <code>package sort</code> benchmarks, like all benchmarks, measure elapsed wall time and (optionally) allocations. But wall time measurements can be noisy, and the sort routines don&rsquo;t allocate much. There is another really useful algorithm-level metric for a sorting routine: How many comparisons does it perform?</p>
+<p>Let&rsquo;s use our new to API find out. Here&rsquo;s a simple sort benchmark.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">demo</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;sort&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;testing&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">BenchmarkSort</span>(<span style="color:#a6e22e">b</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">B</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">data</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">&lt;&lt;</span><span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">ResetTimer</span>() <span style="color:#75715e">// ignore big allocation
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">N</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">data</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">data</span>[<span style="color:#a6e22e">i</span>] = <span style="color:#a6e22e">i</span> ^ <span style="color:#ae81ff">0x2cc</span>
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">StartTimer</span>()
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">sort</span>.<span style="color:#a6e22e">Slice</span>(<span style="color:#a6e22e">data</span>, <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">bool</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">data</span>[<span style="color:#a6e22e">i</span>] &lt; <span style="color:#a6e22e">data</span>[<span style="color:#a6e22e">j</span>]
+</span></span><span style="display:flex;"><span>		})
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">StopTimer</span>()
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>(Aside: Some of the sort benchmarks in the standard library allocate inside the loop. Oops. Carefully fixing this might make a nice first contribution for someone wanting to try their hand at the Go standard library.)</p>
 <p>On my machine, executing this looks like:</p>
-<pre><code>$ go test -bench=. -count=5
+<pre tabindex="0"><code>$ go test -bench=. -count=5
 goos: darwin
 goarch: amd64
 pkg: github.com/commaok/blog/content/post
@@ -109,28 +106,28 @@ BenchmarkSort-8   	   19724	     61363 ns/op
 BenchmarkSort-8   	   19705	     60792 ns/op
 PASS
 ok  	github.com/commaok/blog/content/post	11.772s
-</code></pre><p>If the number of iterations looks funny to you, it's because you are used to seeing round numbers there. That also <a href="https://golang.org/cl/112155/">changed in Go 1.13</a>.</p>
-<p>Now let's use the new <code>testing.B.ReportMetric</code> API to report the number of comparisons. To do this, we need to count the number of comparisons. Then we'll divide by <code>b.N</code>. The reason we must do the division ourselves is to allow metrics that aren't naturally represented as per-op counts, such as ratios or percentiles.</p>
-<p>Here's the updated code, with added lines marked:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">BenchmarkSort</span>(<span style="color:#a6e22e">b</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">B</span>) {
-	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">cmps</span> <span style="color:#66d9ef">int64</span> <span style="color:#75715e">// &lt;--------
-</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">data</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">&lt;&lt;</span><span style="color:#ae81ff">10</span>)
-	<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">ResetTimer</span>() <span style="color:#75715e">// remove allocation
-</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">N</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
-		<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">data</span> {
-			<span style="color:#a6e22e">data</span>[<span style="color:#a6e22e">i</span>] = <span style="color:#a6e22e">i</span> ^ <span style="color:#ae81ff">0x2cc</span>
-		}
-		<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">StartTimer</span>()
-		<span style="color:#a6e22e">sort</span>.<span style="color:#a6e22e">Slice</span>(<span style="color:#a6e22e">data</span>, <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">bool</span> {
-			<span style="color:#a6e22e">cmps</span><span style="color:#f92672">++</span> <span style="color:#75715e">// &lt;--------
-</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">data</span>[<span style="color:#a6e22e">i</span>] &lt; <span style="color:#a6e22e">data</span>[<span style="color:#a6e22e">j</span>]
-		})
-		<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">StopTimer</span>()
-	}
-	<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">ReportMetric</span>(float64(<span style="color:#a6e22e">cmps</span>)<span style="color:#f92672">/</span>float64(<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">N</span>), <span style="color:#e6db74">&#34;cmps/op&#34;</span>) <span style="color:#75715e">// &lt;--------
-</span><span style="color:#75715e"></span>}
-</code></pre></div><p>Running this yields:</p>
-<pre><code>$ go test -bench=. -count=5
+</code></pre><p>If the number of iterations looks funny to you, it&rsquo;s because you are used to seeing round numbers there. That also <a href="https://golang.org/cl/112155/">changed in Go 1.13</a>.</p>
+<p>Now let&rsquo;s use the new <code>testing.B.ReportMetric</code> API to report the number of comparisons. To do this, we need to count the number of comparisons. Then we&rsquo;ll divide by <code>b.N</code>. The reason we must do the division ourselves is to allow metrics that aren&rsquo;t naturally represented as per-op counts, such as ratios or percentiles.</p>
+<p>Here&rsquo;s the updated code, with added lines marked:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">BenchmarkSort</span>(<span style="color:#a6e22e">b</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">B</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">cmps</span> <span style="color:#66d9ef">int64</span> <span style="color:#75715e">// &lt;--------
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">data</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">&lt;&lt;</span><span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">ResetTimer</span>() <span style="color:#75715e">// remove allocation
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">N</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">data</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">data</span>[<span style="color:#a6e22e">i</span>] = <span style="color:#a6e22e">i</span> ^ <span style="color:#ae81ff">0x2cc</span>
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">StartTimer</span>()
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">sort</span>.<span style="color:#a6e22e">Slice</span>(<span style="color:#a6e22e">data</span>, <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">bool</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">cmps</span><span style="color:#f92672">++</span> <span style="color:#75715e">// &lt;--------
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>			<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">data</span>[<span style="color:#a6e22e">i</span>] &lt; <span style="color:#a6e22e">data</span>[<span style="color:#a6e22e">j</span>]
+</span></span><span style="display:flex;"><span>		})
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">StopTimer</span>()
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">ReportMetric</span>(float64(<span style="color:#a6e22e">cmps</span>)<span style="color:#f92672">/</span>float64(<span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">N</span>), <span style="color:#e6db74">&#34;cmps/op&#34;</span>) <span style="color:#75715e">// &lt;--------
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><p>Running this yields:</p>
+<pre tabindex="0"><code>$ go test -bench=. -count=5
 goos: darwin
 goarch: amd64
 pkg: github.com/commaok/blog/content/post
@@ -142,19 +139,19 @@ BenchmarkSort-8   	   18704	     64408 ns/op	     10091 cmps/op
 PASS
 ok  	github.com/commaok/blog/content/post	12.062s
 </code></pre><p>Note that the number of comparisons is stable. This is a wonderful property when benchmarking. It means you can run your benchmarks a small number of times, without quitting your browser or trying to disable thermal scaling or worrying about how your laptop CPU may be different from your production CPUs.</p>
-<p>Now let's reach into the standard library and tweak something! There's a function called <a href="https://golang.org/src/sort/sort.go?s=5609:5622#L223"><code>maxDepth</code> inside <code>package sort</code></a>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">// maxDepth returns a threshold at which quicksort should switch
-</span><span style="color:#75715e"></span><span style="color:#75715e">// to heapsort. It returns 2*ceil(lg(n+1)).
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">maxDepth</span>(<span style="color:#a6e22e">n</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">int</span> {
-	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">depth</span> <span style="color:#66d9ef">int</span>
-	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">n</span>; <span style="color:#a6e22e">i</span> &gt; <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> <span style="color:#f92672">&gt;&gt;=</span> <span style="color:#ae81ff">1</span> {
-		<span style="color:#a6e22e">depth</span><span style="color:#f92672">++</span>
-	}
-	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">depth</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>
-}
-</code></pre></div><p>(Aside: maxDepth should probably use <code>math/bits.Len</code> to calculate <code>ceil(lg(n+1))</code>. This is another candidate for a good first contribution to the Go core.)</p>
-<p>Let's make <code>maxDepth</code> just return 0 instead and re-run our benchmark:</p>
-<pre><code>$ go test -bench=. -count=5 -run=NONE
+<p>Now let&rsquo;s reach into the standard library and tweak something! There&rsquo;s a function called <a href="https://golang.org/src/sort/sort.go?s=5609:5622#L223"><code>maxDepth</code> inside <code>package sort</code></a>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// maxDepth returns a threshold at which quicksort should switch
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// to heapsort. It returns 2*ceil(lg(n+1)).
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">maxDepth</span>(<span style="color:#a6e22e">n</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">int</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">depth</span> <span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">n</span>; <span style="color:#a6e22e">i</span> &gt; <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> <span style="color:#f92672">&gt;&gt;=</span> <span style="color:#ae81ff">1</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">depth</span><span style="color:#f92672">++</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">depth</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>(Aside: maxDepth should probably use <code>math/bits.Len</code> to calculate <code>ceil(lg(n+1))</code>. This is another candidate for a good first contribution to the Go core.)</p>
+<p>Let&rsquo;s make <code>maxDepth</code> just return 0 instead and re-run our benchmark:</p>
+<pre tabindex="0"><code>$ go test -bench=. -count=5 -run=NONE
 goos: darwin
 goarch: amd64
 pkg: github.com/commaok/blog/content/post
@@ -167,15 +164,15 @@ PASS
 ok  	github.com/commaok/blog/content/post	12.867s
 </code></pre><p>We can see that not only is it slower, but that it is clearly an algorithmic degradation: The number of comparisons has increased markedly.</p>
 <p><a href="https://godoc.org/golang.org/x/perf/benchstat">benchstat</a> supports custom metrics, so we can use it to tell us exactly how much:</p>
-<pre><code>$ benchstat a b
+<pre tabindex="0"><code>$ benchstat a b
 name    old time/op   new time/op   delta
 Sort-8   64.5µs ± 0%   94.7µs ± 0%  +46.76%  (p=0.016 n=4+5)
 
 name    old cmps/op   new cmps/op  delta
 Sort-8    10.1k ± 0%    17.4k ± 0%  +72.69%  (p=0.008 n=5+5)
-</code></pre><p>There's one more trick worth worth mentioning. <code>testing.B.ReportMetric</code> generally overrides built-in metrics. If you call <code>b.ReportMetric(5, &quot;allocs/op&quot;)</code>, then <code>go test</code> will report <code>5 allocs/op</code>, regardless of how much your benchmark actually allocated. There's one special case: <code>ns/op</code>. If set to <code>0</code>, then <code>ns/op</code> won't be reported at all. This is useful to avoid confusion or distraction if your benchmark's elapsed time is meaningless. For example, <a href="https://golang.org/cl/166959/">one of the earliest uses of <code>testing.B.ReportAlloc</code></a> was for a <code>package sync</code> benchmark that reported garbage collector stop-the-world time, in percentiles. It is irrelevant how long it takes that benchmark to run; only the percentiles matter.</p>
-<p>On a sad note, there's currently <a href="https://github.com/golang/go/issues/18454">no good way</a> to get profiling tools to tell you <em>where</em> a particular custom metric increased.</p>
-<p>What else could you use <code>testing.B.ReportMetric</code> for? Obvious use cases include cache hit rates, I/O amounts, fast path/slow path heuristics, percentile reporting, and algorithmic improvements. (We measured comparisons during sorting here; how about swaps?) I'm sure there will be non-obvious ones as well.</p>
+</code></pre><p>There&rsquo;s one more trick worth worth mentioning. <code>testing.B.ReportMetric</code> generally overrides built-in metrics. If you call <code>b.ReportMetric(5, &quot;allocs/op&quot;)</code>, then <code>go test</code> will report <code>5 allocs/op</code>, regardless of how much your benchmark actually allocated. There&rsquo;s one special case: <code>ns/op</code>. If set to <code>0</code>, then <code>ns/op</code> won&rsquo;t be reported at all. This is useful to avoid confusion or distraction if your benchmark&rsquo;s elapsed time is meaningless. For example, <a href="https://golang.org/cl/166959/">one of the earliest uses of <code>testing.B.ReportAlloc</code></a> was for a <code>package sync</code> benchmark that reported garbage collector stop-the-world time, in percentiles. It is irrelevant how long it takes that benchmark to run; only the percentiles matter.</p>
+<p>On a sad note, there&rsquo;s currently <a href="https://github.com/golang/go/issues/18454">no good way</a> to get profiling tools to tell you <em>where</em> a particular custom metric increased.</p>
+<p>What else could you use <code>testing.B.ReportMetric</code> for? Obvious use cases include cache hit rates, I/O amounts, fast path/slow path heuristics, percentile reporting, and algorithmic improvements. (We measured comparisons during sorting here; how about swaps?) I&rsquo;m sure there will be non-obvious ones as well.</p>
 
                 </section>
             </article>
@@ -289,7 +286,7 @@ Sort-8    10.1k ± 0%    17.4k ± 0%  +72.69%  (p=0.008 n=5+5)
     
     <p class="small">
     
-        © Copyright 2021 Josh Bleecher Snyder
+        © Copyright 2022 Josh Bleecher Snyder
     
     </p>
 </footer>

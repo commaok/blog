@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.62.0-DEV" />
+		<meta name="generator" content="Hugo 0.98.0" />
 		<title>How to test a Go beta or RC &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
@@ -29,9 +29,10 @@ Installation Pre-releases can be downloaded using go get. For example:
 $ go install golang.org/dl/go1.17beta1@latest $ go1.17beta1 download $ go1.17beta1 test your/favorite/package A complete list of pre-releases is available at https://pkg.go.dev/golang.org/dl.
 Betas Betas are early looks at a new release." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://commaok.xyz/post/test-beta/" />
+<meta property="og:url" content="https://commaok.xyz/post/test-beta/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2021-06-13T08:12:48-07:00" />
 <meta property="article:modified_time" content="2021-06-13T08:12:48-07:00" />
+
 
 	    
 	    <meta itemprop="name" content="How to test a Go beta or RC">
@@ -40,13 +41,9 @@ Please help! It is easy, fast, and important.
 This post is about how, what, and why to test.
 Installation Pre-releases can be downloaded using go get. For example:
 $ go install golang.org/dl/go1.17beta1@latest $ go1.17beta1 download $ go1.17beta1 test your/favorite/package A complete list of pre-releases is available at https://pkg.go.dev/golang.org/dl.
-Betas Betas are early looks at a new release.">
-<meta itemprop="datePublished" content="2021-06-13T08:12:48-07:00" />
+Betas Betas are early looks at a new release."><meta itemprop="datePublished" content="2021-06-13T08:12:48-07:00" />
 <meta itemprop="dateModified" content="2021-06-13T08:12:48-07:00" />
 <meta itemprop="wordCount" content="646">
-
-
-
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="How to test a Go beta or RC"/>
@@ -90,13 +87,13 @@ the Go team <a href="https://groups.google.com/forum/#!forum/golang-announce">as
 <p>This post is about how, what, and why to test.</p>
 <h1 id="installation">Installation</h1>
 <p>Pre-releases can be downloaded using <code>go get</code>. For example:</p>
-<pre><code>$ go install golang.org/dl/go1.17beta1@latest
+<pre tabindex="0"><code>$ go install golang.org/dl/go1.17beta1@latest
 $ go1.17beta1 download
 $ go1.17beta1 test your/favorite/package
 </code></pre><p>A complete list of pre-releases is available at <a href="https://pkg.go.dev/golang.org/dl">https://pkg.go.dev/golang.org/dl</a>.</p>
 <h1 id="betas">Betas</h1>
 <p>Betas are early looks at a new release. They sometimes have known bugs. Critical bugs are uncommon but not unheard of. New APIs may still change in response to feedback. You should not use a beta release in production.</p>
-<p>Here's what you should do with a Go beta release, ordered from <strong>easy and fast</strong> to <strong>pretty involved</strong>. Even if you only do the first item or two, it is helpful!</p>
+<p>Here&rsquo;s what you should do with a Go beta release, ordered from <strong>easy and fast</strong> to <strong>pretty involved</strong>. Even if you only do the first item or two, it is helpful!</p>
 <ol>
 <li>Run your tests locally. Investigate and <a href="https://golang.org/issue/new">report</a> any new failures.</li>
 <li>Read <a href="https://tip.golang.org/doc/go1.17">the draft release notes</a>. (You may have to edit this link appropriately for newer releases.) If you see anything concerning, <a href="https://golang.org/issue/new">file an issue to discuss</a>.</li>
@@ -107,14 +104,14 @@ $ go1.17beta1 test your/favorite/package
 <h1 id="release-candidiates">Release candidiates</h1>
 <p>Release candidates are generally free of known serious bugs. (Google tests release candidates on their live servers.) APIs should be stable.</p>
 <p>The list of things to do with a Go RC is the same as with betas, except that, if you have the bandwidth and means, you may want to try running it in production, on a small subset of servers.</p>
-<h1 id="i-dont-have-that-much-time">I don't have that much time</h1>
-<p>It is not atypical to have one or two betas and one or two RCs. That's a lot of testing. What if you only have a small amount of time to contribute to helping Go have bug-free releases?</p>
+<h1 id="i-dont-have-that-much-time">I don&rsquo;t have that much time</h1>
+<p>It is not atypical to have one or two betas and one or two RCs. That&rsquo;s a lot of testing. What if you only have a small amount of time to contribute to helping Go have bug-free releases?</p>
 <p>If you can only do one thing, <strong>run your tests locally using the first beta</strong>. It takes just a few minutes. The earlier bugs get caught, the more likely it is they can be fixed, and fixed well.</p>
-<p>If you can do a little bit more, please <strong>read the release notes early</strong>. You'd probably read them when the release came out anyway. By reading it early, there's still a chance of fixing any problems you see.</p>
+<p>If you can do a little bit more, please <strong>read the release notes early</strong>. You&rsquo;d probably read them when the release came out anyway. By reading it early, there&rsquo;s still a chance of fixing any problems you see.</p>
 <h1 id="why-test-betas-and-rcs">Why test betas and RCs?</h1>
-<p>Programming languages, and their tooling and communities, are complex creatures. People use them in marvelous and unusual ways. And programming languages are software too, and you know what that means. Despite the Go contributors&rsquo; best efforts, the Go issue tracker has its fair share of frustrated programmers who have discovered too late that a new release doesn't work for them: a subtle behavior change, a rare performance regression, an API design that is not quite right.</p>
-<p>Once a release is out, fixing these problems becomes harder and sometimes even impossible. Security problems get prompt fixes, but anything short of that, even a critical bug, won't see a fix for a month, at the next point release. Non-critical bugs won't be fixed until the next full Go release, six months out, at the earliest. And in many cases, thanks to the <a href="https://golang.org/doc/go1compat">Go 1 Compatibility Promise</a>, we may simply be stuck forever with whatever the problem is.</p>
-<p>Betas and RCs are our only chance as a community to catch many issues while there's still time to really fix them.</p>
+<p>Programming languages, and their tooling and communities, are complex creatures. People use them in marvelous and unusual ways. And programming languages are software too, and you know what that means. Despite the Go contributors&rsquo; best efforts, the Go issue tracker has its fair share of frustrated programmers who have discovered too late that a new release doesn&rsquo;t work for them: a subtle behavior change, a rare performance regression, an API design that is not quite right.</p>
+<p>Once a release is out, fixing these problems becomes harder and sometimes even impossible. Security problems get prompt fixes, but anything short of that, even a critical bug, won&rsquo;t see a fix for a month, at the next point release. Non-critical bugs won&rsquo;t be fixed until the next full Go release, six months out, at the earliest. And in many cases, thanks to the <a href="https://golang.org/doc/go1compat">Go 1 Compatibility Promise</a>, we may simply be stuck forever with whatever the problem is.</p>
+<p>Betas and RCs are our only chance as a community to catch many issues while there&rsquo;s still time to really fix them.</p>
 <h1 id="bonus">Bonus</h1>
 <p>Consider adding the &ldquo;tip&rdquo; version of Go to your CI. This is especially helpful in catching problems very early, but it does add a fair bit of work: Before filing issues, you need to check <a href="https://build.golang.org/">the build dashboard</a> and investigate a bit to determine whether any failure is worth reporting.</p>
 
@@ -230,7 +227,7 @@ $ go1.17beta1 test your/favorite/package
     
     <p class="small">
     
-        © Copyright 2021 Josh Bleecher Snyder
+        © Copyright 2022 Josh Bleecher Snyder
     
     </p>
 </footer>

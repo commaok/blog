@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.62.0-DEV" />
+		<meta name="generator" content="Hugo 0.98.0" />
 		<title>Picking up pennies: Disabling memory profiling &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
@@ -26,21 +26,18 @@
 I was looking at a CPU profile of the Go compiler when I noticed something odd: An entry in mprof.go. mprof.go contains the memory profiling implementation, but I was doing cpu profiling. Was there a bug in compilebench, perhaps?
 Nope. The variable runtime.MemProfileRate controls the rate at which the runtime samples allocations." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://commaok.xyz/post/memprofilerate/" />
+<meta property="og:url" content="https://commaok.xyz/post/memprofilerate/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2017-01-28T18:06:36-08:00" />
 <meta property="article:modified_time" content="2017-01-28T18:06:36-08:00" />
+
 
 	    
 	    <meta itemprop="name" content="Picking up pennies: Disabling memory profiling">
 <meta itemprop="description" content="If you work on a short-lived, allocation heavy program and care about a tiny (maybe 0.5%) performance improvement, this post is for you.
 I was looking at a CPU profile of the Go compiler when I noticed something odd: An entry in mprof.go. mprof.go contains the memory profiling implementation, but I was doing cpu profiling. Was there a bug in compilebench, perhaps?
-Nope. The variable runtime.MemProfileRate controls the rate at which the runtime samples allocations.">
-<meta itemprop="datePublished" content="2017-01-28T18:06:36-08:00" />
+Nope. The variable runtime.MemProfileRate controls the rate at which the runtime samples allocations."><meta itemprop="datePublished" content="2017-01-28T18:06:36-08:00" />
 <meta itemprop="dateModified" content="2017-01-28T18:06:36-08:00" />
 <meta itemprop="wordCount" content="301">
-
-
-
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Picking up pennies: Disabling memory profiling"/>
@@ -90,17 +87,17 @@ One sample per 500k of allocations is not much overhead.
 And when something goes wrong on a server, you want to be able to find out why,
 rather than fussing with profiling settings and then hoping it happens again.</p>
 <p>But if you work on a short-lived program, like a compiler,
-when something goes wrong, you probably don't have any mechanism for gathering ad hoc profiles.
-For any given run, you either have profiling enabled or you don't,
+when something goes wrong, you probably don&rsquo;t have any mechanism for gathering ad hoc profiles.
+For any given run, you either have profiling enabled or you don&rsquo;t,
 and if something goes wrong, you just enable profiling and try again.</p>
 <p>And if your program is allocation-heavy, like the Go compiler,
 there might be enough memory profiling samples collected to absorb some CPU time.
 (As currently implemented, the first sample is particularly expensive,
 as it allocates a pretty large data structure.)</p>
-<p>And I'm always looking for performance wins in the compiler, even little ones (hoping they add up).
+<p>And I&rsquo;m always looking for performance wins in the compiler, even little ones (hoping they add up).
 So I sent a CL to <a href="https://go-review.googlesource.com/c/35916/">disable memory profiling entirely when not explicitly requested</a>.
-The benefits aren't head-turning, but it's a very cheap, low risk 0.5% to put in the bank.
-It'll get reviewed for Go 1.9.</p>
+The benefits aren&rsquo;t head-turning, but it&rsquo;s a very cheap, low risk 0.5% to put in the bank.
+It&rsquo;ll get reviewed for Go 1.9.</p>
 <p>Doing this in your own program requires nothing more than setting
 <code>runtime.MemProfileRate = 0</code> when memory profiling has not been requested.
 But please, think twice first.</p>
@@ -217,7 +214,7 @@ But please, think twice first.</p>
     
     <p class="small">
     
-        © Copyright 2021 Josh Bleecher Snyder
+        © Copyright 2022 Josh Bleecher Snyder
     
     </p>
 </footer>

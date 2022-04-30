@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.62.0-DEV" />
+		<meta name="generator" content="Hugo 0.98.0" />
 		<title>Life without line numbers &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
@@ -22,27 +22,24 @@
 		
 
 		<meta property="og:title" content="Life without line numbers" />
-<meta property="og:description" content="If you are desperate for 6% smaller Go binaries, this blog post is for you. (I did this experiment to help out Tailscale. Disclosure: I&#39;m an investor.) If binary size doesn&#39;t worry you, well, maybe you&#39;ll find it entertaining.
+<meta property="og:description" content="If you are desperate for 6% smaller Go binaries, this blog post is for you. (I did this experiment to help out Tailscale. Disclosure: I&rsquo;m an investor.) If binary size doesn&rsquo;t worry you, well, maybe you&rsquo;ll find it entertaining.
 In order to get example numbers for this post, I grabbed a random item from my GOPATH. All the hard numbers in this blog post are for github.com/mvdan/sh/cmd/shfmt. From a bit of experimenting, they seem fairly representative." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://commaok.xyz/post/no-line-numbers/" />
+<meta property="og:url" content="https://commaok.xyz/post/no-line-numbers/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2020-04-30T08:12:48-07:00" />
 <meta property="article:modified_time" content="2020-04-30T08:12:48-07:00" />
 
+
 	    
 	    <meta itemprop="name" content="Life without line numbers">
-<meta itemprop="description" content="If you are desperate for 6% smaller Go binaries, this blog post is for you. (I did this experiment to help out Tailscale. Disclosure: I&#39;m an investor.) If binary size doesn&#39;t worry you, well, maybe you&#39;ll find it entertaining.
-In order to get example numbers for this post, I grabbed a random item from my GOPATH. All the hard numbers in this blog post are for github.com/mvdan/sh/cmd/shfmt. From a bit of experimenting, they seem fairly representative.">
-<meta itemprop="datePublished" content="2020-04-30T08:12:48-07:00" />
+<meta itemprop="description" content="If you are desperate for 6% smaller Go binaries, this blog post is for you. (I did this experiment to help out Tailscale. Disclosure: I&rsquo;m an investor.) If binary size doesn&rsquo;t worry you, well, maybe you&rsquo;ll find it entertaining.
+In order to get example numbers for this post, I grabbed a random item from my GOPATH. All the hard numbers in this blog post are for github.com/mvdan/sh/cmd/shfmt. From a bit of experimenting, they seem fairly representative."><meta itemprop="datePublished" content="2020-04-30T08:12:48-07:00" />
 <meta itemprop="dateModified" content="2020-04-30T08:12:48-07:00" />
 <meta itemprop="wordCount" content="1125">
-
-
-
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Life without line numbers"/>
-<meta name="twitter:description" content="If you are desperate for 6% smaller Go binaries, this blog post is for you. (I did this experiment to help out Tailscale. Disclosure: I&#39;m an investor.) If binary size doesn&#39;t worry you, well, maybe you&#39;ll find it entertaining.
+<meta name="twitter:description" content="If you are desperate for 6% smaller Go binaries, this blog post is for you. (I did this experiment to help out Tailscale. Disclosure: I&rsquo;m an investor.) If binary size doesn&rsquo;t worry you, well, maybe you&rsquo;ll find it entertaining.
 In order to get example numbers for this post, I grabbed a random item from my GOPATH. All the hard numbers in this blog post are for github.com/mvdan/sh/cmd/shfmt. From a bit of experimenting, they seem fairly representative."/>
 <meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
 
@@ -72,82 +69,82 @@ In order to get example numbers for this post, I grabbed a random item from my G
                     </h2>
                 </header>
                 <section id="post-body">
-                    <p>If you are desperate for 6% smaller Go binaries, this blog post is for you. (I did this experiment to help out <a href="https://www.tailscale.com/">Tailscale</a>. Disclosure: I'm an investor.) If binary size doesn't worry you, well, maybe you'll find it entertaining.</p>
+                    <p>If you are desperate for 6% smaller Go binaries, this blog post is for you. (I did this experiment to help out <a href="https://www.tailscale.com/">Tailscale</a>. Disclosure: I&rsquo;m an investor.) If binary size doesn&rsquo;t worry you, well, maybe you&rsquo;ll find it entertaining.</p>
 <p>In order to get example numbers for this post, I grabbed a random item from my GOPATH. All the hard numbers in this blog post are for <code>github.com/mvdan/sh/cmd/shfmt</code>. From a bit of experimenting, they seem fairly representative.</p>
-<p>I am using <a href="https://github.com/golang/go/commit/9d812cfa5c">commit 9d812cfa5c</a> of the Go toolchain as my base commit. This is the <code>master</code> branch as of April 29, 2020; it will probably be similar to the Go 1.15beta1 release. I'm using it rather than Go 1.14 because it contains several binary size reductions, including <a href="https://go-review.googlesource.com/c/go/+/230544">one in particular</a> that you'll definitely want if you're concerned about binary sizes.</p>
+<p>I am using <a href="https://github.com/golang/go/commit/9d812cfa5c">commit 9d812cfa5c</a> of the Go toolchain as my base commit. This is the <code>master</code> branch as of April 29, 2020; it will probably be similar to the Go 1.15beta1 release. I&rsquo;m using it rather than Go 1.14 because it contains several binary size reductions, including <a href="https://go-review.googlesource.com/c/go/+/230544">one in particular</a> that you&rsquo;ll definitely want if you&rsquo;re concerned about binary sizes.</p>
 <hr>
 <p>There are lots of ways to shrink a binary. Removing extraneous dependencies is probably the best way. <a href="https://go-review.googlesource.com/c/go/+/210284">Avoiding global maps through judicious use of sync.Once</a> can help. <a href="https://go-review.googlesource.com/c/go/+/228111">Keeping separable code separate by indirection</a> can help. You can <a href="https://twitter.com/bradfitz/status/1255704982893912064">suppress equality algorithm generation</a> (ick&hellip;until you really need it). You can usually save double-digit percentages by stripping debugging information: pass <a href="https://github.com/golang/go/issues/38777"><code>-ldflags=-w</code> to <code>go build</code></a>.</p>
-<p>Let's assume you've done all that. And you still need to shrink more. And that need is so pressing you're willing to make some sacrifices for it.</p>
-<p>Go binaries contain a lot more than just executable code. There are type descriptors that describe the types in a Go program. There are garbage collection data structures. There's debugger information. And there are mappings from PCs to position information. (And there's lots more, too.)</p>
-<p>We're going to get rid of the position information.</p>
+<p>Let&rsquo;s assume you&rsquo;ve done all that. And you still need to shrink more. And that need is so pressing you&rsquo;re willing to make some sacrifices for it.</p>
+<p>Go binaries contain a lot more than just executable code. There are type descriptors that describe the types in a Go program. There are garbage collection data structures. There&rsquo;s debugger information. And there are mappings from PCs to position information. (And there&rsquo;s lots more, too.)</p>
+<p>We&rsquo;re going to get rid of the position information.</p>
 <hr>
-<p>We can't just strip out the position information entirely from the binary. That would break lots of stuff.</p>
-<p>But we can make all the line numbers the same. That shouldn't break anything. After all, no one (except gofmt) said we had to put our code on multiple lines.</p>
+<p>We can&rsquo;t just strip out the position information entirely from the binary. That would break lots of stuff.</p>
+<p>But we can make all the line numbers the same. That shouldn&rsquo;t break anything. After all, no one (except gofmt) said we had to put our code on multiple lines.</p>
 <p>For example, instead of <a href="https://play.golang.org/">this</a>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
-
-<span style="color:#f92672">import</span> (
-	<span style="color:#e6db74">&#34;fmt&#34;</span>
-)
-
-<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
-	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;Hello, playground&#34;</span>)
-}
-</code></pre></div><p>We could write <a href="https://play.golang.org/p/skI5nMleZgt">this</a>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
-
-<span style="color:#f92672">import</span> ( <span style="color:#e6db74">&#34;fmt&#34;</span> ); <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() { <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;Hello, playground&#34;</span>) }
-</code></pre></div><p>The Go compiler and runtime has to be prepared for lots of stuff to be on one line.</p>
-<p>We could write a preprocessor, maybe using <a href="https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies"><code>-toolexec</code></a> and <a href="https://golang.org/cmd/compile/#hdr-Compiler_Directives"><code>//line</code> directives</a>, but it's easier to just hack the compiler. Fortunately, this is well-factored code, so we only need to touch two little spots.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#f92672">--- a/src/cmd/compile/internal/syntax/pos.go
-</span><span style="color:#f92672"></span><span style="color:#a6e22e">+++ b/src/cmd/compile/internal/syntax/pos.go
-</span><span style="color:#a6e22e"></span><span style="color:#75715e">@@ -23,3 +23,3 @@ type Pos struct {
-</span><span style="color:#75715e"></span> // MakePos returns a new Pos for the given PosBase, line and column.
-<span style="color:#f92672">-func MakePos(base *PosBase, line, col uint) Pos { return Pos{base, sat32(line), sat32(col)} }
-</span><span style="color:#f92672"></span><span style="color:#a6e22e">+func MakePos(base *PosBase, line, col uint) Pos { return Pos{base, 1, 1} }
-</span><span style="color:#a6e22e"></span> 
-<span style="color:#75715e">@@ -101,2 +101,3 @@ type PosBase struct {
-</span><span style="color:#75715e"></span> func NewFileBase(filename string) *PosBase {
-<span style="color:#a6e22e">+       filename = &#34;x.go&#34;
-</span><span style="color:#a6e22e"></span>        base := &amp;PosBase{MakePos(nil, linebase, colbase), filename, linebase, colbase}
-</code></pre></div><p>Every file is now named <code>x.go</code>, and every source position has line 1 and column 1. (Columns don't actually matter for binary size, once you've stripped DWARF.)</p>
-<p>This isn't quite enough. There are two other spots in the toolchain that get unhappy if all code lives at <code>x.go:1:1</code>.</p>
-<p>The first is in <a href="https://github.com/golang/go/issues/38698">constructing DWARF</a>, for debuggers. We can just remove that check: We are already stripping DWARF, so generating invalid DWARF doesn't matter.</p>
-<p>The second is in cgo. There are some security checks about where certain cgo pragma can be located. We're going to trust ourselves not to violate them (by ensuring all code keeps building with an unaltered toolchain), and remove that security check.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;Hello, playground&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>We could write <a href="https://play.golang.org/p/skI5nMleZgt">this</a>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> ( <span style="color:#e6db74">&#34;fmt&#34;</span> ); <span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() { <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;Hello, playground&#34;</span>) }
+</span></span></code></pre></div><p>The Go compiler and runtime has to be prepared for lots of stuff to be on one line.</p>
+<p>We could write a preprocessor, maybe using <a href="https://golang.org/cmd/go/#hdr-Compile_packages_and_dependencies"><code>-toolexec</code></a> and <a href="https://golang.org/cmd/compile/#hdr-Compiler_Directives"><code>//line</code> directives</a>, but it&rsquo;s easier to just hack the compiler. Fortunately, this is well-factored code, so we only need to touch two little spots.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#f92672">--- a/src/cmd/compile/internal/syntax/pos.go
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+++ b/src/cmd/compile/internal/syntax/pos.go
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span><span style="color:#75715e">@@ -23,3 +23,3 @@ type Pos struct {
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> // MakePos returns a new Pos for the given PosBase, line and column.
+</span></span><span style="display:flex;"><span><span style="color:#f92672">-func MakePos(base *PosBase, line, col uint) Pos { return Pos{base, sat32(line), sat32(col)} }
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+func MakePos(base *PosBase, line, col uint) Pos { return Pos{base, 1, 1} }
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e">@@ -101,2 +101,3 @@ type PosBase struct {
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> func NewFileBase(filename string) *PosBase {
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">+       filename = &#34;x.go&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span>        base := &amp;PosBase{MakePos(nil, linebase, colbase), filename, linebase, colbase}
+</span></span></code></pre></div><p>Every file is now named <code>x.go</code>, and every source position has line 1 and column 1. (Columns don&rsquo;t actually matter for binary size, once you&rsquo;ve stripped DWARF.)</p>
+<p>This isn&rsquo;t quite enough. There are two other spots in the toolchain that get unhappy if all code lives at <code>x.go:1:1</code>.</p>
+<p>The first is in <a href="https://github.com/golang/go/issues/38698">constructing DWARF</a>, for debuggers. We can just remove that check: We are already stripping DWARF, so generating invalid DWARF doesn&rsquo;t matter.</p>
+<p>The second is in cgo. There are some security checks about where certain cgo pragma can be located. We&rsquo;re going to trust ourselves not to violate them (by ensuring all code keeps building with an unaltered toolchain), and remove that security check.</p>
 <p>The full diff is at <a href="https://github.com/josharian/go/commit/1a3e66ceed">https://github.com/josharian/go/commit/1a3e66ceed</a>.</p>
 <hr>
 <p>Now all code we compile has <code>x.go:1:1</code> as its position.</p>
 <p>Our program, compiled with <code>-ldflags=-w</code>, shrinks from 3,126,800 bytes to 2,938,384 bytes, or about 6%.</p>
 <p>Most of this is from shrinking the encoding of position information. A little bit of it comes from a compiler optimization.</p>
 <p>These two programs compile slightly differently:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">x</span> []<span style="color:#66d9ef">byte</span>) {
-    <span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">x</span>[<span style="color:#ae81ff">0</span>]
-    <span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">x</span>[<span style="color:#ae81ff">1</span>]
-}
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">x</span> []<span style="color:#66d9ef">byte</span>) {
-    <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">x</span>[<span style="color:#ae81ff">0</span>], <span style="color:#a6e22e">x</span>[<span style="color:#ae81ff">1</span>]
-}
-</code></pre></div><p>If you run <code>go tool compile -S x.go</code> on each of these files, you'll see that <a href="https://godbolt.org/z/UFf2JL">the first program</a> contains two separate calls to <code>runtime.panicIndex</code>. <a href="https://godbolt.org/z/26rRog">The second program</a> contains only one such call. The reason is that <code>runtime.panicIndex</code> must display a backtrace containing the line number of the line that panicked. In the first program, we need two separate panics, one for each possible panicking line number. In the second program, we don't, so the compiler combines them.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">x</span> []<span style="color:#66d9ef">byte</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">x</span>[<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">x</span>[<span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">x</span> []<span style="color:#66d9ef">byte</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">x</span>[<span style="color:#ae81ff">0</span>], <span style="color:#a6e22e">x</span>[<span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>If you run <code>go tool compile -S x.go</code> on each of these files, you&rsquo;ll see that <a href="https://godbolt.org/z/UFf2JL">the first program</a> contains two separate calls to <code>runtime.panicIndex</code>. <a href="https://godbolt.org/z/26rRog">The second program</a> contains only one such call. The reason is that <code>runtime.panicIndex</code> must display a backtrace containing the line number of the line that panicked. In the first program, we need two separate panics, one for each possible panicking line number. In the second program, we don&rsquo;t, so the compiler combines them.</p>
 <p>Since we are now putting all code on the same line, the compiler can combine more panics than before.</p>
 <hr>
-<p>What do we lose by doing this? Anything that needs accurate position information. Panic backtraces will still show you the PC, the function, the arguments, and so on. But all line numbers will be <code>x.go:1</code>. With patience, you could still figure out the line number yourself based on the PC, but it'd take some manual work. Pprof will still be able to analyze performance by function and by instruction, but it'll think everything happens on the same line, which will make analysis by line number useless.</p>
+<p>What do we lose by doing this? Anything that needs accurate position information. Panic backtraces will still show you the PC, the function, the arguments, and so on. But all line numbers will be <code>x.go:1</code>. With patience, you could still figure out the line number yourself based on the PC, but it&rsquo;d take some manual work. Pprof will still be able to analyze performance by function and by instruction, but it&rsquo;ll think everything happens on the same line, which will make analysis by line number useless.</p>
 <hr>
-<p>Let's play around a bit. What if we ditch only filenames, and keep the true line numbers? It saves only 0.9%. And as you'd then expect, keeping only accurate filenames and making all line number 1 saves 5.1%.</p>
+<p>Let&rsquo;s play around a bit. What if we ditch only filenames, and keep the true line numbers? It saves only 0.9%. And as you&rsquo;d then expect, keeping only accurate filenames and making all line number 1 saves 5.1%.</p>
 <p>So most of the savings are from the line numbers. What if we keep the original filenames, and truncate all line numbers to the nearest multiple of 16? That is, trim our diff down to:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#f92672">--- a/src/cmd/compile/internal/syntax/pos.go
-</span><span style="color:#f92672"></span><span style="color:#a6e22e">+++ b/src/cmd/compile/internal/syntax/pos.go
-</span><span style="color:#a6e22e"></span><span style="color:#75715e">@@ -23,3 +23,3 @@ type Pos struct {
-</span><span style="color:#75715e"></span> // MakePos returns a new Pos for the given PosBase, line and column.
-<span style="color:#f92672">-func MakePos(base *PosBase, line, col uint) Pos { return Pos{base, 1, 1} }
-</span><span style="color:#f92672"></span><span style="color:#a6e22e">+func MakePos(base *PosBase, line, col uint) Pos { return Pos{base, sat32(line/16*16 + 1), 1} }
-</span></code></pre></div><p>This cuts our binaries by 2.2%. Not bad. What if we divide all line numbers by 16 instead? That preserves exactly the same information as truncating, but we have to multiply by hand to get the &ldquo;nearby&rdquo; line number.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff"><span style="color:#f92672">--- a/src/cmd/compile/internal/syntax/pos.go
-</span><span style="color:#f92672"></span><span style="color:#a6e22e">+++ b/src/cmd/compile/internal/syntax/pos.go
-</span><span style="color:#a6e22e"></span><span style="color:#75715e">@@ -23,3 +23,3 @@ type Pos struct {
-</span><span style="color:#75715e"></span> // MakePos returns a new Pos for the given PosBase, line and column.
-<span style="color:#f92672">-func MakePos(base *PosBase, line, col uint) Pos { return Pos{base, 1, 1} }
-</span><span style="color:#f92672"></span><span style="color:#a6e22e">+func MakePos(base *PosBase, line, col uint) Pos { return Pos{base, sat32(line/16 + 1), 1} }
-</span></code></pre></div><p>This cuts our binaries by 2.75%! Why does <code>/16</code> save 0.5% more than <code>/16*16</code>?</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#f92672">--- a/src/cmd/compile/internal/syntax/pos.go
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+++ b/src/cmd/compile/internal/syntax/pos.go
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span><span style="color:#75715e">@@ -23,3 +23,3 @@ type Pos struct {
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> // MakePos returns a new Pos for the given PosBase, line and column.
+</span></span><span style="display:flex;"><span><span style="color:#f92672">-func MakePos(base *PosBase, line, col uint) Pos { return Pos{base, 1, 1} }
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+func MakePos(base *PosBase, line, col uint) Pos { return Pos{base, sat32(line/16*16 + 1), 1} }
+</span></span></span></code></pre></div><p>This cuts our binaries by 2.2%. Not bad. What if we divide all line numbers by 16 instead? That preserves exactly the same information as truncating, but we have to multiply by hand to get the &ldquo;nearby&rdquo; line number.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#f92672">--- a/src/cmd/compile/internal/syntax/pos.go
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+++ b/src/cmd/compile/internal/syntax/pos.go
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span><span style="color:#75715e">@@ -23,3 +23,3 @@ type Pos struct {
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> // MakePos returns a new Pos for the given PosBase, line and column.
+</span></span><span style="display:flex;"><span><span style="color:#f92672">-func MakePos(base *PosBase, line, col uint) Pos { return Pos{base, 1, 1} }
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+func MakePos(base *PosBase, line, col uint) Pos { return Pos{base, sat32(line/16 + 1), 1} }
+</span></span></span></code></pre></div><p>This cuts our binaries by 2.75%! Why does <code>/16</code> save 0.5% more than <code>/16*16</code>?</p>
 <p>Line numbers are stored in the binary using a <a href="https://golang.org/pkg/encoding/binary/#PutVarint">varint encoding</a> relative to the previous line number. Smaller numbers mean smaller deltas, and can thus be stored more efficiently.</p>
 
                 </section>
@@ -262,7 +259,7 @@ In order to get example numbers for this post, I grabbed a random item from my G
     
     <p class="small">
     
-        © Copyright 2021 Josh Bleecher Snyder
+        © Copyright 2022 Josh Bleecher Snyder
     
     </p>
 </footer>

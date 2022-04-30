@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.62.0-DEV" />
+		<meta name="generator" content="Hugo 0.98.0" />
 		<title>Compatibility: Not just about code &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
@@ -28,9 +28,10 @@ Ian Lance Taylor has written a masterful, thoroughly researched design document 
 Interestingly, both documents are clearly geared towards code and APIs.
 A few examples from the Go 1 compatibility promise (emphasis added):" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://commaok.xyz/post/compatibility/" />
+<meta property="og:url" content="https://commaok.xyz/post/compatibility/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2019-02-06T16:05:13-08:00" />
 <meta property="article:modified_time" content="2019-02-06T16:05:13-08:00" />
+
 
 	    
 	    <meta itemprop="name" content="Compatibility: Not just about code">
@@ -38,13 +39,9 @@ A few examples from the Go 1 compatibility promise (emphasis added):" />
 Go 2 is coming.
 Ian Lance Taylor has written a masterful, thoroughly researched design document about &ldquo;how to make incompatible changes from Go 1 to Go 2 while breaking as little as possible&rdquo;.
 Interestingly, both documents are clearly geared towards code and APIs.
-A few examples from the Go 1 compatibility promise (emphasis added):">
-<meta itemprop="datePublished" content="2019-02-06T16:05:13-08:00" />
+A few examples from the Go 1 compatibility promise (emphasis added):"><meta itemprop="datePublished" content="2019-02-06T16:05:13-08:00" />
 <meta itemprop="dateModified" content="2019-02-06T16:05:13-08:00" />
 <meta itemprop="wordCount" content="545">
-
-
-
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Compatibility: Not just about code"/>
@@ -108,16 +105,16 @@ about &ldquo;how to make incompatible changes from Go 1 to Go 2 while breaking a
 </blockquote>
 <!-- raw HTML omitted -->
 <blockquote>
-<p>While we can provide tooling to <em>convert pre-1.20 code into working 1.20 code</em>, we can't force package authors to run those tools.</p>
+<p>While we can provide tooling to <em>convert pre-1.20 code into working 1.20 code</em>, we can&rsquo;t force package authors to run those tools.</p>
 </blockquote>
 <!-- raw HTML omitted -->
 <blockquote>
 <p>This can be used to take incremental steps toward new language versions, and to make it easier to <em>share the same code</em> among different language versions.</p>
 </blockquote>
 <hr>
-<p>As we all know, however, there is much more to a language's ecosystem than the extant body of code.
+<p>As we all know, however, there is much more to a language&rsquo;s ecosystem than the extant body of code.
 There is culture. There is infrastructure, like conferences and training. There is tooling. There is trust.
-There is an aesthetic. (Ian Lance Taylor's takeaway from the history of C++: &ldquo;A new version may have a very different feel while remaining backward compatible.&quot;)</p>
+There is an aesthetic. (Ian Lance Taylor&rsquo;s takeaway from the history of C++: &ldquo;A new version may have a very different feel while remaining backward compatible.&rdquo;)</p>
 <p>And then there is a giant, sprawling, chaotic mess of documentation,
 ranging from official docs to blog posts to Stack Overflow to mailing list archives and beyond.</p>
 <p>This organic documentary hodgepodge is invaluable.
@@ -128,7 +125,7 @@ This is a great boon, particularly to newcomers to a language.</p>
 was that when I searched for examples and discussion, I found answers written
 for Swift 2, Swift 3, and Swift 4. I ended up having to simultaneously learn three dialects
 of Swift and how to translate between them. This situation also commonly arises with popular libraries.</p>
-<p>My code was brand new, so I didn't care that the language had changed in incompatible ways.
+<p>My code was brand new, so I didn&rsquo;t care that the language had changed in incompatible ways.
 But it sure did break the documentation ecosystem in a deep way.
 And docs, unlike code, are impossible to <a href="https://blog.golang.org/introducing-gofix">go fix</a>.</p>
 <p>Of course, docs do go stale even when there is backwards compatibility. For example, strings.Builder
@@ -138,7 +135,7 @@ and not particularly damaging to people who find it instead of up-to-date docs.<
 <a href="https://github.com/golang/go/issues/28493">Go 2</a> <a href="https://github.com/golang/go/issues/19113">changes</a>
 look unlikely to break much documentation,
 and the discussion so far on the <a href="https://github.com/golang/go/labels/Go2">many Go 2 proposals</a> give no particular reason for concern.
-Nevertheless, as we all ponder Go 2, it's probably worth explicitly thinking about
+Nevertheless, as we all ponder Go 2, it&rsquo;s probably worth explicitly thinking about
 compatibility in terms much broader than working code.</p>
 
                 </section>
@@ -253,7 +250,7 @@ compatibility in terms much broader than working code.</p>
     
     <p class="small">
     
-        © Copyright 2021 Josh Bleecher Snyder
+        © Copyright 2022 Josh Bleecher Snyder
     
     </p>
 </footer>

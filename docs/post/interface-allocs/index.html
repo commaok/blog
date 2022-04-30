@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.62.0-DEV" />
+		<meta name="generator" content="Hugo 0.98.0" />
 		<title>Logging, interfaces, and allocation &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
@@ -24,31 +24,28 @@
 		<meta property="og:title" content="Logging, interfaces, and allocation" />
 <meta property="og:description" content="This post is about some new compiler optimizations scheduled for Go 1.9, but I want to start with logging.
  A couple of weeks ago, Peter Bourgon started a thread on golang-dev about standardizing logging. Logging is pervasive, so performance came up quickly. The go-kit log package uses structured logging, centered on this interface:
-type Logger interface { Log(keyvals ...interface{}) error } Sample call:
+type Logger interface {  Log(keyvals ...interface{}) error } Sample call:
 logger.Log(&#34;transport&#34;, &#34;HTTP&#34;, &#34;addr&#34;, addr, &#34;msg&#34;, &#34;listening&#34;) Note that everything that goes into a logging call gets converted into an interface." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://commaok.xyz/post/interface-allocs/" />
+<meta property="og:url" content="https://commaok.xyz/post/interface-allocs/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2017-02-06T10:52:40-08:00" />
 <meta property="article:modified_time" content="2017-02-06T10:52:40-08:00" />
+
 
 	    
 	    <meta itemprop="name" content="Logging, interfaces, and allocation">
 <meta itemprop="description" content="This post is about some new compiler optimizations scheduled for Go 1.9, but I want to start with logging.
  A couple of weeks ago, Peter Bourgon started a thread on golang-dev about standardizing logging. Logging is pervasive, so performance came up quickly. The go-kit log package uses structured logging, centered on this interface:
-type Logger interface { Log(keyvals ...interface{}) error } Sample call:
-logger.Log(&#34;transport&#34;, &#34;HTTP&#34;, &#34;addr&#34;, addr, &#34;msg&#34;, &#34;listening&#34;) Note that everything that goes into a logging call gets converted into an interface.">
-<meta itemprop="datePublished" content="2017-02-06T10:52:40-08:00" />
+type Logger interface {  Log(keyvals ...interface{}) error } Sample call:
+logger.Log(&#34;transport&#34;, &#34;HTTP&#34;, &#34;addr&#34;, addr, &#34;msg&#34;, &#34;listening&#34;) Note that everything that goes into a logging call gets converted into an interface."><meta itemprop="datePublished" content="2017-02-06T10:52:40-08:00" />
 <meta itemprop="dateModified" content="2017-02-06T10:52:40-08:00" />
 <meta itemprop="wordCount" content="1023">
-
-
-
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Logging, interfaces, and allocation"/>
 <meta name="twitter:description" content="This post is about some new compiler optimizations scheduled for Go 1.9, but I want to start with logging.
  A couple of weeks ago, Peter Bourgon started a thread on golang-dev about standardizing logging. Logging is pervasive, so performance came up quickly. The go-kit log package uses structured logging, centered on this interface:
-type Logger interface { Log(keyvals ...interface{}) error } Sample call:
+type Logger interface {  Log(keyvals ...interface{}) error } Sample call:
 logger.Log(&#34;transport&#34;, &#34;HTTP&#34;, &#34;addr&#34;, addr, &#34;msg&#34;, &#34;listening&#34;) Note that everything that goes into a logging call gets converted into an interface."/>
 <meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
 
@@ -86,21 +83,21 @@ but I want to start with logging.</p>
 Logging is pervasive, so performance came up quickly.
 The <a href="https://github.com/go-kit/kit/tree/master/log">go-kit log package</a> uses structured logging,
 centered on this interface:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Logger</span> <span style="color:#66d9ef">interface</span> {
-    <span style="color:#a6e22e">Log</span>(<span style="color:#a6e22e">keyvals</span> <span style="color:#f92672">...</span><span style="color:#66d9ef">interface</span>{}) <span style="color:#66d9ef">error</span>
-}
-</code></pre></div><p>Sample call:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Log</span>(<span style="color:#e6db74">&#34;transport&#34;</span>, <span style="color:#e6db74">&#34;HTTP&#34;</span>, <span style="color:#e6db74">&#34;addr&#34;</span>, <span style="color:#a6e22e">addr</span>, <span style="color:#e6db74">&#34;msg&#34;</span>, <span style="color:#e6db74">&#34;listening&#34;</span>)
-</code></pre></div><p>Note that everything that goes into a logging call gets converted into an interface.
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Logger</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Log</span>(<span style="color:#a6e22e">keyvals</span> <span style="color:#f92672">...</span><span style="color:#66d9ef">interface</span>{}) <span style="color:#66d9ef">error</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Sample call:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Log</span>(<span style="color:#e6db74">&#34;transport&#34;</span>, <span style="color:#e6db74">&#34;HTTP&#34;</span>, <span style="color:#e6db74">&#34;addr&#34;</span>, <span style="color:#a6e22e">addr</span>, <span style="color:#e6db74">&#34;msg&#34;</span>, <span style="color:#e6db74">&#34;listening&#34;</span>)
+</span></span></code></pre></div><p>Note that everything that goes into a logging call gets converted into an interface.
 This means that it allocates a lot.</p>
 <p>Compare with another structured logger, <a href="https://github.com/uber-go/zap">zap</a>.
 Zap has uglier call sites, specifically to avoid using interfaces, in order to be zero-allocation:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Info</span>(<span style="color:#e6db74">&#34;Failed to fetch URL.&#34;</span>,
-  <span style="color:#a6e22e">zap</span>.<span style="color:#a6e22e">String</span>(<span style="color:#e6db74">&#34;url&#34;</span>, <span style="color:#a6e22e">url</span>),
-  <span style="color:#a6e22e">zap</span>.<span style="color:#a6e22e">Int</span>(<span style="color:#e6db74">&#34;attempt&#34;</span>, <span style="color:#a6e22e">tryNum</span>),
-  <span style="color:#a6e22e">zap</span>.<span style="color:#a6e22e">Duration</span>(<span style="color:#e6db74">&#34;backoff&#34;</span>, <span style="color:#a6e22e">sleepFor</span>),
-)
-</code></pre></div><p>The arguments to <code>logger.Info</code> have type <code>logger.Field</code>.
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Info</span>(<span style="color:#e6db74">&#34;Failed to fetch URL.&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">zap</span>.<span style="color:#a6e22e">String</span>(<span style="color:#e6db74">&#34;url&#34;</span>, <span style="color:#a6e22e">url</span>),
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">zap</span>.<span style="color:#a6e22e">Int</span>(<span style="color:#e6db74">&#34;attempt&#34;</span>, <span style="color:#a6e22e">tryNum</span>),
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">zap</span>.<span style="color:#a6e22e">Duration</span>(<span style="color:#e6db74">&#34;backoff&#34;</span>, <span style="color:#a6e22e">sleepFor</span>),
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>The arguments to <code>logger.Info</code> have type <code>logger.Field</code>.
 <code>logger.Field</code> is a kind of union-ish struct
 that includes a type and a field each for a <code>string</code>, an <code>int</code>, and an <code>interface{}</code>.
 Thus interfaces are not necessary to pass the most common kinds of values.</p>
@@ -116,28 +113,28 @@ However, with the advent of concurrent garbage collection,
 <a href="https://golang.org/issue/8405">that optimization got eliminated</a>.
 Now the second word in the interface is always a pointer.</p>
 <p>Consider:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#ae81ff">1</span>)
-</code></pre></div><p>Before Go 1.4, this code did not allocate,
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div><p>Before Go 1.4, this code did not allocate,
 because the value <code>1</code> could be put directly into the second interface word.</p>
 <p>That is, the compiler treated it something like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>({<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">1</span>})
-</code></pre></div><p>where <code>{typ, val}</code> represents the two words in an interface.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>({<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">1</span>})
+</span></span></code></pre></div><p>where <code>{typ, val}</code> represents the two words in an interface.</p>
 <p>As of Go 1.4, this code started allocating, because <code>1</code> is not a pointer,
 and the second word must contain a pointer.
 So instead the compiler+runtime conspired to turn it into something roughly like:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> new(<span style="color:#66d9ef">int</span>) <span style="color:#75715e">// allocates!
-</span><span style="color:#75715e"></span><span style="color:#f92672">*</span><span style="color:#a6e22e">i</span> = <span style="color:#ae81ff">1</span>
-<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>({<span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">i</span>})
-</code></pre></div><p>This was painful, and there was much wringing of hands and gnashing of teeth.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> new(<span style="color:#66d9ef">int</span>) <span style="color:#75715e">// allocates!
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#f92672">*</span><span style="color:#a6e22e">i</span> = <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>({<span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">i</span>})
+</span></span></code></pre></div><p>This was painful, and there was much wringing of hands and gnashing of teeth.</p>
 <p>The <a href="https://github.com/golang/go/commit/22701339817a591cd352ecd43b0439b84dbe8095">first significant optimization to remove allocations</a>
 was added a bit later. It kicked in when the resulting interface did not escape.
 In that case, the temporary value could be put on the stack instead of the heap.
 Using our example code above:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> new(<span style="color:#66d9ef">int</span>) <span style="color:#75715e">// now doesn&#39;t allocate, as long as e doesn&#39;t escape
-</span><span style="color:#75715e"></span><span style="color:#f92672">*</span><span style="color:#a6e22e">i</span> = <span style="color:#ae81ff">1</span>
-<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">e</span> <span style="color:#66d9ef">interface</span>{} = {<span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">i</span>}
-<span style="color:#75715e">// do things with e that don&#39;t make it escape
-</span></code></pre></div><p>Unfortunately, many interfaces do escape, including those used in calls
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> new(<span style="color:#66d9ef">int</span>) <span style="color:#75715e">// now doesn&#39;t allocate, as long as e doesn&#39;t escape
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#f92672">*</span><span style="color:#a6e22e">i</span> = <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">e</span> <span style="color:#66d9ef">interface</span>{} = {<span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">i</span>}
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// do things with e that don&#39;t make it escape
+</span></span></span></code></pre></div><p>Unfortunately, many interfaces do escape, including those used in calls
 to <code>fmt.Println</code> and in our logging examples above.</p>
 <p>Happily, Go 1.9 will bring a few more optimizations,
 in part inspired by the logging conversation.
@@ -146,29 +143,29 @@ which is always a possibility.)</p>
 <p>The first optimization is <a href="https://golang.org/issue/18704">to not allocate to convert a constant to an interface</a>.
 So <code>fmt.Println(1)</code> will no longer allocate. The compiler puts
 the value <code>1</code> in a readonly global, roughly like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">i</span> <span style="color:#66d9ef">int</span> = <span style="color:#ae81ff">1</span> <span style="color:#75715e">// at the top level, marked as readonly
-</span><span style="color:#75715e"></span>
-<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>({<span style="color:#66d9ef">int</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">i</span>})
-</code></pre></div><p>This is possible because constants are immutable,
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">i</span> <span style="color:#66d9ef">int</span> = <span style="color:#ae81ff">1</span> <span style="color:#75715e">// at the top level, marked as readonly
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>({<span style="color:#66d9ef">int</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">i</span>})
+</span></span></code></pre></div><p>This is possible because constants are immutable,
 and will thus be the same every time the interface conversion is reached,
 including recursively and concurrently.</p>
 <p>This was inspired directly by the logging discussion.
 In structured logging, many of the arguments are constants&ndash;
 almost certainly all the keys, and probably a few of the values.
 Recall the go-kit example:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Log</span>(<span style="color:#e6db74">&#34;transport&#34;</span>, <span style="color:#e6db74">&#34;HTTP&#34;</span>, <span style="color:#e6db74">&#34;addr&#34;</span>, <span style="color:#a6e22e">addr</span>, <span style="color:#e6db74">&#34;msg&#34;</span>, <span style="color:#e6db74">&#34;listening&#34;</span>)
-</code></pre></div><p>This code drops from 6 allocations to 1, because five of the arguments are constant strings.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">logger</span>.<span style="color:#a6e22e">Log</span>(<span style="color:#e6db74">&#34;transport&#34;</span>, <span style="color:#e6db74">&#34;HTTP&#34;</span>, <span style="color:#e6db74">&#34;addr&#34;</span>, <span style="color:#a6e22e">addr</span>, <span style="color:#e6db74">&#34;msg&#34;</span>, <span style="color:#e6db74">&#34;listening&#34;</span>)
+</span></span></code></pre></div><p>This code drops from 6 allocations to 1, because five of the arguments are constant strings.</p>
 <p>The second new optimization is <a href="https://golang.org/issue/17725">to not allocate to convert bools and bytes to interfaces</a>.
 This optimization works by adding a global <code>[256]byte</code> array called <code>staticbytes</code> to every binary,
 where <code>staticbytes[b] = b</code> for all b.
 When the compiler wants to put a bool or uint8 or other single-byte value
 into an interface, instead of allocating, it calculates a pointer into this array.
 That is:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">staticbytes</span> [<span style="color:#ae81ff">256</span>]<span style="color:#66d9ef">byte</span> = {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>, <span style="color:#f92672">...</span>}
-
-<span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> uint8(<span style="color:#ae81ff">1</span>)
-<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>({<span style="color:#66d9ef">uint8</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">staticbytes</span>[<span style="color:#a6e22e">i</span>]})
-</code></pre></div><p>There is a third new optimization proposed that is still under review,
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">staticbytes</span> [<span style="color:#ae81ff">256</span>]<span style="color:#66d9ef">byte</span> = {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>, <span style="color:#f92672">...</span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> uint8(<span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>({<span style="color:#66d9ef">uint8</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">staticbytes</span>[<span style="color:#a6e22e">i</span>]})
+</span></span></code></pre></div><p>There is a third new optimization proposed that is still under review,
 which is <a href="https://golang.org/cl/36476">to not allocate to convert common zero values in an interface</a>.
 It applies to integers, floats, strings, and slices.
 This optimization works by checking at runtime whether the value is <code>0</code> (or <code>&quot;&quot;</code> or <code>nil</code>).
@@ -176,7 +173,7 @@ If so, it uses a pointer to <a href="https://github.com/golang/go/blob/go1.8rc3/
 rather than allocating some memory and zeroing it.</p>
 <hr>
 <p>If all goes well, Go 1.9 should eliminate a fair number of allocations during interface conversions.
-But it won't eliminate all of them, which leaves performance still on the table as the logging discussion continues.</p>
+But it won&rsquo;t eliminate all of them, which leaves performance still on the table as the logging discussion continues.</p>
 <p>The interplay between implementation decisions and APIs is interesting.</p>
 <p>Picking an API requires thinking about the performance consequences.
 It is not an accident that <code>io.Reader</code> requires/allows callers to bring their own buffer.</p>
@@ -190,11 +187,11 @@ which made <code>fmt.Println(1)</code> allocate, was based on looking at the kin
 <p>Since the kind of code people write is often shaped heavily by the APIs they use,
 we have the kind of organic feedback loop that is fascinating and sometimes challenging to manage.</p>
 <p>Not a terribly deep observation, perhaps, but there is one takeaway:
-If you're designing an API and worrying about performance,
+If you&rsquo;re designing an API and worrying about performance,
 keep in mind not just what the existing compiler and runtime actually do,
 but what they could do.
 Write code for the present, but design APIs for the future.</p>
-<p>And if you're not sure, ask. It worked (a bit) for logging.</p>
+<p>And if you&rsquo;re not sure, ask. It worked (a bit) for logging.</p>
 
                 </section>
             </article>
@@ -308,7 +305,7 @@ Write code for the present, but design APIs for the future.</p>
     
     <p class="small">
     
-        © Copyright 2021 Josh Bleecher Snyder
+        © Copyright 2022 Josh Bleecher Snyder
     
     </p>
 </footer>

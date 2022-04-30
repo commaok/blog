@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.62.0-DEV" />
+		<meta name="generator" content="Hugo 0.98.0" />
 		<title>Interning strings in Go &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
@@ -26,21 +26,18 @@
 What is a string? In Go, a string is a (possibly empty) immutable sequence of bytes. The critical word here for our purposes is immutable. Because byte slices are mutable, converting between string and []byte generally requires an alloc and copy, which is expensive.
 Under the hood, strings in Go are (currently) represented as a length and a pointer to the string data." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://commaok.xyz/post/intern-strings/" />
+<meta property="og:url" content="https://commaok.xyz/post/intern-strings/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2019-12-17T08:12:48-07:00" />
 <meta property="article:modified_time" content="2019-12-17T08:12:48-07:00" />
+
 
 	    
 	    <meta itemprop="name" content="Interning strings in Go">
 <meta itemprop="description" content="This blog post covers string interning in Go.
 What is a string? In Go, a string is a (possibly empty) immutable sequence of bytes. The critical word here for our purposes is immutable. Because byte slices are mutable, converting between string and []byte generally requires an alloc and copy, which is expensive.
-Under the hood, strings in Go are (currently) represented as a length and a pointer to the string data.">
-<meta itemprop="datePublished" content="2019-12-17T08:12:48-07:00" />
+Under the hood, strings in Go are (currently) represented as a length and a pointer to the string data."><meta itemprop="datePublished" content="2019-12-17T08:12:48-07:00" />
 <meta itemprop="dateModified" content="2019-12-17T08:12:48-07:00" />
 <meta itemprop="wordCount" content="807">
-
-
-
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Interning strings in Go"/>
@@ -81,52 +78,52 @@ Under the hood, strings in Go are (currently) represented as a length and a poin
 <p>Under the hood, strings in Go are (currently) represented <a href="https://research.swtch.com/godata">as a length and a pointer to the string data</a>.</p>
 <h1 id="what-is-string-interning">What is string interning?</h1>
 <p>Consider this code:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">b</span> <span style="color:#f92672">:=</span> []byte(<span style="color:#e6db74">&#34;hello&#34;</span>)
-<span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> string(<span style="color:#a6e22e">b</span>)
-<span style="color:#a6e22e">t</span> <span style="color:#f92672">:=</span> string(<span style="color:#a6e22e">b</span>)
-</code></pre></div><p><code>s</code> and <code>t</code> are strings, so they both have a length and a data pointer. Their lengths are obviously the same. What about their data pointers?</p>
-<p>The Go language doesn't provide us a direct way to find out. But we can sniff around with unsafe:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">pointer</span>(<span style="color:#a6e22e">s</span> <span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">uintptr</span> {
-    <span style="color:#a6e22e">p</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">s</span>)
-    <span style="color:#a6e22e">h</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">*</span>(<span style="color:#f92672">*</span><span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">StringHeader</span>)(<span style="color:#a6e22e">p</span>)
-    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">Data</span>
-}
-</code></pre></div><p>(This function ought to return an <code>unsafe.Pointer</code>. See <a href="https://golang.org/issue/19367">Go issue 19367</a>.)</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">b</span> <span style="color:#f92672">:=</span> []byte(<span style="color:#e6db74">&#34;hello&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> string(<span style="color:#a6e22e">b</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">t</span> <span style="color:#f92672">:=</span> string(<span style="color:#a6e22e">b</span>)
+</span></span></code></pre></div><p><code>s</code> and <code>t</code> are strings, so they both have a length and a data pointer. Their lengths are obviously the same. What about their data pointers?</p>
+<p>The Go language doesn&rsquo;t provide us a direct way to find out. But we can sniff around with unsafe:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">pointer</span>(<span style="color:#a6e22e">s</span> <span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">uintptr</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">p</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">s</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">h</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">*</span>(<span style="color:#f92672">*</span><span style="color:#a6e22e">reflect</span>.<span style="color:#a6e22e">StringHeader</span>)(<span style="color:#a6e22e">p</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">Data</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>(This function ought to return an <code>unsafe.Pointer</code>. See <a href="https://golang.org/issue/19367">Go issue 19367</a>.)</p>
 <p>If we <code>fmt.Println(pointer(s), pointer(t))</code>, we get something like <code>4302664 4302632</code>. The pointers are different; there are two separate copies of the data <code>hello</code>.</p>
-<p>(Here's a <a href="https://play.golang.org/p/oyq6Pz79EGa">playground link</a> if you want to experiment. What happens if you change <code>&quot;hello&quot;</code> to just <code>&quot;h&quot;</code>? <a href="https://golang.org/cl/97717">Explanation.</a>)</p>
-<p>Suppose you wanted instead to re-use a single copy of the data <code>hello</code>? That's <a href="https://en.wikipedia.org/wiki/String_interning">string interning</a>. There are two advantages to interned strings. The obvious one is that you don't need to allocate and copy the data. The other is that it speeds up string equality checks. If two strings have the same length and same data pointer, they are equal; there is no need to actually examine the bytes.</p>
-<p>As of Go 1.14, Go doesn't intern most strings. Interning, like any form of caching, also has costs: synchronization for concurrency safety, garbage collector complexity, and extra code to execute every time a string is created. And, like caching, there are cases in which it is harmful rather than helpful. If you were processing a list of dictionary words, no word would ever occur twice, so interning strings would be waste both time and memory.</p>
+<p>(Here&rsquo;s a <a href="https://play.golang.org/p/oyq6Pz79EGa">playground link</a> if you want to experiment. What happens if you change <code>&quot;hello&quot;</code> to just <code>&quot;h&quot;</code>? <a href="https://golang.org/cl/97717">Explanation.</a>)</p>
+<p>Suppose you wanted instead to re-use a single copy of the data <code>hello</code>? That&rsquo;s <a href="https://en.wikipedia.org/wiki/String_interning">string interning</a>. There are two advantages to interned strings. The obvious one is that you don&rsquo;t need to allocate and copy the data. The other is that it speeds up string equality checks. If two strings have the same length and same data pointer, they are equal; there is no need to actually examine the bytes.</p>
+<p>As of Go 1.14, Go doesn&rsquo;t intern most strings. Interning, like any form of caching, also has costs: synchronization for concurrency safety, garbage collector complexity, and extra code to execute every time a string is created. And, like caching, there are cases in which it is harmful rather than helpful. If you were processing a list of dictionary words, no word would ever occur twice, so interning strings would be waste both time and memory.</p>
 <h1 id="manual-string-interning">Manual string interning</h1>
 <p>It is possible to manually intern strings in Go. What we need is a way to look for an existing string to re-use given a byte slice, perhaps using something like a <code>map[[]byte]string</code>. If a lookup succeeds, we use the existing string; if it fails, we convert and then store that string for future use.</p>
-<p>There's only one problem: You can't use <code>[]byte</code> as a map key.</p>
-<p>Thanks to a <a href="https://golang.org/cl/83740044">long-standing compiler optimization</a>, we can use a <code>map[string]string</code> instead. The optimization is that map operations whose key is a converted byte slice don't actually generate a new string  to use during the lookup.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">m</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>)
-<span style="color:#a6e22e">b</span> <span style="color:#f92672">:=</span> []byte(<span style="color:#e6db74">&#34;hello&#34;</span>)
-<span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> string(<span style="color:#a6e22e">b</span>) <span style="color:#75715e">// allocates
-</span><span style="color:#75715e"></span><span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">m</span>[string(<span style="color:#a6e22e">b</span>)] <span style="color:#75715e">// doesn&#39;t allocate!
-</span></code></pre></div><p>(A similar optimization applies in other scenarios in which the compiler can prove that a converted byte slice doesn't get modified during use, such as <a href="https://github.com/golang/go/blob/056a3d1c6f6f92b095f88b01d004eb2656a688c5/src/cmd/compile/internal/gc/swt.go#L249"><code>switch string(b)</code> when all switch cases are free of side-effects</a>.)</p>
+<p>There&rsquo;s only one problem: You can&rsquo;t use <code>[]byte</code> as a map key.</p>
+<p>Thanks to a <a href="https://golang.org/cl/83740044">long-standing compiler optimization</a>, we can use a <code>map[string]string</code> instead. The optimization is that map operations whose key is a converted byte slice don&rsquo;t actually generate a new string  to use during the lookup.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">m</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">b</span> <span style="color:#f92672">:=</span> []byte(<span style="color:#e6db74">&#34;hello&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> string(<span style="color:#a6e22e">b</span>) <span style="color:#75715e">// allocates
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">m</span>[string(<span style="color:#a6e22e">b</span>)] <span style="color:#75715e">// doesn&#39;t allocate!
+</span></span></span></code></pre></div><p>(A similar optimization applies in other scenarios in which the compiler can prove that a converted byte slice doesn&rsquo;t get modified during use, such as <a href="https://github.com/golang/go/blob/056a3d1c6f6f92b095f88b01d004eb2656a688c5/src/cmd/compile/internal/gc/swt.go#L249"><code>switch string(b)</code> when all switch cases are free of side-effects</a>.)</p>
 <p>The entirety of the code required to intern strings is this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">intern</span>(<span style="color:#a6e22e">m</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">b</span> []<span style="color:#66d9ef">byte</span>) <span style="color:#66d9ef">string</span> {
-    <span style="color:#75715e">// look for an existing string to re-use
-</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">c</span>, <span style="color:#a6e22e">ok</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">m</span>[string(<span style="color:#a6e22e">b</span>)]
-    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">ok</span> {
-        <span style="color:#75715e">// found an existing string
-</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span>
-    }
-    <span style="color:#75715e">// didn&#39;t find one, so make one and store it
-</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> string(<span style="color:#a6e22e">b</span>)
-    <span style="color:#a6e22e">m</span>[<span style="color:#a6e22e">s</span>] = <span style="color:#a6e22e">s</span>
-    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">s</span>
-}
-</code></pre></div><p>Pretty simple.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">intern</span>(<span style="color:#a6e22e">m</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">b</span> []<span style="color:#66d9ef">byte</span>) <span style="color:#66d9ef">string</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// look for an existing string to re-use
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">c</span>, <span style="color:#a6e22e">ok</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">m</span>[string(<span style="color:#a6e22e">b</span>)]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">ok</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// found an existing string
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// didn&#39;t find one, so make one and store it
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> string(<span style="color:#a6e22e">b</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">m</span>[<span style="color:#a6e22e">s</span>] = <span style="color:#a6e22e">s</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">s</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Pretty simple.</p>
 <h1 id="complications">Complications</h1>
 <p>Note that this manual interning routine pushes the problems with interning into the calling code. You need to manage concurrent access to the map; you need to decide the lifetime of the map (and thus everything in it); and you need to pay the extra cost of a map lookup every time you need a string.</p>
 <p>Pushing these decisions onto the calling code can yield better performance. For example, suppose you were <a href="https://golang.org/issue/32779">decoding json into a <code>map[string]interface{}</code></a>. The json decoder is probably not concurrent. The lifetime of the map can be tied to the json decoder. And the keys of this map are likely to be repeated frequently, which is the best case scenario for string interning; it makes the extra cost of the map lookup worth it.</p>
 <h1 id="a-helper-package">A helper package</h1>
-<p>If you don't want to have to think about any of these complications, and are willing to accept the slight concomitant loss of performance, and have code in which string interning may help, there's a package for that: <a href="https://github.com/josharian/intern">github.com/josharian/intern</a>.</p>
+<p>If you don&rsquo;t want to have to think about any of these complications, and are willing to accept the slight concomitant loss of performance, and have code in which string interning may help, there&rsquo;s a package for that: <a href="https://github.com/josharian/intern">github.com/josharian/intern</a>.</p>
 <p>It works by horribly abusing <code>sync.Pool</code>. It stores interning maps in a <code>sync.Pool</code>, retrieving them as needed. This neatly solves the concurrent access problem, because <code>sync.Pool</code> access is concurrency-safe. It mostly solves the lifetime problem, because the contents in a <code>sync.Pool</code> are usually <a href="https://golang.org/issue/22950">eventually</a> garbaged collected. (For related reading about managing lifetimes, see <a href="https://golang.org/issue/29696">Go issue 29696</a>.)</p>
 <h1 id="more-reading">More reading</h1>
-<p>There's lots more discussion and links about string interning in Go in <a href="https://golang.org/issue/5160">issue 5160</a>.</p>
+<p>There&rsquo;s lots more discussion and links about string interning in Go in <a href="https://golang.org/issue/5160">issue 5160</a>.</p>
 
                 </section>
             </article>
@@ -240,7 +237,7 @@ Under the hood, strings in Go are (currently) represented as a length and a poin
     
     <p class="small">
     
-        © Copyright 2021 Josh Bleecher Snyder
+        © Copyright 2022 Josh Bleecher Snyder
     
     </p>
 </footer>

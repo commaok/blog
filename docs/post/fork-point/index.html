@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.62.0-DEV" />
+		<meta name="generator" content="Hugo 0.98.0" />
 		<title>git rebase --fork-point considered harmful (by me) &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
@@ -22,34 +22,31 @@
 		
 
 		<meta property="og:title" content="git rebase --fork-point considered harmful (by me)" />
-<meta property="og:description" content="This is the first blog post I&#39;ve written that isn&#39;t about Go, and it&#39;s pretty weedy. Feel free to stop reading now.
+<meta property="og:description" content="This is the first blog post I&rsquo;ve written that isn&rsquo;t about Go, and it&rsquo;s pretty weedy. Feel free to stop reading now.
 This is a git experience report based on something that bit me hard today, despite being quite experienced with git. Play along!
 Prologue Initialize a repo. Create two commits.
-$ git init . Initialized empty Git repository in &lt;redacted&gt; $ touch readme $ git add readme $ git commit -a -m &quot;initial commit&quot; [main (root-commit) ac2d8e7] initial commit 1 file changed, 0 insertions(&#43;), 0 deletions(-) create mode 100644 readme $ touch readme." />
+$ git init . Initialized empty Git repository in &lt;redacted&gt; $ touch readme $ git add readme $ git commit -a -m &#34;initial commit&#34; [main (root-commit) ac2d8e7] initial commit 1 file changed, 0 insertions(&#43;), 0 deletions(-) create mode 100644 readme $ touch readme." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://commaok.xyz/post/fork-point/" />
+<meta property="og:url" content="https://commaok.xyz/post/fork-point/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2020-11-02T09:12:48-07:00" />
 <meta property="article:modified_time" content="2020-11-02T09:12:48-07:00" />
 
+
 	    
 	    <meta itemprop="name" content="git rebase --fork-point considered harmful (by me)">
-<meta itemprop="description" content="This is the first blog post I&#39;ve written that isn&#39;t about Go, and it&#39;s pretty weedy. Feel free to stop reading now.
+<meta itemprop="description" content="This is the first blog post I&rsquo;ve written that isn&rsquo;t about Go, and it&rsquo;s pretty weedy. Feel free to stop reading now.
 This is a git experience report based on something that bit me hard today, despite being quite experienced with git. Play along!
 Prologue Initialize a repo. Create two commits.
-$ git init . Initialized empty Git repository in &lt;redacted&gt; $ touch readme $ git add readme $ git commit -a -m &quot;initial commit&quot; [main (root-commit) ac2d8e7] initial commit 1 file changed, 0 insertions(&#43;), 0 deletions(-) create mode 100644 readme $ touch readme.">
-<meta itemprop="datePublished" content="2020-11-02T09:12:48-07:00" />
+$ git init . Initialized empty Git repository in &lt;redacted&gt; $ touch readme $ git add readme $ git commit -a -m &#34;initial commit&#34; [main (root-commit) ac2d8e7] initial commit 1 file changed, 0 insertions(&#43;), 0 deletions(-) create mode 100644 readme $ touch readme."><meta itemprop="datePublished" content="2020-11-02T09:12:48-07:00" />
 <meta itemprop="dateModified" content="2020-11-02T09:12:48-07:00" />
 <meta itemprop="wordCount" content="946">
-
-
-
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="git rebase --fork-point considered harmful (by me)"/>
-<meta name="twitter:description" content="This is the first blog post I&#39;ve written that isn&#39;t about Go, and it&#39;s pretty weedy. Feel free to stop reading now.
+<meta name="twitter:description" content="This is the first blog post I&rsquo;ve written that isn&rsquo;t about Go, and it&rsquo;s pretty weedy. Feel free to stop reading now.
 This is a git experience report based on something that bit me hard today, despite being quite experienced with git. Play along!
 Prologue Initialize a repo. Create two commits.
-$ git init . Initialized empty Git repository in &lt;redacted&gt; $ touch readme $ git add readme $ git commit -a -m &quot;initial commit&quot; [main (root-commit) ac2d8e7] initial commit 1 file changed, 0 insertions(&#43;), 0 deletions(-) create mode 100644 readme $ touch readme."/>
+$ git init . Initialized empty Git repository in &lt;redacted&gt; $ touch readme $ git add readme $ git commit -a -m &#34;initial commit&#34; [main (root-commit) ac2d8e7] initial commit 1 file changed, 0 insertions(&#43;), 0 deletions(-) create mode 100644 readme $ touch readme."/>
 <meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
 
 	</head>
@@ -78,97 +75,97 @@ $ git init . Initialized empty Git repository in &lt;redacted&gt; $ touch readme
                     </h2>
                 </header>
                 <section id="post-body">
-                    <p>This is the first blog post I've written that isn't about Go, and it's pretty weedy. Feel free to stop reading now.</p>
+                    <p>This is the first blog post I&rsquo;ve written that isn&rsquo;t about Go, and it&rsquo;s pretty weedy. Feel free to stop reading now.</p>
 <p>This is a git <a href="https://github.com/golang/go/wiki/ExperienceReports">experience report</a> based on something that bit me hard today, despite being quite experienced with git. Play along!</p>
 <h1 id="prologue">Prologue</h1>
 <p>Initialize a repo. Create two commits.</p>
-<pre><code>$ git init .
+<pre tabindex="0"><code>$ git init .
 Initialized empty Git repository in &lt;redacted&gt;
 
 $ touch readme
 $ git add readme
-$ git commit -a -m &quot;initial commit&quot;
+$ git commit -a -m &#34;initial commit&#34;
 [main (root-commit) ac2d8e7] initial commit
  1 file changed, 0 insertions(+), 0 deletions(-)
  create mode 100644 readme
 
 $ touch readme.2
 $ git add readme.2
-$ git commit -a -m &quot;another commit&quot;
+$ git commit -a -m &#34;another commit&#34;
 [main fb0f7fe] another commit
  1 file changed, 0 insertions(+), 0 deletions(-)
  create mode 100644 readme.2
-</code></pre><p>So far, pretty mundane. Here's what the repo looks like:</p>
-<pre><code>$ git log --all --decorate --oneline --graph
+</code></pre><p>So far, pretty mundane. Here&rsquo;s what the repo looks like:</p>
+<pre tabindex="0"><code>$ git log --all --decorate --oneline --graph
 * fb0f7fe (HEAD -&gt; main) another commit
 * ac2d8e7 initial commit
 </code></pre><h1 id="oops">Oops</h1>
-<p>I meant to create <code>readme.2</code> on a branch. No problem. Let's create that branch now.</p>
-<pre><code>$ git checkout -b branch
-Branch 'branch' set up to track local branch 'main' by rebasing.
-Switched to a new branch 'branch'
+<p>I meant to create <code>readme.2</code> on a branch. No problem. Let&rsquo;s create that branch now.</p>
+<pre tabindex="0"><code>$ git checkout -b branch
+Branch &#39;branch&#39; set up to track local branch &#39;main&#39; by rebasing.
+Switched to a new branch &#39;branch&#39;
 </code></pre><p>Oh, and better put <code>main</code> back where it belongs.</p>
-<pre><code>$ git checkout main
-Switched to branch 'main'
+<pre tabindex="0"><code>$ git checkout main
+Switched to branch &#39;main&#39;
 $ git reset --hard HEAD~1
 HEAD is now at ac2d8e7 initial commit
 </code></pre><p>Now the repo looks like this:</p>
-<pre><code>$ git log --all --decorate --oneline --graph
+<pre tabindex="0"><code>$ git log --all --decorate --oneline --graph
 * 95cc2c0 (branch) another commit
 * 20a231b (HEAD -&gt; main) initial commit
 </code></pre><h1 id="bug-fix">Bug fix</h1>
-<p>Let's fix a bug on main.</p>
-<pre><code>$ echo &quot;nothing to see here&quot; &gt; readme
-$ git commit -a -m &quot;fill out the readme&quot;
+<p>Let&rsquo;s fix a bug on main.</p>
+<pre tabindex="0"><code>$ echo &#34;nothing to see here&#34; &gt; readme
+$ git commit -a -m &#34;fill out the readme&#34;
 [main eebece5] fill out the readme
  1 file changed, 1 insertion(+)
 </code></pre><p>Now <code>main</code> and <code>branch</code> have diverged a bit.</p>
-<pre><code>$ git log --all --decorate --oneline --graph
+<pre tabindex="0"><code>$ git log --all --decorate --oneline --graph
 * eebece5 (HEAD -&gt; main) fill out the readme
 | * fb0f7fe (branch) another commit
 |/  
 * ac2d8e7 initial commit
 </code></pre><h1 id="time-to-rebase">Time to rebase</h1>
-<p>Let's get <code>branch</code> rebased onto <code>main</code>.</p>
-<pre><code>$ git checkout branch
-Switched to branch 'branch'
-Your branch and 'main' have diverged,
+<p>Let&rsquo;s get <code>branch</code> rebased onto <code>main</code>.</p>
+<pre tabindex="0"><code>$ git checkout branch
+Switched to branch &#39;branch&#39;
+Your branch and &#39;main&#39; have diverged,
 and have 1 and 1 different commits each, respectively.
-  (use &quot;git pull&quot; to merge the remote branch into yours)
+  (use &#34;git pull&#34; to merge the remote branch into yours)
 </code></pre><p>Before reading any further, stop. Summon your git fu. What will happen when we run <code>git rebase</code>?</p>
-<p>If you're like me, you expect something like this:</p>
-<pre><code>* 7a8805e (HEAD -&gt; branch) another commit
+<p>If you&rsquo;re like me, you expect something like this:</p>
+<pre tabindex="0"><code>* 7a8805e (HEAD -&gt; branch) another commit
 * eebece5 (main) fill out the readme
 * ac2d8e7 initial commit
 </code></pre><p>Three commits. <code>branch</code> has been rebased on top of <code>main</code>, so it is one commit ahead of it.</p>
-<p>OK, let's find out what really happens.</p>
-<pre><code>$ git rebase
+<p>OK, let&rsquo;s find out what really happens.</p>
+<pre tabindex="0"><code>$ git rebase
 Successfully rebased and updated refs/heads/branch.
 </code></pre><p>Moment of truth.</p>
-<pre><code>$ git log --all --decorate --oneline --graph
+<pre tabindex="0"><code>$ git log --all --decorate --oneline --graph
 * eebece5 (HEAD -&gt; branch, main) fill out the readme
 * ac2d8e7 initial commit
 </code></pre><p>There are only two commits. <code>branch</code> and <code>main</code> are on the same commit.</p>
-<p>What happened to the third commit? It's gone.</p>
+<p>What happened to the third commit? It&rsquo;s gone.</p>
 <h1 id="denouement">Denouement</h1>
 <p>What happened was <code>--fork-point</code>.</p>
 <p>The first step to a rebase (and many other operations) is to find a <a href="https://git-scm.com/docs/git-merge-base">merge base</a>. This is some shared commit in history, common ground from which to trace divergent paths.</p>
 <p>The most obvious way to find a merge base is by looking at the graph for the most recent commit reachable by everyone.</p>
-<p>But inspecting the graph doesn't always get you the ideal result. What if you intentionally abandoned some commits on <code>main</code>? Looking just at the graph to find the merge base might accidentally resuscitate them. There's a <a href="https://git-scm.com/docs/git-merge-base#_discussion_on_fork_point_mode">fully worked example</a> in the git docs.</p>
+<p>But inspecting the graph doesn&rsquo;t always get you the ideal result. What if you intentionally abandoned some commits on <code>main</code>? Looking just at the graph to find the merge base might accidentally resuscitate them. There&rsquo;s a <a href="https://git-scm.com/docs/git-merge-base#_discussion_on_fork_point_mode">fully worked example</a> in the git docs.</p>
 <p>The <code>--fork-point</code> flag is a clever attempt to work around this. <code>git rebase</code> describes it thus:</p>
 <blockquote>
 <p>Use reflog to find a better common ancestor between <code>upstream</code> and <code>branch</code> when calculating which commits have been introduced by <code>branch</code>.</p>
 </blockquote>
-<p>The <a href="https://git-scm.com/docs/git-reflog">git reflog</a> is a log of changes made to git refs. (If you don't know what a &ldquo;ref&rdquo; is, substitute the word &ldquo;branch&rdquo;.) It's meta version control. It tracks what you did with your version control over time.</p>
+<p>The <a href="https://git-scm.com/docs/git-reflog">git reflog</a> is a log of changes made to git refs. (If you don&rsquo;t know what a &ldquo;ref&rdquo; is, substitute the word &ldquo;branch&rdquo;.) It&rsquo;s meta version control. It tracks what you did with your version control over time.</p>
 <p>The reflog is quite useful if you make a horrible mistake. You can poke through the reflog to find a lost commit.</p>
 <p><code>--fork-point</code> looks through the <em>temporal history of your git repo</em> to pick a merge base, &ldquo;allowing you to replay only the commits on your topic, excluding the commits the other side later discarded.&rdquo; In this context, &ldquo;later&rdquo; really means later in time, not &ldquo;descendent of&rdquo; in abstract git graph world.</p>
-<p>And here we have the explanation for what happened. I discovered I had committed on <code>main</code> by accident, and <em>reset <code>main</code> to the previous commit</em>. From <code>--fork-point</code>'s perspective, the <code>main</code> branch had <em>discarded</em> the commit on <code>branch</code>. Therefore it was not included when we selected a merge base to rebase <code>branch</code> onto <code>main</code>.</p>
-<h1 id="whats-wrong-here">What's wrong here?</h1>
+<p>And here we have the explanation for what happened. I discovered I had committed on <code>main</code> by accident, and <em>reset <code>main</code> to the previous commit</em>. From <code>--fork-point</code>&rsquo;s perspective, the <code>main</code> branch had <em>discarded</em> the commit on <code>branch</code>. Therefore it was not included when we selected a merge base to rebase <code>branch</code> onto <code>main</code>.</p>
+<h1 id="whats-wrong-here">What&rsquo;s wrong here?</h1>
 <p>To my mind, two things went wrong here.</p>
-<p><code>--fork-point</code> assumes that discarded commits were discarded <em>because they were unwanted</em>. But that is not always true. In my case, they were discarded because they were unwanted <em>at that moment</em>. Adding more clever heuristics might help some here, but I suspect it's impossible to infer intent, which is what is required.</p>
-<p>The bigger issue is that the behavior of <code>git rebase</code> now depends on (almost) invisible, inscrutable state. The ability to mentally model what a command will do is critical to being able to use any tool. It's pretty easy to view a git graph; it is the default view for most git UIs. And it's not too hard as a human to pick out the topological merge base from there. The reflog is all but invisible. And it is definitely not easy for a human to process.</p>
+<p><code>--fork-point</code> assumes that discarded commits were discarded <em>because they were unwanted</em>. But that is not always true. In my case, they were discarded because they were unwanted <em>at that moment</em>. Adding more clever heuristics might help some here, but I suspect it&rsquo;s impossible to infer intent, which is what is required.</p>
+<p>The bigger issue is that the behavior of <code>git rebase</code> now depends on (almost) invisible, inscrutable state. The ability to mentally model what a command will do is critical to being able to use any tool. It&rsquo;s pretty easy to view a git graph; it is the default view for most git UIs. And it&rsquo;s not too hard as a human to pick out the topological merge base from there. The reflog is all but invisible. And it is definitely not easy for a human to process.</p>
 <h1 id="the-fix">The fix</h1>
-<p>The solution is obviously more flags. My git config's <code>[alias]</code> section now includes <code>r = rebase --no-fork-point</code>.</p>
+<p>The solution is obviously more flags. My git config&rsquo;s <code>[alias]</code> section now includes <code>r = rebase --no-fork-point</code>.</p>
 
                 </section>
             </article>
@@ -282,7 +279,7 @@ Successfully rebased and updated refs/heads/branch.
     
     <p class="small">
     
-        © Copyright 2021 Josh Bleecher Snyder
+        © Copyright 2022 Josh Bleecher Snyder
     
     </p>
 </footer>
