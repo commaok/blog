@@ -5,10 +5,72 @@
     <description>Recent content on Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 13 Jun 2021 08:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Sat, 30 Apr 2022 08:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Performance and files full of code</title>
+      <link>https://commaok.xyz/post/perf_files/</link>
+      <pubDate>Sat, 30 Apr 2022 08:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/post/perf_files/</guid>
+      <description>&lt;p&gt;Linus&amp;rsquo;s Famous Law: &amp;ldquo;Given enough eyeballs, all bugs are shallow.&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;Linus&amp;rsquo;s &lt;a href=&#34;https://git-scm.com/docs/pack-heuristics/en&#34;&gt;Less Famous Law&lt;/a&gt;: &amp;ldquo;Files grow.&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;One of the hardest things programmers do is keep code readable. Splitting code up into separate files is a basic tool for that.&lt;/p&gt;
+&lt;p&gt;And yet, crazy as it sounds when you say it out loud, our tools pressure us not to.&lt;/p&gt;
+&lt;h1 id=&#34;php&#34;&gt;PHP&lt;/h1&gt;
+&lt;p&gt;My first software job was for a company called AdMob. We used PHP. I know.&lt;/p&gt;
+&lt;p&gt;I needed to optimize some very hot code. I was a philosophy Ph.D. dropout, so I had very little idea what I was doing. The internet&amp;rsquo;s advice for optimizing and scaling PHP was &amp;ldquo;use memcached!&amp;rdquo;, but we were way beyond that.&lt;/p&gt;
+&lt;p&gt;I eventually figured out that if I combined all of our code into a single file, I could get double-digit speed-ups. It turns out that the overhead of statting, opening, and parsing a new file was substantial. I wrote a simple preprocessor, everyone groaned unhappily, and we moved forward.&lt;/p&gt;
+&lt;h1 id=&#34;javascript&#34;&gt;JavaScript&lt;/h1&gt;
+&lt;p&gt;Today I was looking into a bit of JavaScript that runs as part of our build process. (I care a lot about build time. For many years I was the &lt;em&gt;de facto&lt;/em&gt; watchdog of the Go toolchain&amp;rsquo;s speed and have spent countless hours working on it.) Poking around a bit, I found that a substantive chunk of time was spent opening and parsing JavaScript files containing a bunch of data.&lt;/p&gt;
+&lt;p&gt;&amp;ldquo;No way,&amp;rdquo; I thought. So I ran an experiment.&lt;/p&gt;
+&lt;p&gt;I created two sets of files, containing the same data, an NxM map. One was all the code in a single JavaScript file, like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-js&#34; data-lang=&#34;js&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;module&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;exports&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;{&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;k0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt;{&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;j0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;},&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;k1&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt;{&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;j0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;}};
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The other was split across N JavaScript files:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-js&#34; data-lang=&#34;js&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;module&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;exports&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;{&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;k0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;require&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;./sub/k0&amp;#34;&lt;/span&gt;),&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;k1&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;require&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;./sub/k1&amp;#34;&lt;/span&gt;)};
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;where, e.g., &lt;code&gt;sub/k0&lt;/code&gt; is:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-js&#34; data-lang=&#34;js&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;module&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;exports&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;{&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;j0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Then instead of N=2 and M=1, I set N=1000 and M=100, and executed the two.&lt;/p&gt;
+&lt;p&gt;On my M1 mac, with all files in the page cache, going from many files to one was considerably faster:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;name  old time/op         new time/op         delta
+Exec          111ms ± 1%           59ms ± 1%  -46.53%  (p=0.000 n=9+8)
+
+name  old user-time/op    new user-time/op    delta
+Exec          113ms ± 1%           51ms ± 1%  -54.62%  (p=0.000 n=10+9)
+
+name  old sys-time/op     new sys-time/op     delta
+Exec         17.5ms ± 2%          5.8ms ± 3%  -66.67%  (p=0.000 n=9+8)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Since the data files I was looking at today are autogenerated anyway, it would make sense to generate one big file instead of lots of little ones, even though it&amp;rsquo;s a bit less nice that way.&lt;/p&gt;
+&lt;p&gt;Some facts don&amp;rsquo;t change: An interpreted language must still stat, open, and parse each file, and that has overhead.&lt;/p&gt;
+&lt;p&gt;And it&amp;rsquo;s not just opening the file! &lt;code&gt;/usr/bin/time -l&lt;/code&gt; on a mac now prints an &amp;ldquo;instructions retired&amp;rdquo; count, which is awesome. Spreading the data across many files causes over twice as many instructions to be executed. It also increases the peak memory footprint by 15%.&lt;/p&gt;
+&lt;h1 id=&#34;c&#34;&gt;C++&lt;/h1&gt;
+&lt;p&gt;It&amp;rsquo;s not just interpreted languages! Compiled languages are also sensitive to the apparently unimportant detail of how your code is organized into files.&lt;/p&gt;
+&lt;p&gt;At my first startup, card.io, I was doing computer vision and machine learning on underpowered mobile devices. The heavy computational work was in a bunch of C++ files. On a (somewhat educated) lark, I preprocessed all the files into a single giant input file. Lo! The code got a lot faster.&lt;/p&gt;
+&lt;p&gt;The compilation unit (what a single invocation of the compiler works on) of C/C++ is a file. By placing all the code in a single compilation unit, the compiler could see more of the code at one time and thus optimize it much more. I didn&amp;rsquo;t even bother grumbling. I just added the preprocessor to our build system and moved on.&lt;/p&gt;
+&lt;p&gt;Link-time optimization has improved the situation some since then, because it provides the opportunity to optimize across compilation units. But that comes at a steep cost. The results of compilation can be cached, but linking must be done every time, so LTO slows down builds.&lt;/p&gt;
+&lt;h1 id=&#34;go&#34;&gt;Go&lt;/h1&gt;
+&lt;p&gt;Go mostly gets this right.&lt;/p&gt;
+&lt;p&gt;The compilation unit of Go is a package, which can contain multiple files. Moving code around between those files has no impact on performance.&lt;/p&gt;
+&lt;p&gt;What about moving code around between packages, though? Perhaps surprisingly, there are very few cases in which this matters.&lt;/p&gt;
+&lt;p&gt;When compiling a package, the Go compiler emits information about optimizations (mostly inlining and escape analysis) that will be useful when compiling code that imports that package. So moving code around between packages typically has no impact at all.&lt;/p&gt;
+&lt;p&gt;As far as I know, this has never been written down as a formal design decision for the language, but it comes up occasionally in discussion.&lt;/p&gt;
+&lt;p&gt;One hard problem in compiler design is phase ordering. Here&amp;rsquo;s an example. Should it do inlining before or after dead code elimination?&lt;/p&gt;
+&lt;p&gt;Obviously, compilers should inline before dead code elimination, because inlining will often cause code to be provably dead. (Imagine code like &lt;code&gt;if debug() { ... }&lt;/code&gt; and &lt;code&gt;func debug() bool { return false }&lt;/code&gt;.)&lt;/p&gt;
+&lt;p&gt;Obviously, compilers should do dead code elimination before inlining, because dead code elimination will provide a clearer picture of the true complexity and size of a function, which is important for making good inlining decisions.&lt;/p&gt;
+&lt;p&gt;Hmmm. Obviously, compilers should apply optimizations in a loop until they reach a fixed point. What could go wrong?&lt;/p&gt;
+&lt;p&gt;The Go compiler does inlining early. But the part where it emits information for subsequent compilations occurs very late. We could have the best of both worlds: We could inline early intra-package, but make better inter-package inlining decisions by using information that wasn&amp;rsquo;t available earlier.&lt;/p&gt;
+&lt;p&gt;However, this could incentivize programmers to warp the structure of their code to get different optimization results. And that is a showstopper, at least for Go.&lt;/p&gt;
+&lt;p&gt;Go&amp;rsquo;s definitely not perfect. For example, its lackluster inlining heuristic (and lack of an pressure release valve) causes programmers to mangle their code. But that&amp;rsquo;s considered a bug. And it&amp;rsquo;s slightly off-topic for this post.&lt;/p&gt;
+&lt;h1 id=&#34;moral&#34;&gt;Moral&lt;/h1&gt;
+&lt;p&gt;The moral of this story is not that Go is superior, although I am obviously fond of it; there are complex trade-offs here.&lt;/p&gt;
+&lt;p&gt;People like to say things like &amp;ldquo;tools don&amp;rsquo;t matter&amp;rdquo; and &amp;ldquo;tools are just a way to get the job done&amp;rdquo;. I disagree.&lt;/p&gt;
+&lt;p&gt;Our tools generate incentives that end up warping how we do our jobs, in ways subtle (code organization, dependency culture) and not-so-subtle (formatting flame wars, &lt;a href=&#34;https://xkcd.com/303/&#34;&gt;hallway sword fights&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;Programmers should pick their tools carefully. And tool authors should think hard about the incentives they create.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>How to test a Go beta or RC</title>

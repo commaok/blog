@@ -8,7 +8,7 @@ rssLimit = 10
 [params]
 	name = "Josh Bleecher Snyder"
 	description = "Words about Go"
-	bio = "Gopher, Go GDE, working at Tailscale"
+	bio = "Gopher, Go GDE, righthandgreen.com"
 	twitter = "commaok"
 	enableRSS = true
 
@@ -22,7 +22,7 @@ rssLimit = 10
 	readMore = ""
 	copyright = ""
 	# Sharing options and author information in posts
-	aboutAuthor = "Go GDE, @Tailscale"
+	aboutAuthor = "righthandgreen.com"
 	tweet = ""
 	share = ""
 	# 404 page
