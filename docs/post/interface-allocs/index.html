@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.98.0" />
+		<meta name="generator" content="Hugo 0.101.0" />
 		<title>Logging, interfaces, and allocation &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
@@ -23,8 +23,8 @@
 
 		<meta property="og:title" content="Logging, interfaces, and allocation" />
 <meta property="og:description" content="This post is about some new compiler optimizations scheduled for Go 1.9, but I want to start with logging.
- A couple of weeks ago, Peter Bourgon started a thread on golang-dev about standardizing logging. Logging is pervasive, so performance came up quickly. The go-kit log package uses structured logging, centered on this interface:
-type Logger interface {  Log(keyvals ...interface{}) error } Sample call:
+A couple of weeks ago, Peter Bourgon started a thread on golang-dev about standardizing logging. Logging is pervasive, so performance came up quickly. The go-kit log package uses structured logging, centered on this interface:
+type Logger interface { Log(keyvals ...interface{}) error } Sample call:
 logger.Log(&#34;transport&#34;, &#34;HTTP&#34;, &#34;addr&#34;, addr, &#34;msg&#34;, &#34;listening&#34;) Note that everything that goes into a logging call gets converted into an interface." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://commaok.xyz/post/interface-allocs/" /><meta property="article:section" content="post" />
@@ -35,8 +35,8 @@ logger.Log(&#34;transport&#34;, &#34;HTTP&#34;, &#34;addr&#34;, addr, &#34;msg&#
 	    
 	    <meta itemprop="name" content="Logging, interfaces, and allocation">
 <meta itemprop="description" content="This post is about some new compiler optimizations scheduled for Go 1.9, but I want to start with logging.
- A couple of weeks ago, Peter Bourgon started a thread on golang-dev about standardizing logging. Logging is pervasive, so performance came up quickly. The go-kit log package uses structured logging, centered on this interface:
-type Logger interface {  Log(keyvals ...interface{}) error } Sample call:
+A couple of weeks ago, Peter Bourgon started a thread on golang-dev about standardizing logging. Logging is pervasive, so performance came up quickly. The go-kit log package uses structured logging, centered on this interface:
+type Logger interface { Log(keyvals ...interface{}) error } Sample call:
 logger.Log(&#34;transport&#34;, &#34;HTTP&#34;, &#34;addr&#34;, addr, &#34;msg&#34;, &#34;listening&#34;) Note that everything that goes into a logging call gets converted into an interface."><meta itemprop="datePublished" content="2017-02-06T10:52:40-08:00" />
 <meta itemprop="dateModified" content="2017-02-06T10:52:40-08:00" />
 <meta itemprop="wordCount" content="1023">
@@ -44,8 +44,8 @@ logger.Log(&#34;transport&#34;, &#34;HTTP&#34;, &#34;addr&#34;, addr, &#34;msg&#
 	    <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Logging, interfaces, and allocation"/>
 <meta name="twitter:description" content="This post is about some new compiler optimizations scheduled for Go 1.9, but I want to start with logging.
- A couple of weeks ago, Peter Bourgon started a thread on golang-dev about standardizing logging. Logging is pervasive, so performance came up quickly. The go-kit log package uses structured logging, centered on this interface:
-type Logger interface {  Log(keyvals ...interface{}) error } Sample call:
+A couple of weeks ago, Peter Bourgon started a thread on golang-dev about standardizing logging. Logging is pervasive, so performance came up quickly. The go-kit log package uses structured logging, centered on this interface:
+type Logger interface { Log(keyvals ...interface{}) error } Sample call:
 logger.Log(&#34;transport&#34;, &#34;HTTP&#34;, &#34;addr&#34;, addr, &#34;msg&#34;, &#34;listening&#34;) Note that everything that goes into a logging call gets converted into an interface."/>
 <meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
 
