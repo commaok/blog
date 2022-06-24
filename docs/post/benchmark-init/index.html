@@ -31,7 +31,6 @@ For short-lived programs, though, startup performance can matter a lot. This is 
 <meta property="article:modified_time" content="2019-01-31T13:53:05-08:00" />
 
 
-	    
 	    <meta itemprop="name" content="Benchmarking package initialization">
 <meta itemprop="description" content="Go program execution doesn&rsquo;t start at func main. First is a bit of bootstrapping. Then the runtime gets initialized. Then, package by package, the program initializes global variables and runs init functions. Then it&rsquo;s time for main.
 Usually, the startup time for a Go program is negligible, and irrelevant compared to its steady state performance.

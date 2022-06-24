@@ -31,7 +31,6 @@ Under the hood, strings in Go are (currently) represented as a length and a poin
 <meta property="article:modified_time" content="2019-12-17T08:12:48-07:00" />
 
 
-	    
 	    <meta itemprop="name" content="Interning strings in Go">
 <meta itemprop="description" content="This blog post covers string interning in Go.
 What is a string? In Go, a string is a (possibly empty) immutable sequence of bytes. The critical word here for our purposes is immutable. Because byte slices are mutable, converting between string and []byte generally requires an alloc and copy, which is expensive.

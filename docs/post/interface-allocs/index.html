@@ -32,7 +32,6 @@ logger.Log(&#34;transport&#34;, &#34;HTTP&#34;, &#34;addr&#34;, addr, &#34;msg&#
 <meta property="article:modified_time" content="2017-02-06T10:52:40-08:00" />
 
 
-	    
 	    <meta itemprop="name" content="Logging, interfaces, and allocation">
 <meta itemprop="description" content="This post is about some new compiler optimizations scheduled for Go 1.9, but I want to start with logging.
 A couple of weeks ago, Peter Bourgon started a thread on golang-dev about standardizing logging. Logging is pervasive, so performance came up quickly. The go-kit log package uses structured logging, centered on this interface:

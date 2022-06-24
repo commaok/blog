@@ -31,7 +31,6 @@ Nope. The variable runtime.MemProfileRate controls the rate at which the runtime
 <meta property="article:modified_time" content="2017-01-28T18:06:36-08:00" />
 
 
-	    
 	    <meta itemprop="name" content="Picking up pennies: Disabling memory profiling">
 <meta itemprop="description" content="If you work on a short-lived, allocation heavy program and care about a tiny (maybe 0.5%) performance improvement, this post is for you.
 I was looking at a CPU profile of the Go compiler when I noticed something odd: An entry in mprof.go. mprof.go contains the memory profiling implementation, but I was doing cpu profiling. Was there a bug in compilebench, perhaps?

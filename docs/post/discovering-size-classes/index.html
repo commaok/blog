@@ -31,7 +31,6 @@ If you&rsquo;re trying to reduce the memory usage of a program that allocates a 
 <meta property="article:modified_time" content="2020-09-01T09:12:48-07:00" />
 
 
-	    
 	    <meta itemprop="name" content="Discovering alloc size classes in Go">
 <meta itemprop="description" content="As of Go 1.15, the Go runtime&rsquo;s memory allocator doesn&rsquo;t always allocate exactly the number of bytes required for an object. Instead, it rounds up to the nearest size class.
 type T struct { i int64 b byte } Type T has a size of 9 bytes, but allocating a T will use 16 bytes.
