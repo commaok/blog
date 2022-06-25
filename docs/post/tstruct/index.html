@@ -23,7 +23,8 @@
 
 		<meta property="og:title" content="Nicer struct literals in Go templates" />
 <meta property="og:description" content="Go templates (text/template, html/template) accept a single argument to render. That&rsquo;s generally enough when you&rsquo;re executing them from Go code. But when invoking a template from another template, you often want to pass multiple things to it.
-As a simple, running example, we might have a template that renders a single nav bar item. It requires a title, a url, and a bool indicating whether it is enabled. We want to invoke this nav bar template several times." />
+For example, we might have a template that renders a nav bar item. It requires a title, a url, and an &ldquo;enabled&rdquo; bool. We want to invoke it from another template.
+How do you do that?" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://commaok.xyz/post/tstruct/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-06-24T08:12:48-07:00" />
@@ -32,14 +33,16 @@ As a simple, running example, we might have a template that renders a single nav
 
 	    <meta itemprop="name" content="Nicer struct literals in Go templates">
 <meta itemprop="description" content="Go templates (text/template, html/template) accept a single argument to render. That&rsquo;s generally enough when you&rsquo;re executing them from Go code. But when invoking a template from another template, you often want to pass multiple things to it.
-As a simple, running example, we might have a template that renders a single nav bar item. It requires a title, a url, and a bool indicating whether it is enabled. We want to invoke this nav bar template several times."><meta itemprop="datePublished" content="2022-06-24T08:12:48-07:00" />
+For example, we might have a template that renders a nav bar item. It requires a title, a url, and an &ldquo;enabled&rdquo; bool. We want to invoke it from another template.
+How do you do that?"><meta itemprop="datePublished" content="2022-06-24T08:12:48-07:00" />
 <meta itemprop="dateModified" content="2022-06-24T08:12:48-07:00" />
-<meta itemprop="wordCount" content="738">
+<meta itemprop="wordCount" content="735">
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Nicer struct literals in Go templates"/>
 <meta name="twitter:description" content="Go templates (text/template, html/template) accept a single argument to render. That&rsquo;s generally enough when you&rsquo;re executing them from Go code. But when invoking a template from another template, you often want to pass multiple things to it.
-As a simple, running example, we might have a template that renders a single nav bar item. It requires a title, a url, and a bool indicating whether it is enabled. We want to invoke this nav bar template several times."/>
+For example, we might have a template that renders a nav bar item. It requires a title, a url, and an &ldquo;enabled&rdquo; bool. We want to invoke it from another template.
+How do you do that?"/>
 <meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
 
 	</head>
@@ -69,7 +72,7 @@ As a simple, running example, we might have a template that renders a single nav
                 </header>
                 <section id="post-body">
                     <p>Go templates (<code>text/template</code>, <code>html/template</code>) accept a single argument to render. That&rsquo;s generally enough when you&rsquo;re executing them from Go code. But when invoking a template from another template, you often want to pass multiple things to it.</p>
-<p>As a simple, running example, we might have a template that renders a single nav bar item. It requires a title, a url, and a bool indicating whether it is enabled. We want to invoke this nav bar template several times.</p>
+<p>For example, we might have a template that renders a nav bar item. It requires a title, a url, and an &ldquo;enabled&rdquo; bool. We want to invoke it from another template.</p>
 <p>How do you do that?</p>
 <p>In this post I&rsquo;ll review the existing options and then discuss <a href="#a-new-approach">a new one I&rsquo;m working on</a>.</p>
 <h1 id="existing-options">Existing options</h1>
@@ -77,7 +80,7 @@ As a simple, running example, we might have a template that renders a single nav
 <p>You can combine multiple key/value pairs into a map. <a href="https://stackoverflow.com/a/18276968/">Define a &ldquo;dict&rdquo; function in your FuncMap and call it from your template.</a></p>
 <p>This might look like:</p>
 <pre tabindex="0"><code>{{ template &#34;navbar&#34; dict &#34;title&#34; &#34;Home&#34; &#34;url&#34; (urlNamed &#34;home&#34;) &#34;enabled&#34; true }}
-</code></pre><p>This is flexible and gets the job done. But it is hard to read (which are the pairs?) and has no type safety.</p>
+</code></pre><p>This is flexible and gets the job done. But it is a bit of a blob and has no type safety.</p>
 <h2 id="do-it-all-in-go-code">Do it all in Go code</h2>
 <p>Define a nav bar item struct:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">NavBarItem</span> <span style="color:#66d9ef">struct</span> {
@@ -85,38 +88,50 @@ As a simple, running example, we might have a template that renders a single nav
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">URL</span> <span style="color:#66d9ef">string</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Enabled</span> <span style="color:#66d9ef">bool</span>
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>Construct all the nav bar items in your Go code using a composite literal. Pass it into your template.</p>
-<p>This works, but it splits the content between the Go code and the template. And it can be hard to thread everything through. It is not so much a solution to the problem as it is giving up on solving the problem.</p>
+</span></span></code></pre></div><p>Construct the nav bar item in your Go code using a struct literal. Pass it into your template, and then pass it along to the nested template.</p>
+<p>This works, but it splits your content into two places. And it can be annoying to thread everything through. It is not so much a solution to the problem as it is giving up on solving the problem.</p>
 <h2 id="tmplfunc">tmplfunc</h2>
-<p><a href="https://pkg.go.dev/rsc.io/tmplfunc">tmplfunc</a> converts templates to functions. If you define the navbar template using <code>{{define &quot;navbar title url enabled&quot;}}</code>, then tmplfunc arranges for it to be callable:</p>
+<p><a href="https://pkg.go.dev/rsc.io/tmplfunc">tmplfunc</a> converts templates to functions. If you define the navbar template using <code>{{ define &quot;navbar title url enabled&quot; }}</code>, then tmplfunc arranges for it to be callable:</p>
 <pre tabindex="0"><code>{{ navbar &#34;Home&#34; (urlNamed &#34;home&#34;) true }}
-</code></pre><p>This adds a bit of type safety (it checks the spelling of &ldquo;navbar&rdquo;), but not much. As the list of parameters grows, it loses readability. It only works with template execution, not local variables. And it requires that you wrap the entire template parsing pipeline.</p>
+</code></pre><p>This adds a bit of type safety, but not much. As the list of parameters grows, it loses readability. It only works with template execution; you can&rsquo;t use it to define a local variable. And it requires that you replace the template parsing pipeline with <code>tmplfunc</code>.</p>
 <h1 id="a-new-approach">A new approach</h1>
-<p>The new approach I&rsquo;m experimenting with is to define a Go struct for the template input (as above) and then autogenerate FuncMap entries to construct it. My initial attempt at this is <a href="https://github.com/josharian/tstruct">package tstruct</a>.</p>
+<p>The new approach I&rsquo;m experimenting with is to define a Go struct for the template input (as above) and then autogenerate corresponding FuncMap entries. This provides a template syntax for writing struct literals.</p>
+<p>My initial attempt at this is <a href="https://github.com/josharian/tstruct">package tstruct</a>.</p>
 <p>First, we hook the <code>NavBarItem</code> struct up to the FuncMap:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">m</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">template</span>.<span style="color:#a6e22e">FuncMap</span>{ <span style="color:#75715e">/* your func map here */</span> }
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">tstruct</span>.<span style="color:#a6e22e">AddFuncMap</span>[<span style="color:#a6e22e">NavBarItem</span>](<span style="color:#a6e22e">m</span>)
 </span></span><span style="display:flex;"><span><span style="color:#75715e">// handle err
 </span></span></span></code></pre></div><p>We can now call the template like this:</p>
 <pre tabindex="0"><code>{{ template &#34;navbar&#34; NavBarItem (Title &#34;Home&#34;) (URL (urlNamed &#34;home&#34;)) (Enabled true) }}
-</code></pre><p>This is a bit more verbose, but I find it far more readable. It is pretty type safe, and it is flexible; you can reorder and omit any of the arguments.</p>
-<p>Package tstruct also supports map, slice, and struct fields. Map and slice elements are added one at a time. For example, given this struct type:</p>
+</code></pre><p>This is a bit more verbose, but I find it far more readable. It is pretty type safe, and it is flexible; you can reorder and omit any of the field arguments.</p>
+<p>Package tstruct also supports map and slice fields. For example, given this struct type:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Example</span> <span style="color:#66d9ef">struct</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Map</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">int</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Slice</span> []<span style="color:#66d9ef">int</span>
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>After a quick <code>tstruct.AddFuncMap[Example](m)</code>, you can write:</p>
-<pre tabindex="0"><code>{{ $x := Example (Map &#34;a&#34; 1) (Map &#34;b&#34; 2) (Slice 5) (Slice 6) (Slice 7) }}
+</span></span></code></pre></div><p>After calling <code>tstruct.AddFuncMap[Example](m)</code>, you can write:</p>
+<pre tabindex="0"><code>{{ $x := Example (Map &#34;a&#34; 1 &#34;b&#34; 2) (Slice 5 6 7) }}
 </code></pre><p><code>x</code> now contains the value:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">Example</span>{
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Map</span>: <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">int</span>{<span style="color:#e6db74">&#34;a&#34;</span>: <span style="color:#ae81ff">1</span>, <span style="color:#e6db74">&#34;b&#34;</span>: <span style="color:#ae81ff">2</span>},
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Slice</span>: []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">7</span>},
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>You can also define custom setters for named struct fields types; look for <code>TStructSet</code> in the <a href="https://github.com/josharian/tstruct/blob/main/readme.md">readme</a>.</p>
+</span></span></code></pre></div><p>If it helps with clarity, you can also build maps and slices incrementally. This yields identical results:</p>
+<pre tabindex="0"><code>{{ $x := Example
+    (Map &#34;a&#34; 1)
+    (Map &#34;b&#34; 2)
+    (Slice 5)
+    (Slice 6)
+    (Slice 7)
+}}
+</code></pre><p>You can also define custom setters for struct fields with named types; look for <code>TStructSet</code> in the <a href="https://github.com/josharian/tstruct/blob/main/readme.md">tstruct readme</a>.</p>
+<h1 id="funcmap-name-collisions">FuncMap name collisions</h1>
+<p>FuncMaps are global, so if you already have an entry called <code>NavBar</code>, then package tstruct can&rsquo;t (or rather, won&rsquo;t) add one to construct <code>NavBar</code> structs. Similarly, tstruct can&rsquo;t add two structs with the same name, or a struct with the same name as a struct field.</p>
+<p>As a special case, however, tstruct supports using the same struct field name across different structs, even if they have different types. (This is possible because the &ldquo;field setter&rdquo; FuncMap entry is only fully evaluated by tstruct itself in the context of a specific struct type.)</p>
+<p>Fortunately, most FuncMap functions start with a lower case letter, and tstruct only works with exported struct fields, so there&rsquo;s some amount of convention-based namespacing.</p>
 <h1 id="caveats">Caveats</h1>
-<p>FuncMaps are global, so if you already have an entry called <code>NavBar</code>, then package tstruct can&rsquo;t (won&rsquo;t) add one to construct <code>NavBar</code> structs. And tstruct can&rsquo;t add two structs with the same name, or a struct with the same name as a struct field. As a special case, however, tstruct supports using the same struct field name across different structs, even if they have different types. (This is possible because the &ldquo;field setter&rdquo; FuncMap entry is only fully evaluated by tstruct itself in the context of a specific struct type.) Fortunately, most FuncMap functions start with a lower case letter, and tstruct only works with exported struct fields, so there&rsquo;s some amount of built-in namespacing.</p>
-<p>As of June 2022, this is fairly novel, both the idea (I think) and the implementation (definitely). And the implementation uses reflection, indirection, delayed execution, and recursion, each of which is independently hard to reason about and which collectively push the limits of my abilities, <a href="https://www.laws-of-software.com/laws/kernighan/">at least to debug</a>.</p>
-<p>I expect the API and details to change as I use this more and (hopefully) hear from others using it. Please <a href="https://github.com/josharian/tstruct/issues">file issues</a> with feedback, bugs, and ideas. If it ends up being popular, I&rsquo;ll try to push towards a stable v1.</p>
+<p>As of June 2022, this is fairly novel, both the idea (I think) and the implementation (definitely).</p>
+<p>I expect the API and details to evolve as I use this more and (hopefully) hear from others using it. Please <a href="https://github.com/josharian/tstruct/issues">file issues</a> with feedback, bugs, and ideas. If it ends up being popular, I&rsquo;ll try to push towards a stable v1.</p>
 
                 </section>
             </article>

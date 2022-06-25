@@ -16,7 +16,7 @@
       
       <guid>https://commaok.xyz/post/tstruct/</guid>
       <description>&lt;p&gt;Go templates (&lt;code&gt;text/template&lt;/code&gt;, &lt;code&gt;html/template&lt;/code&gt;) accept a single argument to render. That&amp;rsquo;s generally enough when you&amp;rsquo;re executing them from Go code. But when invoking a template from another template, you often want to pass multiple things to it.&lt;/p&gt;
-&lt;p&gt;As a simple, running example, we might have a template that renders a single nav bar item. It requires a title, a url, and a bool indicating whether it is enabled. We want to invoke this nav bar template several times.&lt;/p&gt;
+&lt;p&gt;For example, we might have a template that renders a nav bar item. It requires a title, a url, and an &amp;ldquo;enabled&amp;rdquo; bool. We want to invoke it from another template.&lt;/p&gt;
 &lt;p&gt;How do you do that?&lt;/p&gt;
 &lt;p&gt;In this post I&amp;rsquo;ll review the existing options and then discuss &lt;a href=&#34;#a-new-approach&#34;&gt;a new one I&amp;rsquo;m working on&lt;/a&gt;.&lt;/p&gt;
 &lt;h1 id=&#34;existing-options&#34;&gt;Existing options&lt;/h1&gt;
@@ -24,7 +24,7 @@
 &lt;p&gt;You can combine multiple key/value pairs into a map. &lt;a href=&#34;https://stackoverflow.com/a/18276968/&#34;&gt;Define a &amp;ldquo;dict&amp;rdquo; function in your FuncMap and call it from your template.&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;This might look like:&lt;/p&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;{{ template &amp;#34;navbar&amp;#34; dict &amp;#34;title&amp;#34; &amp;#34;Home&amp;#34; &amp;#34;url&amp;#34; (urlNamed &amp;#34;home&amp;#34;) &amp;#34;enabled&amp;#34; true }}
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is flexible and gets the job done. But it is hard to read (which are the pairs?) and has no type safety.&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is flexible and gets the job done. But it is a bit of a blob and has no type safety.&lt;/p&gt;
 &lt;h2 id=&#34;do-it-all-in-go-code&#34;&gt;Do it all in Go code&lt;/h2&gt;
 &lt;p&gt;Define a nav bar item struct:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;NavBarItem&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; {
@@ -32,38 +32,50 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;URL&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;Enabled&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;bool&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Construct all the nav bar items in your Go code using a composite literal. Pass it into your template.&lt;/p&gt;
-&lt;p&gt;This works, but it splits the content between the Go code and the template. And it can be hard to thread everything through. It is not so much a solution to the problem as it is giving up on solving the problem.&lt;/p&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Construct the nav bar item in your Go code using a struct literal. Pass it into your template, and then pass it along to the nested template.&lt;/p&gt;
+&lt;p&gt;This works, but it splits your content into two places. And it can be annoying to thread everything through. It is not so much a solution to the problem as it is giving up on solving the problem.&lt;/p&gt;
 &lt;h2 id=&#34;tmplfunc&#34;&gt;tmplfunc&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&#34;https://pkg.go.dev/rsc.io/tmplfunc&#34;&gt;tmplfunc&lt;/a&gt; converts templates to functions. If you define the navbar template using &lt;code&gt;{{define &amp;quot;navbar title url enabled&amp;quot;}}&lt;/code&gt;, then tmplfunc arranges for it to be callable:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://pkg.go.dev/rsc.io/tmplfunc&#34;&gt;tmplfunc&lt;/a&gt; converts templates to functions. If you define the navbar template using &lt;code&gt;{{ define &amp;quot;navbar title url enabled&amp;quot; }}&lt;/code&gt;, then tmplfunc arranges for it to be callable:&lt;/p&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;{{ navbar &amp;#34;Home&amp;#34; (urlNamed &amp;#34;home&amp;#34;) true }}
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This adds a bit of type safety (it checks the spelling of &amp;ldquo;navbar&amp;rdquo;), but not much. As the list of parameters grows, it loses readability. It only works with template execution, not local variables. And it requires that you wrap the entire template parsing pipeline.&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This adds a bit of type safety, but not much. As the list of parameters grows, it loses readability. It only works with template execution; you can&amp;rsquo;t use it to define a local variable. And it requires that you replace the template parsing pipeline with &lt;code&gt;tmplfunc&lt;/code&gt;.&lt;/p&gt;
 &lt;h1 id=&#34;a-new-approach&#34;&gt;A new approach&lt;/h1&gt;
-&lt;p&gt;The new approach I&amp;rsquo;m experimenting with is to define a Go struct for the template input (as above) and then autogenerate FuncMap entries to construct it. My initial attempt at this is &lt;a href=&#34;https://github.com/josharian/tstruct&#34;&gt;package tstruct&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The new approach I&amp;rsquo;m experimenting with is to define a Go struct for the template input (as above) and then autogenerate corresponding FuncMap entries. This provides a template syntax for writing struct literals.&lt;/p&gt;
+&lt;p&gt;My initial attempt at this is &lt;a href=&#34;https://github.com/josharian/tstruct&#34;&gt;package tstruct&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;First, we hook the &lt;code&gt;NavBarItem&lt;/code&gt; struct up to the FuncMap:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;m&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;template&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;FuncMap&lt;/span&gt;{ &lt;span style=&#34;color:#75715e&#34;&gt;/* your func map here */&lt;/span&gt; }
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;err&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;tstruct&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;AddFuncMap&lt;/span&gt;[&lt;span style=&#34;color:#a6e22e&#34;&gt;NavBarItem&lt;/span&gt;](&lt;span style=&#34;color:#a6e22e&#34;&gt;m&lt;/span&gt;)
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// handle err
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;We can now call the template like this:&lt;/p&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;{{ template &amp;#34;navbar&amp;#34; NavBarItem (Title &amp;#34;Home&amp;#34;) (URL (urlNamed &amp;#34;home&amp;#34;)) (Enabled true) }}
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is a bit more verbose, but I find it far more readable. It is pretty type safe, and it is flexible; you can reorder and omit any of the arguments.&lt;/p&gt;
-&lt;p&gt;Package tstruct also supports map, slice, and struct fields. Map and slice elements are added one at a time. For example, given this struct type:&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is a bit more verbose, but I find it far more readable. It is pretty type safe, and it is flexible; you can reorder and omit any of the field arguments.&lt;/p&gt;
+&lt;p&gt;Package tstruct also supports map and slice fields. For example, given this struct type:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Example&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; {
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;Map&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;map&lt;/span&gt;[&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;]&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;Slice&lt;/span&gt; []&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;After a quick &lt;code&gt;tstruct.AddFuncMap[Example](m)&lt;/code&gt;, you can write:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;{{ $x := Example (Map &amp;#34;a&amp;#34; 1) (Map &amp;#34;b&amp;#34; 2) (Slice 5) (Slice 6) (Slice 7) }}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;After calling &lt;code&gt;tstruct.AddFuncMap[Example](m)&lt;/code&gt;, you can write:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;{{ $x := Example (Map &amp;#34;a&amp;#34; 1 &amp;#34;b&amp;#34; 2) (Slice 5 6 7) }}
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;x&lt;/code&gt; now contains the value:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;Example&lt;/span&gt;{
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;Map&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;map&lt;/span&gt;[&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;]&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;{&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;a&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;b&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;},
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;Slice&lt;/span&gt;: []&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;{&lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;6&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;7&lt;/span&gt;},
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can also define custom setters for named struct fields types; look for &lt;code&gt;TStructSet&lt;/code&gt; in the &lt;a href=&#34;https://github.com/josharian/tstruct/blob/main/readme.md&#34;&gt;readme&lt;/a&gt;.&lt;/p&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If it helps with clarity, you can also build maps and slices incrementally. This yields identical results:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;{{ $x := Example
+    (Map &amp;#34;a&amp;#34; 1)
+    (Map &amp;#34;b&amp;#34; 2)
+    (Slice 5)
+    (Slice 6)
+    (Slice 7)
+}}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You can also define custom setters for struct fields with named types; look for &lt;code&gt;TStructSet&lt;/code&gt; in the &lt;a href=&#34;https://github.com/josharian/tstruct/blob/main/readme.md&#34;&gt;tstruct readme&lt;/a&gt;.&lt;/p&gt;
+&lt;h1 id=&#34;funcmap-name-collisions&#34;&gt;FuncMap name collisions&lt;/h1&gt;
+&lt;p&gt;FuncMaps are global, so if you already have an entry called &lt;code&gt;NavBar&lt;/code&gt;, then package tstruct can&amp;rsquo;t (or rather, won&amp;rsquo;t) add one to construct &lt;code&gt;NavBar&lt;/code&gt; structs. Similarly, tstruct can&amp;rsquo;t add two structs with the same name, or a struct with the same name as a struct field.&lt;/p&gt;
+&lt;p&gt;As a special case, however, tstruct supports using the same struct field name across different structs, even if they have different types. (This is possible because the &amp;ldquo;field setter&amp;rdquo; FuncMap entry is only fully evaluated by tstruct itself in the context of a specific struct type.)&lt;/p&gt;
+&lt;p&gt;Fortunately, most FuncMap functions start with a lower case letter, and tstruct only works with exported struct fields, so there&amp;rsquo;s some amount of convention-based namespacing.&lt;/p&gt;
 &lt;h1 id=&#34;caveats&#34;&gt;Caveats&lt;/h1&gt;
-&lt;p&gt;FuncMaps are global, so if you already have an entry called &lt;code&gt;NavBar&lt;/code&gt;, then package tstruct can&amp;rsquo;t (won&amp;rsquo;t) add one to construct &lt;code&gt;NavBar&lt;/code&gt; structs. And tstruct can&amp;rsquo;t add two structs with the same name, or a struct with the same name as a struct field. As a special case, however, tstruct supports using the same struct field name across different structs, even if they have different types. (This is possible because the &amp;ldquo;field setter&amp;rdquo; FuncMap entry is only fully evaluated by tstruct itself in the context of a specific struct type.) Fortunately, most FuncMap functions start with a lower case letter, and tstruct only works with exported struct fields, so there&amp;rsquo;s some amount of built-in namespacing.&lt;/p&gt;
-&lt;p&gt;As of June 2022, this is fairly novel, both the idea (I think) and the implementation (definitely). And the implementation uses reflection, indirection, delayed execution, and recursion, each of which is independently hard to reason about and which collectively push the limits of my abilities, &lt;a href=&#34;https://www.laws-of-software.com/laws/kernighan/&#34;&gt;at least to debug&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;I expect the API and details to change as I use this more and (hopefully) hear from others using it. Please &lt;a href=&#34;https://github.com/josharian/tstruct/issues&#34;&gt;file issues&lt;/a&gt; with feedback, bugs, and ideas. If it ends up being popular, I&amp;rsquo;ll try to push towards a stable v1.&lt;/p&gt;
+&lt;p&gt;As of June 2022, this is fairly novel, both the idea (I think) and the implementation (definitely).&lt;/p&gt;
+&lt;p&gt;I expect the API and details to evolve as I use this more and (hopefully) hear from others using it. Please &lt;a href=&#34;https://github.com/josharian/tstruct/issues&#34;&gt;file issues&lt;/a&gt; with feedback, bugs, and ideas. If it ends up being popular, I&amp;rsquo;ll try to push towards a stable v1.&lt;/p&gt;
 </description>
     </item>
     
