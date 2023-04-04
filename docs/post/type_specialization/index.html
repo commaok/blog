@@ -7,7 +7,7 @@
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
 		<meta name="generator" content="Hugo 0.111.3">
-		<title>new(Blog) &middot; Don&#39;t Panic</title>
+		<title> &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
 		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
@@ -21,24 +21,39 @@
 		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
 		
 
-		<meta property="og:title" content="new(Blog)" />
-<meta property="og:description" content="I&rsquo;m going to try this blogging thing again.
-I&rsquo;ve failed at it a few times before. I&rsquo;m going to try Julia Evans style this time. Maybe this one will stick?" />
+		<meta property="og:title" content="" />
+<meta property="og:description" content="Type Specialization in Go
+Basic devirt
+Complicated devirt
+type Gopher interface { Goph() }
+func f(x Gopher) { // … if t, ok := x.(*T); ok { t.Goph() } else { x.Goph() } // … }
+Why would you write code with a pointless type assertion like this?
+This is type specialization, a common optimization done by JIT compilers. The type assertion is really cheap, and when it succeeds, it can improve escape analysis (allocs less) and allow inlining (faster)." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://commaok.xyz/post/new-blog/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2017-01-23T15:19:05-08:00" />
-<meta property="article:modified_time" content="2017-01-23T15:19:05-08:00" />
+<meta property="og:url" content="https://commaok.xyz/post/type_specialization/" /><meta property="article:section" content="post" />
 
-	    <meta itemprop="name" content="new(Blog)">
-<meta itemprop="description" content="I&rsquo;m going to try this blogging thing again.
-I&rsquo;ve failed at it a few times before. I&rsquo;m going to try Julia Evans style this time. Maybe this one will stick?"><meta itemprop="datePublished" content="2017-01-23T15:19:05-08:00" />
-<meta itemprop="dateModified" content="2017-01-23T15:19:05-08:00" />
-<meta itemprop="wordCount" content="30">
+
+
+	    <meta itemprop="name" content="">
+<meta itemprop="description" content="Type Specialization in Go
+Basic devirt
+Complicated devirt
+type Gopher interface { Goph() }
+func f(x Gopher) { // … if t, ok := x.(*T); ok { t.Goph() } else { x.Goph() } // … }
+Why would you write code with a pointless type assertion like this?
+This is type specialization, a common optimization done by JIT compilers. The type assertion is really cheap, and when it succeeds, it can improve escape analysis (allocs less) and allow inlining (faster).">
+
+<meta itemprop="wordCount" content="145">
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="new(Blog)"/>
-<meta name="twitter:description" content="I&rsquo;m going to try this blogging thing again.
-I&rsquo;ve failed at it a few times before. I&rsquo;m going to try Julia Evans style this time. Maybe this one will stick?"/>
+<meta name="twitter:title" content=""/>
+<meta name="twitter:description" content="Type Specialization in Go
+Basic devirt
+Complicated devirt
+type Gopher interface { Goph() }
+func f(x Gopher) { // … if t, ok := x.(*T); ok { t.Goph() } else { x.Goph() } // … }
+Why would you write code with a pointless type assertion like this?
+This is type specialization, a common optimization done by JIT compilers. The type assertion is really cheap, and when it succeeds, it can improve escape analysis (allocs less) and allow inlining (faster)."/>
 <meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
 
 	</head>
@@ -59,18 +74,34 @@ I&rsquo;ve failed at it a few times before. I&rsquo;m going to try Julia Evans s
         <section id="wrapper">
             <article class="post">
                 <header>
-                    <h1>new(Blog)</h1>
+                    <h1></h1>
                     <h2 class="headline">
-                    January 23, 2017 
+                    January 1, 0001 
                     <br>
                     
                     </h2>
                 </header>
                 <section id="post-body">
-                    <p>I&rsquo;m going to try this blogging thing again.</p>
-<p>I&rsquo;ve failed at it a few times before.
-I&rsquo;m going to try <a href="https://jvns.ca/blog/2016/05/22/how-do-you-write-blog-posts/">Julia Evans</a> style this time.
-Maybe this one will stick?</p>
+                    <p>Type Specialization in Go</p>
+<p>Basic devirt</p>
+<p>Complicated devirt</p>
+<p>type Gopher interface {
+Goph()
+}</p>
+<p>func f(x Gopher) {
+// …
+if t, ok := x.(*T); ok {
+t.Goph()
+} else {
+x.Goph()
+}
+// …
+}</p>
+<p>Why would you write code with a pointless type assertion like this?</p>
+<p>This is type specialization, a common optimization done by JIT compilers. The type assertion is really cheap, and when it succeeds, it can improve escape analysis (allocs less) and allow inlining (faster).</p>
+<p>But it definitely reduces readability, so use only when it counts, and document it.</p>
+<p>Why doesn’t the compiler do this for you? It doesn’t know what types would be good to try. JIT could help. FGO could help. LTO could help. None of those are available, so it is left to programmers.</p>
+<p>This post was originally <a href="https://twitter.com/commaok/status/1406650785740451842">a tweet</a>, but it kept coming up in discussion.</p>
 
                 </section>
             </article>

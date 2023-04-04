@@ -8,8 +8,7 @@ rssLimit = 10
 [params]
 	name = "Josh Bleecher Snyder"
 	description = "Words about Go"
-	bio = "Gopher, Go GDE, righthandgreen.com"
-	twitter = "commaok"
+	bio = "Gopher, canopyclimate.com, parent, fruit trees"
 	enableRSS = true
 
 	# Navigation links
@@ -22,7 +21,7 @@ rssLimit = 10
 	readMore = ""
 	copyright = ""
 	# Sharing options and author information in posts
-	aboutAuthor = "righthandgreen.com"
+	aboutAuthor = "canopyclimate.com"
 	tweet = ""
 	share = ""
 	# 404 page
@@ -33,5 +32,4 @@ rssLimit = 10
 	iconFont = "font-awesome"
 
 [social]
-    twitter  = "https://www.twitter.com/commaok"
     github   = "https://www.github.com/josharian"

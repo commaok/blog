@@ -199,7 +199,7 @@ $ go1.17beta1 test your/favorite/package
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ae81ff&#34;&gt;9&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;99&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;999&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;9999&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;99999&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;999999&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ae81ff&#34;&gt;9999999&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;99999999&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;999999999&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;};
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; y &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#ae81ff&#34;&gt;9&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; int_log2(x)) &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;// log10(2) ~= 0.301, 9/32 ~= 0.281
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; y &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#ae81ff&#34;&gt;9&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;int_log2&lt;/span&gt;(x)) &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;// log10(2) ~= 0.301, 9/32 ~= 0.281
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;y &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; x &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; table[y]; &lt;span style=&#34;color:#75715e&#34;&gt;// use lookup table to discover off-by-one due to using integer math
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; y &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The initial calculation gets us close to the right answer. The lookup table steps in to handles numbers like 9 and 10. &lt;code&gt;log2(9)&lt;/code&gt; is equal to &lt;code&gt;log2(10)&lt;/code&gt;, so we need some way to distinguish them. &lt;code&gt;9 * log2(x) &amp;gt;&amp;gt; 5&lt;/code&gt; yields 0 for both 9 and 10. Comparing &lt;code&gt;x&lt;/code&gt; to &lt;code&gt;table[0]&lt;/code&gt; tells us to increment the result for 10, but not for 9. Then we increment again, yielding the correct result: 1 for 9, 2 for 10.&lt;/p&gt;
@@ -220,8 +220,8 @@ $ go1.17beta1 test your/favorite/package
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, (&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;30&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1000000000&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;};
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;x &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; table[int_log2(x)]; &lt;span style=&#34;color:#75715e&#34;&gt;// adjust input to align base 2 and base 10 transitions
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; ans &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#ae81ff&#34;&gt;77&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;int_log2(x)) &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;// log10(2) ~= 0.301, 77x/256 ~= 0.301
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;x &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; table[&lt;span style=&#34;color:#a6e22e&#34;&gt;int_log2&lt;/span&gt;(x)]; &lt;span style=&#34;color:#75715e&#34;&gt;// adjust input to align base 2 and base 10 transitions
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; ans &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#ae81ff&#34;&gt;77&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;int_log2&lt;/span&gt;(x)) &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;// log10(2) ~= 0.301, 77x/256 ~= 0.301
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; ans &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Consider the inputs 9 and 10. We start with integer log2, which yields 3 in both cases. Then we add &lt;code&gt;table[3]&lt;/code&gt;, which is 6. This transforms 9 and 10 into 15 and 16. Now if we take the integer log2 again we get 3 and 4. Integer division and an increment yields the correct result (1 and 2).&lt;/p&gt;
 &lt;p&gt;This doesn’t actually reduce any of the other post-lookup-table work, but it sets us up to do so.&lt;/p&gt;
@@ -237,7 +237,7 @@ $ go1.17beta1 test your/favorite/package
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ae81ff&#34;&gt;68451041280&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1098511627776&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1098437885952&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#ae81ff&#34;&gt;1097364144128&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;};
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;uint64_t&lt;/span&gt; n &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;uint64_t&lt;/span&gt;)(x) &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; table[int_log2(x)];
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;uint64_t&lt;/span&gt; n &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;uint64_t&lt;/span&gt;)(x) &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; table[&lt;span style=&#34;color:#a6e22e&#34;&gt;int_log2&lt;/span&gt;(x)];
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;int_log2&lt;/span&gt;(n) &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The non-lookup calculations here have gotten simpler. The table is a lot more complex, but that’s OK. That complexity is computationally free! The table has also grown again, from 32 uint32s to 32 uint64s. If speed matters, this is probably acceptable. (And if it doesn&amp;rsquo;t matter, go implement something obvious instead.)&lt;/p&gt;
 &lt;p&gt;The basic idea is the same as before. Add an offset to each base 2 range to translate base 2 transitions onto base 10 transitions. But now we also tack on extra amounts to make our post-lookup calculations computationally cheaper: a single shift, instead of a multiply, a shift, and an increment. Adding &lt;code&gt;table[3]&lt;/code&gt; to 9 and 10 make them 255 and 256. &lt;code&gt;log2(255) / 4&lt;/code&gt; is 1 and &lt;code&gt;log2(256) / 4&lt;/code&gt; is 2, as desired.&lt;/p&gt;
@@ -256,7 +256,7 @@ $ go1.17beta1 test your/favorite/package
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	  &lt;span style=&#34;color:#ae81ff&#34;&gt;41949672960&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;41949672960&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;41949672960&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#ae81ff&#34;&gt;42949672960&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;42949672960&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;};
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; (x &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; table[int_log2(x)]) &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;32&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; (x &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; table[&lt;span style=&#34;color:#a6e22e&#34;&gt;int_log2&lt;/span&gt;(x)]) &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;32&lt;/span&gt;;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Lookup tables can implement arbitrary functions! Kendall embeds two pieces of information in a uint64: the integer log10 for that base 2 range in the top 32 bits and the transition translation (if any) in the bottom 32 bits. The table is eye-watering, but your CPU doesn&amp;rsquo;t care.&lt;/p&gt;
 &lt;p&gt;Consider 9 and 10 again. &lt;code&gt;table[3]&lt;/code&gt; is &lt;code&gt;8589934582&lt;/code&gt;, which is &lt;code&gt;(2&amp;lt;&amp;lt;32) - 10&lt;/code&gt;. Adding 9 and 10 to that yields &lt;code&gt;(2&amp;lt;&amp;lt;32) - 1&lt;/code&gt; and &lt;code&gt;2&amp;lt;&amp;lt;32&lt;/code&gt;. If we now shift right 32 bits, this yields 1 and 2 respectively. Voilà!&lt;/p&gt;
 &lt;p&gt;We now require only an integer log2, a table lookup, an addition, and a shift. Not bad.&lt;/p&gt;
@@ -1267,6 +1267,35 @@ but no one has bothered.&lt;/p&gt;
 &lt;p&gt;I&amp;rsquo;ve failed at it a few times before.
 I&amp;rsquo;m going to try &lt;a href=&#34;https://jvns.ca/blog/2016/05/22/how-do-you-write-blog-posts/&#34;&gt;Julia Evans&lt;/a&gt; style this time.
 Maybe this one will stick?&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://commaok.xyz/post/type_specialization/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://commaok.xyz/post/type_specialization/</guid>
+      <description>&lt;p&gt;Type Specialization in Go&lt;/p&gt;
+&lt;p&gt;Basic devirt&lt;/p&gt;
+&lt;p&gt;Complicated devirt&lt;/p&gt;
+&lt;p&gt;type Gopher interface {
+Goph()
+}&lt;/p&gt;
+&lt;p&gt;func f(x Gopher) {
+// …
+if t, ok := x.(*T); ok {
+t.Goph()
+} else {
+x.Goph()
+}
+// …
+}&lt;/p&gt;
+&lt;p&gt;Why would you write code with a pointless type assertion like this?&lt;/p&gt;
+&lt;p&gt;This is type specialization, a common optimization done by JIT compilers. The type assertion is really cheap, and when it succeeds, it can improve escape analysis (allocs less) and allow inlining (faster).&lt;/p&gt;
+&lt;p&gt;But it definitely reduces readability, so use only when it counts, and document it.&lt;/p&gt;
+&lt;p&gt;Why doesn’t the compiler do this for you? It doesn’t know what types would be good to try. JIT could help. FGO could help. LTO could help. None of those are available, so it is left to programmers.&lt;/p&gt;
+&lt;p&gt;This post was originally &lt;a href=&#34;https://twitter.com/commaok/status/1406650785740451842&#34;&gt;a tweet&lt;/a&gt;, but it kept coming up in discussion.&lt;/p&gt;
 </description>
     </item>
     

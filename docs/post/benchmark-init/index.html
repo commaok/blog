@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.101.0" />
+		<meta name="generator" content="Hugo 0.111.3">
 		<title>Benchmarking package initialization &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
@@ -29,7 +29,6 @@ For short-lived programs, though, startup performance can matter a lot. This is 
 <meta property="og:url" content="https://commaok.xyz/post/benchmark-init/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2019-01-31T13:53:05-08:00" />
 <meta property="article:modified_time" content="2019-01-31T13:53:05-08:00" />
-
 
 	    <meta itemprop="name" content="Benchmarking package initialization">
 <meta itemprop="description" content="Go program execution doesn&rsquo;t start at func main. First is a bit of bootstrapping. Then the runtime gets initialized. Then, package by package, the program initializes global variables and runs init functions. Then it&rsquo;s time for main.
@@ -262,7 +261,7 @@ There has also been <a href="https://golang.org/issue/26775">recent interest in 
     
     <p class="small">
     
-        © Copyright 2022 Josh Bleecher Snyder
+        © Copyright 2023 Josh Bleecher Snyder
     
     </p>
 </footer>
