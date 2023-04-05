@@ -7,7 +7,7 @@
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
 		<meta name="generator" content="Hugo 0.111.3">
-		<title> &middot; Don&#39;t Panic</title>
+		<title>Type Specialization in Go &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
 		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
@@ -21,40 +21,30 @@
 		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
 		
 
-		<meta property="og:title" content="" />
-<meta property="og:description" content="Type Specialization in Go
-Basic devirt
-Complicated devirt
-type Gopher interface { Goph() }
-func f(x Gopher) { // … if t, ok := x.(*T); ok { t.Goph() } else { x.Goph() } // … }
-Why would you write code with a pointless type assertion like this?
-This is type specialization, a common optimization done by JIT compilers. The type assertion is really cheap, and when it succeeds, it can improve escape analysis (allocs less) and allow inlining (faster)." />
+		<meta property="og:title" content="Type Specialization in Go" />
+<meta property="og:description" content="This post was originally tweets but then things happened, and it needed a new linkable home. Btw, I&rsquo;m now @commaok@inuh.net on Mastodon.
+This post is about manual type specialization, which can make a big difference in some hot code.
+Consider this:
+type Gopher interface { Goph() } func f(x Gopher) { // ... if t, ok := x.(*T); ok { t.Goph() } else { x.Goph() } // ... } It&rsquo;s weird." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://commaok.xyz/post/type_specialization/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-04-03T08:12:48-07:00" />
+<meta property="article:modified_time" content="2023-04-03T08:12:48-07:00" />
 
-
-
-	    <meta itemprop="name" content="">
-<meta itemprop="description" content="Type Specialization in Go
-Basic devirt
-Complicated devirt
-type Gopher interface { Goph() }
-func f(x Gopher) { // … if t, ok := x.(*T); ok { t.Goph() } else { x.Goph() } // … }
-Why would you write code with a pointless type assertion like this?
-This is type specialization, a common optimization done by JIT compilers. The type assertion is really cheap, and when it succeeds, it can improve escape analysis (allocs less) and allow inlining (faster).">
-
-<meta itemprop="wordCount" content="145">
+	    <meta itemprop="name" content="Type Specialization in Go">
+<meta itemprop="description" content="This post was originally tweets but then things happened, and it needed a new linkable home. Btw, I&rsquo;m now @commaok@inuh.net on Mastodon.
+This post is about manual type specialization, which can make a big difference in some hot code.
+Consider this:
+type Gopher interface { Goph() } func f(x Gopher) { // ... if t, ok := x.(*T); ok { t.Goph() } else { x.Goph() } // ... } It&rsquo;s weird."><meta itemprop="datePublished" content="2023-04-03T08:12:48-07:00" />
+<meta itemprop="dateModified" content="2023-04-03T08:12:48-07:00" />
+<meta itemprop="wordCount" content="228">
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content=""/>
-<meta name="twitter:description" content="Type Specialization in Go
-Basic devirt
-Complicated devirt
-type Gopher interface { Goph() }
-func f(x Gopher) { // … if t, ok := x.(*T); ok { t.Goph() } else { x.Goph() } // … }
-Why would you write code with a pointless type assertion like this?
-This is type specialization, a common optimization done by JIT compilers. The type assertion is really cheap, and when it succeeds, it can improve escape analysis (allocs less) and allow inlining (faster)."/>
-<meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
+<meta name="twitter:title" content="Type Specialization in Go"/>
+<meta name="twitter:description" content="This post was originally tweets but then things happened, and it needed a new linkable home. Btw, I&rsquo;m now @commaok@inuh.net on Mastodon.
+This post is about manual type specialization, which can make a big difference in some hot code.
+Consider this:
+type Gopher interface { Goph() } func f(x Gopher) { // ... if t, ok := x.(*T); ok { t.Goph() } else { x.Goph() } // ... } It&rsquo;s weird."/>
 
 	</head>
 
@@ -74,45 +64,49 @@ This is type specialization, a common optimization done by JIT compilers. The ty
         <section id="wrapper">
             <article class="post">
                 <header>
-                    <h1></h1>
+                    <h1>Type Specialization in Go</h1>
                     <h2 class="headline">
-                    January 1, 0001 
+                    April 3, 2023 
                     <br>
                     
                     </h2>
                 </header>
                 <section id="post-body">
-                    <p>Type Specialization in Go</p>
-<p>Basic devirt</p>
-<p>Complicated devirt</p>
-<p>type Gopher interface {
-Goph()
-}</p>
-<p>func f(x Gopher) {
-// …
-if t, ok := x.(*T); ok {
-t.Goph()
-} else {
-x.Goph()
-}
-// …
-}</p>
-<p>Why would you write code with a pointless type assertion like this?</p>
-<p>This is type specialization, a common optimization done by JIT compilers. The type assertion is really cheap, and when it succeeds, it can improve escape analysis (allocs less) and allow inlining (faster).</p>
-<p>But it definitely reduces readability, so use only when it counts, and document it.</p>
-<p>Why doesn’t the compiler do this for you? It doesn’t know what types would be good to try. JIT could help. FGO could help. LTO could help. None of those are available, so it is left to programmers.</p>
-<p>This post was originally <a href="https://twitter.com/commaok/status/1406650785740451842">a tweet</a>, but it kept coming up in discussion.</p>
+                    <p><em>This post was originally tweets but then things happened, and it needed a new linkable home. Btw, I&rsquo;m now @commaok@inuh.net on Mastodon.</em></p>
+<p>This post is about manual type specialization, which can make a big difference in some hot code.</p>
+<p>Consider this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Gopher</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">Goph</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">x</span> <span style="color:#a6e22e">Gopher</span>) {
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">ok</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">x</span>.(<span style="color:#f92672">*</span><span style="color:#a6e22e">T</span>); <span style="color:#a6e22e">ok</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Goph</span>()
+</span></span><span style="display:flex;"><span>  } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">x</span>.<span style="color:#a6e22e">Goph</span>()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><p>It&rsquo;s weird. The type assertion to <code>(*T)</code> is semantically irrelevant. We call <code>.Goph</code> on each branch!</p>
+<p>But that pointless type assertion is also really cheap. And on the success branch, the compiler can do improved escape analysis (alloc less) and inline the method body (faster).</p>
+<p>This is one form of type specialization, a common optimization done by JIT compilers.</p>
+<p>This technique can help if you have (1) very hot code that (2) is called via an interface but (3) has only one or two primary implementations.</p>
+<p>It hurts readability. Use only when it counts, and document it.</p>
+<p>Why doesn’t the compiler do this for you? It doesn’t know what types would be good to try. <a href="https://en.wikipedia.org/wiki/Just-in-time_compilation">JIT</a> would help. <a href="https://en.wikipedia.org/wiki/Interprocedural_optimization">IPO/WHO/LTO</a> might help.</p>
+<p>And PGO probably will help, in some future Go release! As of <a href="https://tip.golang.org/doc/go1.20#compiler">Go 1.20</a>, cmd/compile has some <a href="https://github.com/golang/go/issues/28262">profile-guided optimization</a> around inlining. More is planned, including register allocation and type specialization, which might end up covering this use case.</p>
 
                 </section>
             </article>
             <footer id="post-meta" class="clearfix">
-                <a href="https://twitter.com/commaok">
+                
                         <img class="avatar" src="https://commaok.xyz/images/avatar.png">
                         <div>
                             <span class="dark">Josh Bleecher Snyder</span>
-                            <span>righthandgreen.com</span>
+                            <span>canopyclimate.com</span>
                         </div>
-                    </a>
+                    
             </footer>
 
             
@@ -122,6 +116,13 @@ x.Goph()
 
     
     
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/type_specialization/">Type Specialization in Go<aside class="dates">Apr 3</aside></a>
+        </li>
+        
+   
     
         
         <li>
@@ -185,13 +186,6 @@ x.Goph()
         </li>
         
    
-    
-        
-        <li>
-            <a href="https://commaok.xyz/post/intern-strings/">Interning strings in Go<aside class="dates">Dec 17</aside></a>
-        </li>
-        
-   
 </ul>
 
             <footer id="footer">
@@ -202,10 +196,6 @@ x.Goph()
 	
     <a class="symbol" href="https://www.github.com/josharian">
         <i class="fa fa-github"></i>
-    </a>
-    
-    <a class="symbol" href="https://www.twitter.com/commaok">
-        <i class="fa fa-twitter"></i>
     </a>
     
 

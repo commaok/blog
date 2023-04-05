@@ -45,7 +45,6 @@ logger.Log(&#34;transport&#34;, &#34;HTTP&#34;, &#34;addr&#34;, addr, &#34;msg&#
 A couple of weeks ago, Peter Bourgon started a thread on golang-dev about standardizing logging. Logging is pervasive, so performance came up quickly. The go-kit log package uses structured logging, centered on this interface:
 type Logger interface { Log(keyvals ...interface{}) error } Sample call:
 logger.Log(&#34;transport&#34;, &#34;HTTP&#34;, &#34;addr&#34;, addr, &#34;msg&#34;, &#34;listening&#34;) Note that everything that goes into a logging call gets converted into an interface."/>
-<meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
 
 	</head>
 
@@ -194,13 +193,13 @@ Write code for the present, but design APIs for the future.</p>
                 </section>
             </article>
             <footer id="post-meta" class="clearfix">
-                <a href="https://twitter.com/commaok">
+                
                         <img class="avatar" src="https://commaok.xyz/images/avatar.png">
                         <div>
                             <span class="dark">Josh Bleecher Snyder</span>
-                            <span>righthandgreen.com</span>
+                            <span>canopyclimate.com</span>
                         </div>
-                    </a>
+                    
             </footer>
 
             
@@ -210,6 +209,13 @@ Write code for the present, but design APIs for the future.</p>
 
     
     
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/type_specialization/">Type Specialization in Go<aside class="dates">Apr 3</aside></a>
+        </li>
+        
+   
     
         
         <li>
@@ -273,13 +279,6 @@ Write code for the present, but design APIs for the future.</p>
         </li>
         
    
-    
-        
-        <li>
-            <a href="https://commaok.xyz/post/intern-strings/">Interning strings in Go<aside class="dates">Dec 17</aside></a>
-        </li>
-        
-   
 </ul>
 
             <footer id="footer">
@@ -290,10 +289,6 @@ Write code for the present, but design APIs for the future.</p>
 	
     <a class="symbol" href="https://www.github.com/josharian">
         <i class="fa fa-github"></i>
-    </a>
-    
-    <a class="symbol" href="https://www.twitter.com/commaok">
-        <i class="fa fa-twitter"></i>
     </a>
     
 

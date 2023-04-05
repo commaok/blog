@@ -45,7 +45,6 @@ package main import &#34;io&#34; type W struct{} func (w W) Write(b []byte) (int
 As a warm-up, here&rsquo;s a fairly well-known form of compile-time assertions in Go: Interface satisfaction checks.
 In this code (playground), the var _ = line ensures that type W is a stringWriter, as checked for by io.WriteString.
 package main import &#34;io&#34; type W struct{} func (w W) Write(b []byte) (int, error) { return len(b), nil } func (w W) WriteString(s string) (int, error) { return len(s), nil } type stringWriter interface { WriteString(string) (int, error) } var _ stringWriter = W{} func main() { var w W io."/>
-<meta name="twitter:site" content="@https://www.twitter.com/commaok"/>
 
 	</head>
 
@@ -189,13 +188,13 @@ but no one has bothered.</p>
                 </section>
             </article>
             <footer id="post-meta" class="clearfix">
-                <a href="https://twitter.com/commaok">
+                
                         <img class="avatar" src="https://commaok.xyz/images/avatar.png">
                         <div>
                             <span class="dark">Josh Bleecher Snyder</span>
-                            <span>righthandgreen.com</span>
+                            <span>canopyclimate.com</span>
                         </div>
-                    </a>
+                    
             </footer>
 
             
@@ -205,6 +204,13 @@ but no one has bothered.</p>
 
     
     
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/type_specialization/">Type Specialization in Go<aside class="dates">Apr 3</aside></a>
+        </li>
+        
+   
     
         
         <li>
@@ -268,13 +274,6 @@ but no one has bothered.</p>
         </li>
         
    
-    
-        
-        <li>
-            <a href="https://commaok.xyz/post/intern-strings/">Interning strings in Go<aside class="dates">Dec 17</aside></a>
-        </li>
-        
-   
 </ul>
 
             <footer id="footer">
@@ -285,10 +284,6 @@ but no one has bothered.</p>
 	
     <a class="symbol" href="https://www.github.com/josharian">
         <i class="fa fa-github"></i>
-    </a>
-    
-    <a class="symbol" href="https://www.twitter.com/commaok">
-        <i class="fa fa-twitter"></i>
     </a>
     
 

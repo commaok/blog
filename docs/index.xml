@@ -5,10 +5,43 @@
     <description>Recent content on Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 24 Jun 2022 08:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Mon, 03 Apr 2023 08:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Type Specialization in Go</title>
+      <link>https://commaok.xyz/post/type_specialization/</link>
+      <pubDate>Mon, 03 Apr 2023 08:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/post/type_specialization/</guid>
+      <description>&lt;p&gt;&lt;em&gt;This post was originally tweets but then things happened, and it needed a new linkable home. Btw, I&amp;rsquo;m now @commaok@inuh.net on Mastodon.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;This post is about manual type specialization, which can make a big difference in some hot code.&lt;/p&gt;
+&lt;p&gt;Consider this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Gopher&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;interface&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;Goph&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;f&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;x&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Gopher&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;// ...
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;t&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;ok&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;x&lt;/span&gt;.(&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;T&lt;/span&gt;); &lt;span style=&#34;color:#a6e22e&#34;&gt;ok&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;t&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Goph&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  } &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;x&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Goph&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;// ...
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;It&amp;rsquo;s weird. The type assertion to &lt;code&gt;(*T)&lt;/code&gt; is semantically irrelevant. We call &lt;code&gt;.Goph&lt;/code&gt; on each branch!&lt;/p&gt;
+&lt;p&gt;But that pointless type assertion is also really cheap. And on the success branch, the compiler can do improved escape analysis (alloc less) and inline the method body (faster).&lt;/p&gt;
+&lt;p&gt;This is one form of type specialization, a common optimization done by JIT compilers.&lt;/p&gt;
+&lt;p&gt;This technique can help if you have (1) very hot code that (2) is called via an interface but (3) has only one or two primary implementations.&lt;/p&gt;
+&lt;p&gt;It hurts readability. Use only when it counts, and document it.&lt;/p&gt;
+&lt;p&gt;Why doesn’t the compiler do this for you? It doesn’t know what types would be good to try. &lt;a href=&#34;https://en.wikipedia.org/wiki/Just-in-time_compilation&#34;&gt;JIT&lt;/a&gt; would help. &lt;a href=&#34;https://en.wikipedia.org/wiki/Interprocedural_optimization&#34;&gt;IPO/WHO/LTO&lt;/a&gt; might help.&lt;/p&gt;
+&lt;p&gt;And PGO probably will help, in some future Go release! As of &lt;a href=&#34;https://tip.golang.org/doc/go1.20#compiler&#34;&gt;Go 1.20&lt;/a&gt;, cmd/compile has some &lt;a href=&#34;https://github.com/golang/go/issues/28262&#34;&gt;profile-guided optimization&lt;/a&gt; around inlining. More is planned, including register allocation and type specialization, which might end up covering this use case.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Nicer struct literals in Go templates</title>
@@ -1267,35 +1300,6 @@ but no one has bothered.&lt;/p&gt;
 &lt;p&gt;I&amp;rsquo;ve failed at it a few times before.
 I&amp;rsquo;m going to try &lt;a href=&#34;https://jvns.ca/blog/2016/05/22/how-do-you-write-blog-posts/&#34;&gt;Julia Evans&lt;/a&gt; style this time.
 Maybe this one will stick?&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://commaok.xyz/post/type_specialization/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://commaok.xyz/post/type_specialization/</guid>
-      <description>&lt;p&gt;Type Specialization in Go&lt;/p&gt;
-&lt;p&gt;Basic devirt&lt;/p&gt;
-&lt;p&gt;Complicated devirt&lt;/p&gt;
-&lt;p&gt;type Gopher interface {
-Goph()
-}&lt;/p&gt;
-&lt;p&gt;func f(x Gopher) {
-// …
-if t, ok := x.(*T); ok {
-t.Goph()
-} else {
-x.Goph()
-}
-// …
-}&lt;/p&gt;
-&lt;p&gt;Why would you write code with a pointless type assertion like this?&lt;/p&gt;
-&lt;p&gt;This is type specialization, a common optimization done by JIT compilers. The type assertion is really cheap, and when it succeeds, it can improve escape analysis (allocs less) and allow inlining (faster).&lt;/p&gt;
-&lt;p&gt;But it definitely reduces readability, so use only when it counts, and document it.&lt;/p&gt;
-&lt;p&gt;Why doesn’t the compiler do this for you? It doesn’t know what types would be good to try. JIT could help. FGO could help. LTO could help. None of those are available, so it is left to programmers.&lt;/p&gt;
-&lt;p&gt;This post was originally &lt;a href=&#34;https://twitter.com/commaok/status/1406650785740451842&#34;&gt;a tweet&lt;/a&gt;, but it kept coming up in discussion.&lt;/p&gt;
 </description>
     </item>
     
