@@ -30,7 +30,7 @@
 &lt;p&gt;And it warns me of new deprecations, often with unusable upgrade instructions&amp;hellip;&lt;/p&gt;
 &lt;p&gt;And things flat out break.&lt;/p&gt;
 &lt;p&gt;(Often, they were deprecated and then broken entirely between two subsequent blog posts, so I never ever saw the deprecation.)&lt;/p&gt;
-&lt;p&gt;And either way, instead of writing a blog post, I spend hours fixing build failures.&lt;/p&gt;
+&lt;p&gt;Instead of writing a blog post, I spend hours fixing build failures.&lt;/p&gt;
 &lt;p&gt;Build failures of my static site, which has maybe a few dozen posts.&lt;/p&gt;
 &lt;p&gt;I don&amp;rsquo;t care about Hugo&amp;rsquo;s internals. I have never cared. I just want a blog that works.&lt;/p&gt;
 &lt;hr&gt;

@@ -7,8 +7,8 @@ rssLimit = 10
 
 [params]
 	name = "Josh Bleecher Snyder"
-	description = "Words about Go"
-	bio = "Gopher, canopyclimate.com, parent, fruit trees"
+	description = "Words about Go and software"
+	bio = "Gopher, parent, fruit trees"
 	enableRSS = true
 
 	# Navigation links
@@ -21,7 +21,7 @@ rssLimit = 10
 	readMore = ""
 	copyright = ""
 	# Sharing options and author information in posts
-	aboutAuthor = "canopyclimate.com"
+	aboutAuthor = "It's me."
 	tweet = ""
 	share = ""
 	# 404 page

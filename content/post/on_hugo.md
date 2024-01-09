@@ -34,7 +34,7 @@ And things flat out break.
 
 (Often, they were deprecated and then broken entirely between two subsequent blog posts, so I never ever saw the deprecation.)
 
-And either way, instead of writing a blog post, I spend hours fixing build failures.
+Instead of writing a blog post, I spend hours fixing build failures.
 
 Build failures of my static site, which has maybe a few dozen posts.
 
