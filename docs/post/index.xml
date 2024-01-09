@@ -5,10 +5,42 @@
     <description>Recent content in Posts on Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 03 Apr 2023 08:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Tue, 09 Jan 2024 09:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Sometimes Software is Done, or Why Hugo Why</title>
+      <link>https://commaok.xyz/post/on_hugo/</link>
+      <pubDate>Tue, 09 Jan 2024 09:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/post/on_hugo/</guid>
+      <description>&lt;p&gt;I didn&amp;rsquo;t sit down this morning planning to write a grouchy blog post about Hugo.&lt;/p&gt;
+&lt;p&gt;When I first used Hugo I loved it. It was fast. It was simple. It just worked, as much as any software does, and it solved a real problem.&lt;/p&gt;
+&lt;p&gt;It was done.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;But people kept working on it.&lt;/p&gt;
+&lt;p&gt;I&amp;rsquo;m sure that it has been improved in countless ways. But along the way it has gotten bigger and more complicated, and has broken backwards compatibility repeatedly.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;I am only inspired to write a blog post every few months. It takes a lot of self control to forgo the glittering pile of side projects and use my precious free time to write some words instead of code.&lt;/p&gt;
+&lt;p&gt;I commit to myself: Today is the day! I will finally tackle one of the items from my blog post idea list!&lt;/p&gt;
+&lt;p&gt;And then&amp;hellip;&lt;/p&gt;
+&lt;p&gt;I run &lt;code&gt;hugo&lt;/code&gt;&amp;hellip;&lt;/p&gt;
+&lt;p&gt;And it scribbles all over my files, a slew of unimportant changes, unfortunately occasionally interspersed with a few that matter&amp;hellip;&lt;/p&gt;
+&lt;p&gt;And it warns me of new deprecations, often with unusable upgrade instructions&amp;hellip;&lt;/p&gt;
+&lt;p&gt;And things flat out break.&lt;/p&gt;
+&lt;p&gt;(Often, they were deprecated and then broken entirely between two subsequent blog posts, so I never ever saw the deprecation.)&lt;/p&gt;
+&lt;p&gt;And either way, instead of writing a blog post, I spend hours fixing build failures.&lt;/p&gt;
+&lt;p&gt;Build failures of my static site, which has maybe a few dozen posts.&lt;/p&gt;
+&lt;p&gt;I don&amp;rsquo;t care about Hugo&amp;rsquo;s internals. I have never cared. I just want a blog that works.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Enough complaining. Hugo is officially on the chopping block. Suggestions for alternatives welcome.&lt;/p&gt;
+&lt;p&gt;And in the meantime, I&amp;rsquo;ll just compile Hugo myself from source, never update it, and live in the ever receding past.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Backwards compatibility matters. And sometimes, software is done.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Type Specialization in Go</title>
