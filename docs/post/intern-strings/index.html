@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.111.3">
+		<meta name="generator" content="Hugo 0.121.1">
 		<title>Interning strings in Go &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
@@ -30,6 +30,7 @@ Under the hood, strings in Go are (currently) represented as a length and a poin
 <meta property="article:published_time" content="2019-12-17T08:12:48-07:00" />
 <meta property="article:modified_time" content="2019-12-17T08:12:48-07:00" />
 
+
 	    <meta itemprop="name" content="Interning strings in Go">
 <meta itemprop="description" content="This blog post covers string interning in Go.
 What is a string? In Go, a string is a (possibly empty) immutable sequence of bytes. The critical word here for our purposes is immutable. Because byte slices are mutable, converting between string and []byte generally requires an alloc and copy, which is expensive.
@@ -37,8 +38,7 @@ Under the hood, strings in Go are (currently) represented as a length and a poin
 <meta itemprop="dateModified" content="2019-12-17T08:12:48-07:00" />
 <meta itemprop="wordCount" content="807">
 <meta itemprop="keywords" content="" />
-	    <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Interning strings in Go"/>
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Interning strings in Go"/>
 <meta name="twitter:description" content="This blog post covers string interning in Go.
 What is a string? In Go, a string is a (possibly empty) immutable sequence of bytes. The critical word here for our purposes is immutable. Because byte slices are mutable, converting between string and []byte generally requires an alloc and copy, which is expensive.
 Under the hood, strings in Go are (currently) represented as a length and a pointer to the string data."/>
@@ -230,7 +230,7 @@ Under the hood, strings in Go are (currently) represented as a length and a poin
     
     <p class="small">
     
-        © Copyright 2023 Josh Bleecher Snyder
+        © Copyright 2024 Josh Bleecher Snyder
     
     </p>
 </footer>

@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.111.3">
+		<meta name="generator" content="Hugo 0.121.1">
 		<title>Nicer struct literals in Go templates &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
@@ -30,6 +30,7 @@ How do you do that?" />
 <meta property="article:published_time" content="2022-06-24T08:12:48-07:00" />
 <meta property="article:modified_time" content="2022-06-24T08:12:48-07:00" />
 
+
 	    <meta itemprop="name" content="Nicer struct literals in Go templates">
 <meta itemprop="description" content="Go templates (text/template, html/template) accept a single argument to render. That&rsquo;s generally enough when you&rsquo;re executing them from Go code. But when invoking a template from another template, you often want to pass multiple things to it.
 For example, we might have a template that renders a nav bar item. It requires a title, a url, and an &ldquo;enabled&rdquo; bool. We want to invoke it from another template.
@@ -37,8 +38,7 @@ How do you do that?"><meta itemprop="datePublished" content="2022-06-24T08:12:48
 <meta itemprop="dateModified" content="2022-06-24T08:12:48-07:00" />
 <meta itemprop="wordCount" content="735">
 <meta itemprop="keywords" content="" />
-	    <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Nicer struct literals in Go templates"/>
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Nicer struct literals in Go templates"/>
 <meta name="twitter:description" content="Go templates (text/template, html/template) accept a single argument to render. That&rsquo;s generally enough when you&rsquo;re executing them from Go code. But when invoking a template from another template, you often want to pass multiple things to it.
 For example, we might have a template that renders a nav bar item. It requires a title, a url, and an &ldquo;enabled&rdquo; bool. We want to invoke it from another template.
 How do you do that?"/>
@@ -239,7 +239,7 @@ How do you do that?"/>
     
     <p class="small">
     
-        © Copyright 2023 Josh Bleecher Snyder
+        © Copyright 2024 Josh Bleecher Snyder
     
     </p>
 </footer>

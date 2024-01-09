@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go">
-		<meta name="generator" content="Hugo 0.111.3">
+		<meta name="generator" content="Hugo 0.121.1">
 		<title>Discovering alloc size classes in Go &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
@@ -30,6 +30,7 @@ If you&rsquo;re trying to reduce the memory usage of a program that allocates a 
 <meta property="article:published_time" content="2020-09-01T09:12:48-07:00" />
 <meta property="article:modified_time" content="2020-09-01T09:12:48-07:00" />
 
+
 	    <meta itemprop="name" content="Discovering alloc size classes in Go">
 <meta itemprop="description" content="As of Go 1.15, the Go runtime&rsquo;s memory allocator doesn&rsquo;t always allocate exactly the number of bytes required for an object. Instead, it rounds up to the nearest size class.
 type T struct { i int64 b byte } Type T has a size of 9 bytes, but allocating a T will use 16 bytes.
@@ -37,8 +38,7 @@ If you&rsquo;re trying to reduce the memory usage of a program that allocates a 
 <meta itemprop="dateModified" content="2020-09-01T09:12:48-07:00" />
 <meta itemprop="wordCount" content="404">
 <meta itemprop="keywords" content="" />
-	    <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Discovering alloc size classes in Go"/>
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Discovering alloc size classes in Go"/>
 <meta name="twitter:description" content="As of Go 1.15, the Go runtime&rsquo;s memory allocator doesn&rsquo;t always allocate exactly the number of bytes required for an object. Instead, it rounds up to the nearest size class.
 type T struct { i int64 b byte } Type T has a size of 9 bytes, but allocating a T will use 16 bytes.
 If you&rsquo;re trying to reduce the memory usage of a program that allocates a lot of one particular type of object, it&rsquo;s good to be aware of the size classes, as the impact of shrinking the object will be a step function."/>
@@ -202,7 +202,7 @@ If you&rsquo;re trying to reduce the memory usage of a program that allocates a 
     
     <p class="small">
     
-        © Copyright 2023 Josh Bleecher Snyder
+        © Copyright 2024 Josh Bleecher Snyder
     
     </p>
 </footer>
