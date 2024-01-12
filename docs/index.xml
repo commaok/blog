@@ -5,10 +5,22 @@
     <description>Recent content on Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 09 Jan 2024 09:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Fri, 12 Jan 2024 15:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Podcast ho!</title>
+      <link>https://commaok.xyz/post/podcast/</link>
+      <pubDate>Fri, 12 Jan 2024 15:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/post/podcast/</guid>
+      <description>&lt;p&gt;I have started a podcast, Significant Bits.&lt;/p&gt;
+&lt;p&gt;The goal is to have substantive technical discussions about software engineering, very broadly defined.&lt;/p&gt;
+&lt;p&gt;You can listen at &lt;a href=&#34;https://sigpod.dev/&#34;&gt;https://sigpod.dev/&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Sometimes Software is Done, or Why Hugo Why</title>

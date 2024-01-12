@@ -10,6 +10,18 @@
     
     
     <item>
+      <title>Podcast ho!</title>
+      <link>https://commaok.xyz/post/podcast/</link>
+      <pubDate>Fri, 12 Jan 2024 15:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/post/podcast/</guid>
+      <description>&lt;p&gt;I have started a podcast, Significant Bits.&lt;/p&gt;
+&lt;p&gt;The goal is to have substantive technical discussions about software engineering, very broadly defined.&lt;/p&gt;
+&lt;p&gt;You can listen at &lt;a href=&#34;https://sigpod.dev/&#34;&gt;https://sigpod.dev/&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Sometimes Software is Done, or Why Hugo Why</title>
       <link>https://commaok.xyz/post/on_hugo/</link>
       <pubDate>Tue, 09 Jan 2024 09:12:48 -0700</pubDate>
