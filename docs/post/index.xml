@@ -5,10 +5,60 @@
     <description>Recent content in Posts on Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 12 Jan 2024 15:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Thu, 17 Oct 2024 15:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>What even is varentropy?</title>
+      <link>https://commaok.xyz/post/entropix/</link>
+      <pubDate>Thu, 17 Oct 2024 15:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/post/entropix/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://github.com/xjdr-alt/entropix&#34;&gt;Entropix&lt;/a&gt; aims to improves LLM token sampling by incorporating &amp;ldquo;varentropy&amp;rdquo; into its decision making.&lt;/p&gt;
+&lt;p&gt;According to the README, as of Oct 18, 2024:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;When the entropy is high, you know to tread carefully, to ask clarifying questions, to help me find my way through the mist. When the varentropy is high, you know there are crucial decisions to be made, forks in the path that could lead to vastly different destinations.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;I have solid intuitions about entropy. But what is varentropy?&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;I asked an LLM to write me some &lt;a href=&#34;https://gist.github.com/josharian/c239f74181be3b580e4c5911068d2446&#34;&gt;visualization code&lt;/a&gt; for entropy and varentropy in simplified conditions, using varentropy as implemented in the entropix repo.&lt;/p&gt;
+&lt;p&gt;Here&amp;rsquo;s a graph of entropy and varentropy for choosing between two outcomes. (LLMorse, anyone?)&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://commaok.xyz/images/entropy_vs_varentropy_two_outcomes.png&#34; alt=&#34;Entropy and varentropy for choosing between two outcomes&#34;&gt;&lt;/p&gt;
+&lt;p&gt;At 50/50 odds, entropy is at its highest (1 bit). We know nothing going in. At the extremes, entropy is 0, because the outcome is predetermined.&lt;/p&gt;
+&lt;p&gt;What does varentropy look like? It is zero at 50/50 and zero at the extremes. It is only high where we&amp;rsquo;re quite confident in the outcome (a bit over 90%), but not certain.&lt;/p&gt;
+&lt;p&gt;That doesn&amp;rsquo;t really match up well with the intuitive description of varentropy in the readme. These aren&amp;rsquo;t &amp;ldquo;forks in the path&amp;rdquo;.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Things often get way more interesting as you add dimensions. I had the LLM update &lt;a href=&#34;https://gist.github.com/josharian/498a5951462721fa5a214d685dc32a53&#34;&gt;the visualization&lt;/a&gt; to add one more outcome to the graph to see what happens.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://commaok.xyz/images/entropy_vs_varentropy_three_outcomes.png&#34; alt=&#34;Entropy and varentropy for choosing between three outcomes&#34;&gt;&lt;/p&gt;
+&lt;p&gt;This is a bit harder to read, but each corner of the triangle corresponds to certainty in a particular outcome. The middle of the triangle is complete uncertainty. The color tells us both the entropy and varentropy. Black is low entropy, low varentropy. Red is high entropy, low varentropy. (The colorspace choices are clearly imperfect, but it&amp;rsquo;s enough to get a feel.)&lt;/p&gt;
+&lt;p&gt;This looks more or less the same as the two-outcome graph. Complete uncertainty is high entropy, low varentropy, including when we can mostly rule out one outcome but are uncertain between the other two. Complete certainty is low entropy, low varentropy (but it&amp;rsquo;s a tiny, tiny part of the graph now!). And high varentropy occurs when there&amp;rsquo;s a pretty clear choice, but not certain.&lt;/p&gt;
+&lt;p&gt;But the README says this:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;High varentropy means I&amp;rsquo;m considering vastly different futures, different tones and directions. Low varentropy means I&amp;rsquo;m more sure of the general shape, even if the specifics are still obscured.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;This doesn&amp;rsquo;t track.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Looking at these graphs, and staring at the varentropy calculation, this overall pattern will continue into higher dimensions.&lt;/p&gt;
+&lt;p&gt;I see no connection between the imagery and intuition in the README and the actual calculations in practice.&lt;/p&gt;
+&lt;p&gt;Maybe the imagery is misleading, but the usage is clear? According to the chart in the README, the sampler chooses between four options:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;* Low entropy, low varentropy: Argmax / greedy
+* Low entropy, high varentropy: Branch
+* High entropy, low varentropy: Pause / chain-of-thought
+* High entropy, high varentropy: Resample
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;It seems plausible that low entropy is a signal to sample greedily, and high entropy indicates you should do something more expensive. I see no particular reason to think that varentropy helps distinguish between which more expensive thing to do, though.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;This doesn&amp;rsquo;t mean that the entropix sampler doesn&amp;rsquo;t work. I don&amp;rsquo;t know whether it does.&lt;/p&gt;
+&lt;p&gt;But if, empirically, the sampler yields superior results, that means one of three things is true:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;My failure to understand is just that.&lt;/li&gt;
+&lt;li&gt;We need a better intuition for varentropy.&lt;/li&gt;
+&lt;li&gt;We need a better understanding of why it works, one that might or might not have anything to do with varentropy.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Podcast ho!</title>
