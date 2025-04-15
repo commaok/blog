@@ -6,7 +6,7 @@ draft = false
 
 Linus's Famous Law: "Given enough eyeballs, all bugs are shallow."
 
-Linus's [Less Famous Law](https://git-scm.com/docs/pack-heuristics/en): "Files grow."
+Linus's [Less Famous Law](https://git-scm.com/docs/pack-heuristics): "Files grow."
 
 One of the hardest things programmers do is keep code readable. Splitting code up into separate files is a basic tool for that.
 

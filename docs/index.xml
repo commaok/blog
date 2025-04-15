@@ -239,7 +239,7 @@
       
       <guid>https://commaok.xyz/post/perf_files/</guid>
       <description>&lt;p&gt;Linus&amp;rsquo;s Famous Law: &amp;ldquo;Given enough eyeballs, all bugs are shallow.&amp;rdquo;&lt;/p&gt;
-&lt;p&gt;Linus&amp;rsquo;s &lt;a href=&#34;https://git-scm.com/docs/pack-heuristics/en&#34;&gt;Less Famous Law&lt;/a&gt;: &amp;ldquo;Files grow.&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;Linus&amp;rsquo;s &lt;a href=&#34;https://git-scm.com/docs/pack-heuristics&#34;&gt;Less Famous Law&lt;/a&gt;: &amp;ldquo;Files grow.&amp;rdquo;&lt;/p&gt;
 &lt;p&gt;One of the hardest things programmers do is keep code readable. Splitting code up into separate files is a basic tool for that.&lt;/p&gt;
 &lt;p&gt;And yet, crazy as it sounds when you say it out loud, our tools pressure us not to.&lt;/p&gt;
 &lt;h1 id=&#34;php&#34;&gt;PHP&lt;/h1&gt;
