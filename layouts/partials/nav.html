@@ -3,7 +3,7 @@
 	{{ if not .IsHome }}
 		<a href='{{ .Site.BaseURL }}'>{{ with .Site.Params.home }}{{ . }}{{ else }}Home{{ end }}</a>
 	{{ end }}
-	{{ if ne .Section "ai" }}
+	{{ if and (ne .Section "ai") (.IsHome) }}
 		<a href='{{ .Site.BaseURL }}ai/'>AI</a>
 	{{ end }}
 
