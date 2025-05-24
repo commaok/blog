@@ -1,0 +1,194 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go and software">
+		<meta name="generator" content="Hugo 0.122.0-DEV">
+		<title>Is Claude a compiler? &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="Is Claude a compiler?" />
+<meta property="og:description" content="I was lucky enough to attend the Code with Claude conference yesterday.
+The hands-down highlight was the talk by Erik Schluntz: Vibe coding in prod.
+Among other things, he drew an analogy between LLMs and compilers.
+Once upon a time, people wrote assembly. No more.
+Compilers are better. Compiler bugs got ironed out, and trust developed. Not many people write assembly by hand any more. (I am one of them, at times." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://commaok.xyz/ai/is-claude-a-compiler/" /><meta property="article:section" content="ai" />
+<meta property="article:published_time" content="2025-05-23T15:12:48-07:00" />
+<meta property="article:modified_time" content="2025-05-23T15:12:48-07:00" />
+
+
+	    <meta itemprop="name" content="Is Claude a compiler?">
+<meta itemprop="description" content="I was lucky enough to attend the Code with Claude conference yesterday.
+The hands-down highlight was the talk by Erik Schluntz: Vibe coding in prod.
+Among other things, he drew an analogy between LLMs and compilers.
+Once upon a time, people wrote assembly. No more.
+Compilers are better. Compiler bugs got ironed out, and trust developed. Not many people write assembly by hand any more. (I am one of them, at times."><meta itemprop="datePublished" content="2025-05-23T15:12:48-07:00" />
+<meta itemprop="dateModified" content="2025-05-23T15:12:48-07:00" />
+<meta itemprop="wordCount" content="851">
+<meta itemprop="keywords" content="" />
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Is Claude a compiler?"/>
+<meta name="twitter:description" content="I was lucky enough to attend the Code with Claude conference yesterday.
+The hands-down highlight was the talk by Erik Schluntz: Vibe coding in prod.
+Among other things, he drew an analogy between LLMs and compilers.
+Once upon a time, people wrote assembly. No more.
+Compilers are better. Compiler bugs got ironed out, and trust developed. Not many people write assembly by hand any more. (I am one of them, at times."/>
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://commaok.xyz/'>Home</a>
+	
+	
+
+	
+	<a class="cta" href="https://commaok.xyz/index.xml">RSS</a>
+	
+</nav>
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>Is Claude a compiler?</h1>
+                    <h2 class="headline">
+                    May 23, 2025 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p>I was lucky enough to attend the Code with Claude conference yesterday.</p>
+<p>The hands-down highlight was the talk by <a href="https://erikschluntz.com">Erik Schluntz</a>: Vibe coding in prod.</p>
+<p>Among other things, he drew an analogy between LLMs and compilers.</p>
+<p>Once upon a time, people wrote assembly. No more.</p>
+<p>Compilers are better. Compiler bugs got ironed out, and trust developed. Not many people write assembly by hand any more. (I am one of them, at times.)</p>
+<p>So, he says, it will be with Claude. It&rsquo;ll get more reliable, we&rsquo;ll develop trust, and eventually, not many people will write code by hand. (Will I be one of them? I already mostly vibe-code.)</p>
+<p>There are a few obvious ways in which this analogy breaks down. I want to explore a few of them, as a means of taking his arguments seriously.</p>
+<h1 id="reliability">Reliability</h1>
+<p>Compiler reliability is extremely, extremely high. Got a bug? It is in your code, not the compiler. (Until it&rsquo;s not. I&rsquo;ve personally authored enough compiler bugs to last several lifetimes.)</p>
+<p>Will LLM reliability get that high? I&rsquo;m definitely not going to say no. I take exponential curves seriously.</p>
+<p>But one major challenge is that the way that compilers get so reliable is through sheer code miles.</p>
+<p>You can backtest a compiler with a phenomenal amount of code. The implicit regression test is massive.</p>
+<p>LLMs are non-deterministic. The really hard bugs to find and fix in a toolchain are non-deterministic ones due to things like memory corruption and race conditions.</p>
+<p>The rarer and more heisen the bug, the greater the effort required to find and address it. If there are only a few rare bugs, you might decide to live with them. But if there&rsquo;s a fat tail of rare bugs, the ride gets bumpy. (This is true of human health. Any <em>given</em> rare disease is rare, but having <em>a</em> rare disease is not uncommon.)</p>
+<p>It is an open, empirical question what distribution LLM reliability problems have. But there could be dragons here.</p>
+<p>Setting aside determinism, LLMs are also orders of magnitude more compute intensive to run. Backtesting at a scale close to compilers is cost prohibitive.</p>
+<p>Will hardware advances save us? With exponential cost reductions and speed improvements, today&rsquo;s cost prohibitive is tomorrow&rsquo;s chump change.</p>
+<p>There are two exponentials at play here, though: exponential hardware improvements and exponential AI quality improvements. And they are at odds with each other. If the exponential AI quality improvements are predicated on scaling laws, then exponential hardware improvement needs to have a bigger exponent than AI quality improvement. Given the limits of physics, there might be dragons lurking here too.</p>
+<p>There&rsquo;s also a second-order reliability effect. In addition to not introducing bugs, compilers eliminate entire classes of bugs, as do memory-safe languages. These effects compound. LLMs still generate more severe bugs than humans, not just merely more bugs.</p>
+<h1 id="trust">Trust</h1>
+<p>I trust the compiler a <em>lot</em> more than I trust Claude. And I trust Claude more than any other LLM.</p>
+<p>Most trust is, in practice, earned from reliability.</p>
+<p>But there&rsquo;s also supply chain security style trust. That&rsquo;s more challenging.</p>
+<p>Compilers are not immune. <a href="https://research.swtch.com/nih">Trusting Trust</a> is very old and has aged well.</p>
+<p>But compilers do not have quite the scope for mischief that LLMs do.</p>
+<p>We understand compilers well. They are highly interpretable. And the attack surface area is small compared to an internet&rsquo;s worth of training text.</p>
+<p>And determinism helps immensely. Security breaches are bad, but undetected security breaches are far worse. The fact that the <a href="https://en.wikipedia.org/wiki/XZ_Utils_backdoor">xz attack</a> was caught due to a minor performance impact is telling.</p>
+<p>Lastly, the very same exponentials that drive LLM performance cut the other way too, at least right now: The more powerful the model, the higher the risk of invisible security problems.</p>
+<p>I hope we develop a level of confidence and insight into LLMs comparable to compilers. It is early days.</p>
+<p>The reality is, though, that I trust my compiler (in the security sense) mainly because I have no choice. Our lives are built extremely deeply around trust, from the food we eat to the multi-ton chunks of steel that we ignore as they whizz past us, mere feet away. So it may soon be with LLMs.</p>
+<h1 id="so">So&hellip;?</h1>
+<p>Where does that leave us?</p>
+<p>I believe, like Erik, that the decline of hand-written code will accelerate, soon, possibly precipitously, but mainly for economic reasons. LLMs are dramatically cheaper to run than humans are to employ.</p>
+<p>We are rapidly moving towards a world in which LLMs write the code, whether the reliability and trust can match compilers or not. The era of bespoke software is upon us.</p>
+<p>We are still paying the price for building the internet and other foundational software technologies&hellip;and then tacking on security afterwards. This pattern looks set to repeat with LLMs. Long tail risks are notoriously hard to find funding for: There are always competitors happy to run risks, and executives happy to throw away their umbrellas in a rainstorm because they&rsquo;re not getting wet.</p>
+<p>If LLMs can&rsquo;t make up the missing ground with compilers, and fast, there will be a lot of whiplash.</p>
+<p>We all have work to do.</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                
+                        <img class="avatar" src="https://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>It&#39;s me.</span>
+                        </div>
+                    
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+        
+    
+    
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/is-claude-a-compiler/">Is Claude a compiler?<aside class="dates">May 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/blog-schism/">Blog schism<aside class="dates">May 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/manners/">Of manners and machines<aside class="dates">Apr 3</aside></a>
+        </li>
+        
+   
+</ul>
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/josharian">
+        <i class="fa fa-github"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2025 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://commaok.xyz/js/main.js"></script>
+<script src="https://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+    </body>
+</html>

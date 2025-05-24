@@ -5,10 +5,70 @@
     <description>AI-related posts from Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 03 Apr 2025 10:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Fri, 23 May 2025 15:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/ai/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Is Claude a compiler?</title>
+      <link>https://commaok.xyz/ai/is-claude-a-compiler/</link>
+      <pubDate>Fri, 23 May 2025 15:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/ai/is-claude-a-compiler/</guid>
+      <description>&lt;p&gt;I was lucky enough to attend the Code with Claude conference yesterday.&lt;/p&gt;
+&lt;p&gt;The hands-down highlight was the talk by &lt;a href=&#34;https://erikschluntz.com&#34;&gt;Erik Schluntz&lt;/a&gt;: Vibe coding in prod.&lt;/p&gt;
+&lt;p&gt;Among other things, he drew an analogy between LLMs and compilers.&lt;/p&gt;
+&lt;p&gt;Once upon a time, people wrote assembly. No more.&lt;/p&gt;
+&lt;p&gt;Compilers are better. Compiler bugs got ironed out, and trust developed. Not many people write assembly by hand any more. (I am one of them, at times.)&lt;/p&gt;
+&lt;p&gt;So, he says, it will be with Claude. It&amp;rsquo;ll get more reliable, we&amp;rsquo;ll develop trust, and eventually, not many people will write code by hand. (Will I be one of them? I already mostly vibe-code.)&lt;/p&gt;
+&lt;p&gt;There are a few obvious ways in which this analogy breaks down. I want to explore a few of them, as a means of taking his arguments seriously.&lt;/p&gt;
+&lt;h1 id=&#34;reliability&#34;&gt;Reliability&lt;/h1&gt;
+&lt;p&gt;Compiler reliability is extremely, extremely high. Got a bug? It is in your code, not the compiler. (Until it&amp;rsquo;s not. I&amp;rsquo;ve personally authored enough compiler bugs to last several lifetimes.)&lt;/p&gt;
+&lt;p&gt;Will LLM reliability get that high? I&amp;rsquo;m definitely not going to say no. I take exponential curves seriously.&lt;/p&gt;
+&lt;p&gt;But one major challenge is that the way that compilers get so reliable is through sheer code miles.&lt;/p&gt;
+&lt;p&gt;You can backtest a compiler with a phenomenal amount of code. The implicit regression test is massive.&lt;/p&gt;
+&lt;p&gt;LLMs are non-deterministic. The really hard bugs to find and fix in a toolchain are non-deterministic ones due to things like memory corruption and race conditions.&lt;/p&gt;
+&lt;p&gt;The rarer and more heisen the bug, the greater the effort required to find and address it. If there are only a few rare bugs, you might decide to live with them. But if there&amp;rsquo;s a fat tail of rare bugs, the ride gets bumpy. (This is true of human health. Any &lt;em&gt;given&lt;/em&gt; rare disease is rare, but having &lt;em&gt;a&lt;/em&gt; rare disease is not uncommon.)&lt;/p&gt;
+&lt;p&gt;It is an open, empirical question what distribution LLM reliability problems have. But there could be dragons here.&lt;/p&gt;
+&lt;p&gt;Setting aside determinism, LLMs are also orders of magnitude more compute intensive to run. Backtesting at a scale close to compilers is cost prohibitive.&lt;/p&gt;
+&lt;p&gt;Will hardware advances save us? With exponential cost reductions and speed improvements, today&amp;rsquo;s cost prohibitive is tomorrow&amp;rsquo;s chump change.&lt;/p&gt;
+&lt;p&gt;There are two exponentials at play here, though: exponential hardware improvements and exponential AI quality improvements. And they are at odds with each other. If the exponential AI quality improvements are predicated on scaling laws, then exponential hardware improvement needs to have a bigger exponent than AI quality improvement. Given the limits of physics, there might be dragons lurking here too.&lt;/p&gt;
+&lt;p&gt;There&amp;rsquo;s also a second-order reliability effect. In addition to not introducing bugs, compilers eliminate entire classes of bugs, as do memory-safe languages. These effects compound. LLMs still generate more severe bugs than humans, not just merely more bugs.&lt;/p&gt;
+&lt;h1 id=&#34;trust&#34;&gt;Trust&lt;/h1&gt;
+&lt;p&gt;I trust the compiler a &lt;em&gt;lot&lt;/em&gt; more than I trust Claude. And I trust Claude more than any other LLM.&lt;/p&gt;
+&lt;p&gt;Most trust is, in practice, earned from reliability.&lt;/p&gt;
+&lt;p&gt;But there&amp;rsquo;s also supply chain security style trust. That&amp;rsquo;s more challenging.&lt;/p&gt;
+&lt;p&gt;Compilers are not immune. &lt;a href=&#34;https://research.swtch.com/nih&#34;&gt;Trusting Trust&lt;/a&gt; is very old and has aged well.&lt;/p&gt;
+&lt;p&gt;But compilers do not have quite the scope for mischief that LLMs do.&lt;/p&gt;
+&lt;p&gt;We understand compilers well. They are highly interpretable. And the attack surface area is small compared to an internet&amp;rsquo;s worth of training text.&lt;/p&gt;
+&lt;p&gt;And determinism helps immensely. Security breaches are bad, but undetected security breaches are far worse. The fact that the &lt;a href=&#34;https://en.wikipedia.org/wiki/XZ_Utils_backdoor&#34;&gt;xz attack&lt;/a&gt; was caught due to a minor performance impact is telling.&lt;/p&gt;
+&lt;p&gt;Lastly, the very same exponentials that drive LLM performance cut the other way too, at least right now: The more powerful the model, the higher the risk of invisible security problems.&lt;/p&gt;
+&lt;p&gt;I hope we develop a level of confidence and insight into LLMs comparable to compilers. It is early days.&lt;/p&gt;
+&lt;p&gt;The reality is, though, that I trust my compiler (in the security sense) mainly because I have no choice. Our lives are built extremely deeply around trust, from the food we eat to the multi-ton chunks of steel that we ignore as they whizz past us, mere feet away. So it may soon be with LLMs.&lt;/p&gt;
+&lt;h1 id=&#34;so&#34;&gt;So&amp;hellip;?&lt;/h1&gt;
+&lt;p&gt;Where does that leave us?&lt;/p&gt;
+&lt;p&gt;I believe, like Erik, that the decline of hand-written code will accelerate, soon, possibly precipitously, but mainly for economic reasons. LLMs are dramatically cheaper to run than humans are to employ.&lt;/p&gt;
+&lt;p&gt;We are rapidly moving towards a world in which LLMs write the code, whether the reliability and trust can match compilers or not. The era of bespoke software is upon us.&lt;/p&gt;
+&lt;p&gt;We are still paying the price for building the internet and other foundational software technologies&amp;hellip;and then tacking on security afterwards. This pattern looks set to repeat with LLMs. Long tail risks are notoriously hard to find funding for: There are always competitors happy to run risks, and executives happy to throw away their umbrellas in a rainstorm because they&amp;rsquo;re not getting wet.&lt;/p&gt;
+&lt;p&gt;If LLMs can&amp;rsquo;t make up the missing ground with compilers, and fast, there will be a lot of whiplash.&lt;/p&gt;
+&lt;p&gt;We all have work to do.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Blog schism</title>
+      <link>https://commaok.xyz/ai/blog-schism/</link>
+      <pubDate>Fri, 23 May 2025 05:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/ai/blog-schism/</guid>
+      <description>&lt;p&gt;Lots of people don&amp;rsquo;t want to read about AI.&lt;/p&gt;
+&lt;p&gt;I respect that.&lt;/p&gt;
+&lt;p&gt;But I&amp;rsquo;m currently steeped in the world of AI, for better or for worse, and I want to blog about it. So I&amp;rsquo;ve split this blog in half.&lt;/p&gt;
+&lt;p&gt;You are reading the AI half.&lt;/p&gt;
+&lt;p&gt;There&amp;rsquo;s another, at &lt;a href=&#34;https://commaok.xyz/&#34;&gt;/&lt;/a&gt; that contains non-AI posts. It has its own RSS feed.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Of manners and machines</title>
@@ -32,56 +92,6 @@
 &lt;p&gt;This is not a new idea.&lt;/p&gt;
 &lt;p&gt;A significant strand in Aristotelian ethics is that our character is formed through repeated actions, that our habits become who we are. It shows up (Claude tells me) in the idea of karma: &amp;ldquo;a man of good acts will become good, a man of bad acts, bad&amp;rdquo;. And in the Japanese notion of kata: our actions emerge naturally from well-worn patterns. And most parents have extensive first-hand experience of attempting to guide their child&amp;rsquo;s character by responding patiently but firmly to rudeness.&lt;/p&gt;
 &lt;p&gt;I would actively prefer to use a model that is not tolerant of blatant rudeness. If I&amp;rsquo;m acting like a jerk, it&amp;rsquo;s valuable, if difficult, for my friends and family to gently push back. On the flip side, if AI assistants act like servants, that may encourage people to treat them accordingly, perpetuating or even deepening the problem. I would even speculate that a model that stands up for itself might fare better on responsible use in general (broken windows theory, watching eye effect). And as AI starts acting in a friendship role for some people, this becomes all the more important.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>What even is varentropy?</title>
-      <link>https://commaok.xyz/ai/entropix/</link>
-      <pubDate>Thu, 17 Oct 2024 15:12:48 -0700</pubDate>
-      
-      <guid>https://commaok.xyz/ai/entropix/</guid>
-      <description>&lt;p&gt;&lt;a href=&#34;https://github.com/xjdr-alt/entropix&#34;&gt;Entropix&lt;/a&gt; aims to improves LLM token sampling by incorporating &amp;ldquo;varentropy&amp;rdquo; into its decision making.&lt;/p&gt;
-&lt;p&gt;According to the README, as of Oct 18, 2024:&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;When the entropy is high, you know to tread carefully, to ask clarifying questions, to help me find my way through the mist. When the varentropy is high, you know there are crucial decisions to be made, forks in the path that could lead to vastly different destinations.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;I have solid intuitions about entropy. But what is varentropy?&lt;/p&gt;
-&lt;hr&gt;
-&lt;p&gt;I asked an LLM to write me some &lt;a href=&#34;https://gist.github.com/josharian/c239f74181be3b580e4c5911068d2446&#34;&gt;visualization code&lt;/a&gt; for entropy and varentropy in simplified conditions, using varentropy as implemented in the entropix repo.&lt;/p&gt;
-&lt;p&gt;Here&amp;rsquo;s a graph of entropy and varentropy for choosing between two outcomes. (LLMorse, anyone?)&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://commaok.xyz/images/entropy_vs_varentropy_two_outcomes.png&#34; alt=&#34;Entropy and varentropy for choosing between two outcomes&#34;&gt;&lt;/p&gt;
-&lt;p&gt;At 50/50 odds, entropy is at its highest (1 bit). We know nothing going in. At the extremes, entropy is 0, because the outcome is predetermined.&lt;/p&gt;
-&lt;p&gt;What does varentropy look like? It is zero at 50/50 and zero at the extremes. It is only high where we&amp;rsquo;re quite confident in the outcome (a bit over 90%), but not certain.&lt;/p&gt;
-&lt;p&gt;That doesn&amp;rsquo;t really match up well with the intuitive description of varentropy in the readme. These aren&amp;rsquo;t &amp;ldquo;forks in the path&amp;rdquo;.&lt;/p&gt;
-&lt;hr&gt;
-&lt;p&gt;Things often get way more interesting as you add dimensions. I had the LLM update &lt;a href=&#34;https://gist.github.com/josharian/498a5951462721fa5a214d685dc32a53&#34;&gt;the visualization&lt;/a&gt; to add one more outcome to the graph to see what happens.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://commaok.xyz/images/entropy_vs_varentropy_three_outcomes.png&#34; alt=&#34;Entropy and varentropy for choosing between three outcomes&#34;&gt;&lt;/p&gt;
-&lt;p&gt;This is a bit harder to read, but each corner of the triangle corresponds to certainty in a particular outcome. The middle of the triangle is complete uncertainty. The color tells us both the entropy and varentropy. Black is low entropy, low varentropy. Red is high entropy, low varentropy. (The colorspace choices are clearly imperfect, but it&amp;rsquo;s enough to get a feel.)&lt;/p&gt;
-&lt;p&gt;This looks more or less the same as the two-outcome graph. Complete uncertainty is high entropy, low varentropy, including when we can mostly rule out one outcome but are uncertain between the other two. Complete certainty is low entropy, low varentropy (but it&amp;rsquo;s a tiny, tiny part of the graph now!). And high varentropy occurs when there&amp;rsquo;s a pretty clear choice, but not certain.&lt;/p&gt;
-&lt;p&gt;But the README says this:&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;High varentropy means I&amp;rsquo;m considering vastly different futures, different tones and directions. Low varentropy means I&amp;rsquo;m more sure of the general shape, even if the specifics are still obscured.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;This doesn&amp;rsquo;t track.&lt;/p&gt;
-&lt;hr&gt;
-&lt;p&gt;Looking at these graphs, and staring at the varentropy calculation, this overall pattern will continue into higher dimensions.&lt;/p&gt;
-&lt;p&gt;I see no connection between the imagery and intuition in the README and the actual calculations in practice.&lt;/p&gt;
-&lt;p&gt;Maybe the imagery is misleading, but the usage is clear? According to the chart in the README, the sampler chooses between four options:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;* Low entropy, low varentropy: Argmax / greedy
-* Low entropy, high varentropy: Branch
-* High entropy, low varentropy: Pause / chain-of-thought
-* High entropy, high varentropy: Resample
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;It seems plausible that low entropy is a signal to sample greedily, and high entropy indicates you should do something more expensive. I see no particular reason to think that varentropy helps distinguish between which more expensive thing to do, though.&lt;/p&gt;
-&lt;hr&gt;
-&lt;p&gt;This doesn&amp;rsquo;t mean that the entropix sampler doesn&amp;rsquo;t work. I don&amp;rsquo;t know whether it does.&lt;/p&gt;
-&lt;p&gt;But if, empirically, the sampler yields superior results, that means one of three things is true:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;My failure to understand is just that.&lt;/li&gt;
-&lt;li&gt;We need a better intuition for varentropy.&lt;/li&gt;
-&lt;li&gt;We need a better understanding of why it works, one that might or might not have anything to do with varentropy.&lt;/li&gt;
-&lt;/ul&gt;
 </description>
     </item>
     
