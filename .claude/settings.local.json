@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pkill:*)",
+      "Bash(hugo)",
+      "Bash(find:*)",
+      "Bash(rm:*)",
+      "Bash(mkdir:*)",
+      "Bash(curl:*)",
+      "Bash(hugo list:*)",
+      "Bash(hugo:*)",
+      "Bash(mv:*)"
+    ],
+    "deny": []
+  }
+}

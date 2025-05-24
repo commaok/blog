@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html {{ with .Site.LanguageCode }}lang="{{ . }}"{{ end }}>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		{{ with .Site.Params.name }}<meta name="author" content="{{ . }}">{{ end }}
+		{{ with .Site.Params.description }}<meta name="description" content="{{ . }}">{{ end }}
+		{{ hugo.Generator }}
+		<title>{{ .Title }} &middot; {{ .Site.Title }}</title>
+		<link rel="shortcut icon" href="{{ .Site.BaseURL }}images/favicon.ico">
+		<link rel="stylesheet" href="{{ .Site.BaseURL }}css/style.css">
+		<link rel="stylesheet" href="{{ .Site.BaseURL }}css/highlight.css">
+		{{ range .Site.Params.customCSS }}
+		<link rel="stylesheet" href="{{ $.Site.BaseURL }}{{ . }}">
+		{{ end }}
+
+		{{ if eq .Site.Params.iconFont "font-awesome" }}
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		{{ else }}
+		<link rel="stylesheet" href="{{ .Site.BaseURL }}css/monosocialiconsfont.css">
+		{{ end }}
+
+		{{ if .Site.Params.enableRSS }}
+		<link href="{{ .Site.BaseURL }}ai/index.xml" rel="alternate" type="application/rss+xml" title="AI Posts - {{ .Site.Title }}" />
+		{{ end }}
+
+		{{ template "_internal/opengraph.html" . }}
+	    {{ template "_internal/schema.html" . }}
+	    {{ template "_internal/twitter_cards.html" . }}
+	</head>
+<body>
+<nav class="main-nav">
+	{{ $url := replace .Permalink .Site.BaseURL "" }}
+	{{ if not .IsHome }}
+		<a href='{{ .Site.BaseURL }}'>{{ with .Site.Params.home }}{{ . }}{{ else }}Home{{ end }}</a>
+	{{ end }}
+
+	{{ if .Site.Params.enableRSS }}
+	<a class="cta" href="{{ .Site.BaseURL }}ai/index.xml">{{ with .Site.Params.subscribe }}{{ . }}{{ else }}Subscribe{{ end }}</a>
+	{{ end }}
+</nav>
+
+{{ partial "profile.html" . }}
+
+<section id="wrapper" class="home">
+    <ul id="post-list">
+        {{ range .Pages.ByDate.Reverse }}
+        {{ $url := replace .Permalink .Site.BaseURL "" }}
+        {{ if ne $url "about/" }}
+            <li>
+                <a href='{{ .Permalink }}'><aside class="dates">{{ .Date.Format "Jan 2, 2006" }}</aside></a>
+                <a href='{{ .Permalink }}'>{{ .Title }} <h2>{{ .Description | markdownify }}</h2></a>
+            </li>
+        {{ end }}
+        {{ end }}
+    </ul>
+
+    {{ partial "pagination.html" . }}
+    {{ partial "footer.html" . }}
+</section>
+
+{{ partial "js.html" . }}
+</body>
+</html>

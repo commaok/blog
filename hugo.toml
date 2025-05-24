@@ -5,6 +5,16 @@ theme = "hugo-cactus-theme"
 publishDir = "docs"
 rssLimit = 10
 
+[taxonomies]
+    category = "categories" 
+    tag = "tags"
+
+[outputs]
+    home = ["HTML", "RSS"]
+    page = ["HTML"]
+    taxonomy = ["HTML", "RSS"]
+    term = ["HTML", "RSS"]
+
 [params]
 	name = "Josh Bleecher Snyder"
 	description = "Words about Go and software"
