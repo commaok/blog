@@ -5,10 +5,55 @@
     <description>AI-related posts from Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 23 May 2025 15:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Tue, 27 May 2025 07:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/ai/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>How and when to talk with your AI Agent</title>
+      <link>https://commaok.xyz/ai/push-pull-respond-restart/</link>
+      <pubDate>Tue, 27 May 2025 07:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/ai/push-pull-respond-restart/</guid>
+      <description>&lt;p&gt;There are obvious similarities between task-oriented communication with a human vs with an AI agent&amp;hellip;and a few places where they diverge. This blog post lays out a simple conceptual framework for thinking about these interactions.&lt;/p&gt;
+&lt;p&gt;Suppose I ask a colleague to tackle a task for me. How do I communicate context about that task to them? There are three options:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Push: Give them information up front&lt;/li&gt;
+&lt;li&gt;Pull: Wait for them to ask me questions&lt;/li&gt;
+&lt;li&gt;Respond: Provide feedback on work they&amp;rsquo;ve completed&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Each of these approaches has trade-offs.&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s hard to know exactly what information would be useful to Push to them. Obviously they need to know what I have in mind, but telling them extraneous information is a waste of everyone&amp;rsquo;s time, and in extreme cases can be downright obnoxious.&lt;/p&gt;
+&lt;p&gt;Pulling is less likely to generate unnecessary communication, but it also generates interruptions for me and adds delays for them. It can take a lot of work to even discover what questions to ask. And there&amp;rsquo;s a difficult balance to strike between over- and under-asking.&lt;/p&gt;
+&lt;p&gt;Responding can be very efficient: It is naturally batched, and all the resulting communication is necessary. But it also generates wasted work along the way, and can lead to significant frustration if there were large communication failures earlier.&lt;/p&gt;
+&lt;p&gt;In practice, we all use a blend of these approaches. The exact combination depends on the people, the task, the existing shared context, the level of trust, and the relative cost of communication, interruptions, and work.&lt;/p&gt;
+&lt;h2 id=&#34;using-agents&#34;&gt;Using agents&lt;/h2&gt;
+&lt;p&gt;This same set of options appears when asking an AI agent to do work for you.&lt;/p&gt;
+&lt;p&gt;The more information you Push to them up front, the more likely you&amp;rsquo;ll get a better outcome, but there are rapidly diminishing returns. Cutting-edge AI agent systems are capable of figuring out quite a lot on their own from surprisingly little context.&lt;/p&gt;
+&lt;p&gt;As the AI agents get more autonomous, though, they are used for bigger chunks of work, so they get slower, which means that you don&amp;rsquo;t want to wait around to be available for Pulling, and interruptions are disruptive. And as agents tackle more on their own, it makes sense to launch more of them concurrently, which means that interruptions can easily saturate your focus bandwidth and sap your productivity.&lt;/p&gt;
+&lt;p&gt;I&amp;rsquo;ve started doing more at Response time, and worrying less about wasted work. An agent&amp;rsquo;s work is cheap (compared to my time) and getting cheaper, and I can always just spin up more agents.&lt;/p&gt;
+&lt;p&gt;With agents, there&amp;rsquo;s also a fourth option:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Restart: Learn from the attempt, throw away everything, and start from scratch, Pushing the extra information that was missing the first time&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;(You can also do this with humans, but it&amp;rsquo;s&amp;hellip;not very nice.)&lt;/p&gt;
+&lt;p&gt;Adding Restart into the mix turns out to be surprisingly effective. Push a tiny bit of information, Respond only with significant feedback, learn from the result, Restart with better initial guidance, repeat.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://maruel.ca&#34;&gt;Marc-Antoine Ruel&lt;/a&gt; &lt;a href=&#34;https://discord.com/channels/1362869091156758752/1362869091156758755/1369809064120553472&#34;&gt;explained this approach well&lt;/a&gt;:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Often I ask it to create a change, look at the diff, realize it&amp;rsquo;s wrong but it gave me an idea. I delete the branch and write the correct code manually. Then once it&amp;rsquo;s scaffolded correctly, sometimes I let it finish the job. I find this faster (less draining emotionally?) than trying to argue.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;(If you&amp;rsquo;re skeptical about having AI-written code in your repo, this may be a thing to try. Let the AI run ahead, make mistakes, pave a path, and convince you that the game is worth the candle. Then write the code yourself, fore-warned and fore-armed.)&lt;/p&gt;
+&lt;h2 id=&#34;designing-agents&#34;&gt;Designing Agents&lt;/h2&gt;
+&lt;p&gt;When building an AI agent, you encounter the same set of considerations, but from the design perspective. The product UX choices strongly influence when and how communication occurs.&lt;/p&gt;
+&lt;p&gt;For example, OpenAI&amp;rsquo;s &lt;a href=&#34;https://openai.com/index/introducing-deep-research/&#34;&gt;DeepResearch&lt;/a&gt; settled on the user Pushing their question, then one immediate round of Pull, and then presumably Respond. (I personally have never done any Respond iterations with DeepResearch.) They judged that the &lt;a href=&#34;https://twimlai.com/podcast/twimlai/how-openai-builds-ai-agents-that-think-and-act/&#34;&gt;quick Pull improved results&lt;/a&gt; meaningfully without delaying or interrupting too much.&lt;/p&gt;
+&lt;p&gt;Here at Sketch (an AI coding agent), for human interactions, we&amp;rsquo;ve focused mainly on Respond and Restart. Yes, Pushed information to specify the task is necessary, but we want to be able to work well even with very little provided up front.&lt;/p&gt;
+&lt;p&gt;AI agents interact with their environments, and the same communication design questions arise for &lt;em&gt;agent-environment&lt;/em&gt; communication as for &lt;em&gt;agent-human&lt;/em&gt; communication. Take commit message styles; that information is available from git without bothering a human. We could analyze those and Push it to the agent at the very beginning. That&amp;rsquo;s predictable and reliable, but is irrelevant overhead and distraction if no commits get created. Or we could Respond by asking it to rewrite a commit message if/when we automatically detect that it is not in the desired style. (Restarting is always human-initiated, so that&amp;rsquo;s out.) In practice, we let the agent Pull that information when it is ready to write commits. And we have guard rails: If the agent hasn&amp;rsquo;t Pulled style information, we refuse to let it commit.&lt;/p&gt;
+&lt;p&gt;The communication design is a prime question for us when adding any new feature. We employ a combination of all approaches, on a case by case basis, based on what happens to work well.&lt;/p&gt;
+&lt;p&gt;The field of Agent Experience (AX) is mostly ad hoc, currently mostly confined to prompt engineering and MCP server design. It will likely grow.&lt;/p&gt;
+&lt;p&gt;AI agents have hit the mainstream, but as an industry we have yet to develop a clear theory (that I have seen) around communication design, both UX and AX. Hopefully framing this question will help open up the discussion.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Is Claude a compiler?</title>
