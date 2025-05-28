@@ -52,6 +52,7 @@
 &lt;p&gt;The communication design is a prime question for us when adding any new feature. We employ a combination of all approaches, on a case by case basis, based on what happens to work well.&lt;/p&gt;
 &lt;p&gt;The field of Agent Experience (AX) is mostly ad hoc, currently mostly confined to prompt engineering and MCP server design. It will likely grow.&lt;/p&gt;
 &lt;p&gt;AI agents have hit the mainstream, but as an industry we have yet to develop a clear theory (that I have seen) around communication design, both UX and AX. Hopefully framing this question will help open up the discussion.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Also published at &lt;a href=&#34;https://sketch.dev/blog/push-pull-respond-restart&#34;&gt;sketch.dev/blog/push-pull-respond-restart&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 </description>
     </item>
     
