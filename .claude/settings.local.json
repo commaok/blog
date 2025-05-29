@@ -13,5 +13,6 @@
       "WebFetch(domain:localhost)"
     ],
     "deny": []
-  }
+  },
+  "enableAllProjectMcpServers": false
 }
