@@ -1,0 +1,186 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go and software">
+		<meta name="generator" content="Hugo 0.122.0-DEV">
+		<title>Prompt Engineering and the Taste Gap &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="Prompt Engineering and the Taste Gap" />
+<meta property="og:description" content="As I was learning prompt engineering, I encountered the same (good!) core advice repeatedly: invest in evals, make incremental improvements.
+That&rsquo;s great. But…where do the words come from? The ones that we evaluate, and iterate on, and augment with examples? When writing code, if you do a good job up front, you&rsquo;ll spend less time fixing bugs and chasing performance issues. How do you do a better job up front of writing and editing a prompt?" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://commaok.xyz/ai/prompt-engineering-and-the-taste-gap/" /><meta property="article:section" content="ai" />
+<meta property="article:published_time" content="2025-05-29T07:12:48-07:00" />
+<meta property="article:modified_time" content="2025-05-29T07:12:48-07:00" />
+
+
+	    <meta itemprop="name" content="Prompt Engineering and the Taste Gap">
+<meta itemprop="description" content="As I was learning prompt engineering, I encountered the same (good!) core advice repeatedly: invest in evals, make incremental improvements.
+That&rsquo;s great. But…where do the words come from? The ones that we evaluate, and iterate on, and augment with examples? When writing code, if you do a good job up front, you&rsquo;ll spend less time fixing bugs and chasing performance issues. How do you do a better job up front of writing and editing a prompt?"><meta itemprop="datePublished" content="2025-05-29T07:12:48-07:00" />
+<meta itemprop="dateModified" content="2025-05-29T07:12:48-07:00" />
+<meta itemprop="wordCount" content="793">
+<meta itemprop="keywords" content="" />
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Prompt Engineering and the Taste Gap"/>
+<meta name="twitter:description" content="As I was learning prompt engineering, I encountered the same (good!) core advice repeatedly: invest in evals, make incremental improvements.
+That&rsquo;s great. But…where do the words come from? The ones that we evaluate, and iterate on, and augment with examples? When writing code, if you do a good job up front, you&rsquo;ll spend less time fixing bugs and chasing performance issues. How do you do a better job up front of writing and editing a prompt?"/>
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://commaok.xyz/ai/'>Home</a>
+	
+
+	
+	<a class="cta" href="https://commaok.xyz/index.xml">RSS</a>
+	
+</nav>
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>Prompt Engineering and the Taste Gap</h1>
+                    <h2 class="headline">
+                    May 29, 2025 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p>As I was learning prompt engineering, I encountered the same (good!) core advice repeatedly: invest in evals, make incremental improvements.</p>
+<p>That&rsquo;s great. But…where do the words come from? The ones that we evaluate, and iterate on, and augment with examples? When writing code, if you do a good job up front, you&rsquo;ll spend less time fixing bugs and chasing performance issues. How do you do a better job up front of writing and editing a prompt?</p>
+<p>The answer has slowly become clear to me: Have an LLM write and edit your prompts. You are still doing the heavy lifting. The understanding and context you provide is the crux of the work. But an LLM is an unparalleled linguistic optimizer and amanuensis. They are remarkably good at taking muddled, sprawling intentions and crystallizing them into clear, effective prompts.</p>
+<p>I&rsquo;m a native English speaker with extensive writing experience, most of it technical. I am a reasonably clear thinker and communicator. I&rsquo;ve been writing prompts for a year. And yet frontier models systematically outperform my attempts to do it all myself. Maybe if I learned by osmosis at Anthropic or had another few years of prompt engineering experience this wouldn&rsquo;t be true. If you&rsquo;re an expert already, But, to a first approximation, that describes nobody, so I&rsquo;m pretty comfortable giving out this advice.</p>
+<p>Frontier LLMs seem to be particularly good at providing strong guardrails to prevent unwanted but stubbornly persistent behaviors. For example, Claude generated this line, which proved to be strikingly effective in its context, and which I would never have come up with: &ldquo;If you are about to do X - stop - and reconsider.&rdquo;</p>
+<h2 id="how-to-prompt-for-prompts">How to prompt for prompts</h2>
+<p>When asking an LLM to write a prompt, I bring three things to the table.</p>
+<ul>
+<li>
+<p><strong>Clear instructions.</strong> I tell it I want it to help me write a prompt. Obvious, but I still sometimes manage to forget this. It is often also fruitful to request that it ask you probing, critical questions. Make it crystal clear you want engagement, not affirmation. (My Claude personal preference begins: &ldquo;I value intellectual, rigorous, critical discussion. I want a tennis partner who returns serves with spin - challenge my assumptions, ask probing questions, suggest better approaches, and engage rather than affirm.&rdquo; This makes Claude charmingly fiesty.)</p>
+</li>
+<li>
+<p><strong>Context.</strong> Lots and lots of context. What I am trying to accomplish, for whom, and why? I pour in my ideas, dreams, hopes, confusions, plans, fears, draft sentences that seem promising, whatever. I ramble and circumlocute. Get it all down. All of it. Order doesn&rsquo;t matter. It is easy to cut later.</p>
+</li>
+<li>
+<p><strong>Judgment.</strong> Ira Glass popularized the Taste Gap, the observation that judgment precedes ability: &ldquo;All of us who do creative work, we get into it because we have good taste. But there is this gap. For the first couple years you make stuff, it&rsquo;s just not that good.&rdquo; The rough draft generated by the LLM usually has obvious flaws: possible misinterpretations, misplaced emphasis, omitted nuance, wrong feel. This is where you can leverage the Taste Gap: It is much easier to identify what&rsquo;s wrong than it is to make it right. Identify everything that doesn&rsquo;t seem right–even if it is hard to nail down precisely–and tell the LLM, and let it iterate. Tweak, quibble, argue, point out shortcomings, cut. Over and over. If the conversation goes off the rails, learn some lessons from it, copy/paste a bunch of text, and <a href="/ai/push-pull-respond-restart">start over</a>.</p>
+</li>
+</ul>
+<p>The same approach works for refining a prompt. Explain what you&rsquo;re doing, bring context (the original prompt and what&rsquo;s going wrong), encourage the model not to make major changes (unless you think it&rsquo;s necessary!), put on your judge&rsquo;s wig, and iterate together.</p>
+<p>Don&rsquo;t just ask an LLM to improve a prompt. If you do this, sure, it&rsquo;ll make a bunch of plausible-sounding changes. But anything it can infer from the original prompt is already implicit in the original prompt. You need to bring new information: new thoughts, observed problems, additional judgments. You could ask it to speculatively expand the prompt and then work to cut it back–the judgment involved in that paring down is new information. But the more context and judgment you bring, the more improvements are available.</p>
+<p>Lastly, don&rsquo;t be afraid to make changes yourself, no matter what the LLM thinks. Trust your judgment. And then, of course, eval!</p>
+<h2 id="to-each-their-own">To each their own</h2>
+<p>Oh, one more thing. I have a pet theory: Models have a house palette. Claude responds better to prompts that Claude writes. ChatGPT does a better job following instructions that it wrote.</p>
+<p>I have not put this to an empirical test. (If anyone out there wants to do an experiment&hellip;)</p>
+<p>This applies to humans, too. Words meant for humans should be written by humans.</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                
+                        <img class="avatar" src="https://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>It&#39;s me.</span>
+                        </div>
+                    
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+        
+    
+    
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/prompt-engineering-and-the-taste-gap/">Prompt Engineering and the Taste Gap<aside class="dates">May 29</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/push-pull-respond-restart/">How and when to talk with your AI Agent<aside class="dates">May 27</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/is-claude-a-compiler/">Is Claude a compiler?<aside class="dates">May 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/blog-schism/">Blog schism<aside class="dates">May 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/manners/">Of manners and machines<aside class="dates">Apr 3</aside></a>
+        </li>
+        
+   
+</ul>
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/josharian">
+        <i class="fa fa-github"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2025 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://commaok.xyz/js/main.js"></script>
+<script src="https://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+    </body>
+</html>
