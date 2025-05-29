@@ -36,3 +36,5 @@ Oh, one more thing. I have a pet theory: Models have a house palette. Claude res
 I have not put this to an empirical test. (If anyone out there wants to do an experiment...)
 
 This applies to humans, too. Words meant for humans should be written by humans.
+
+*Also published at [sketch.dev/blog/prompt-engineering-and-the-taste-gap](https://sketch.dev/blog/prompt-engineering-and-the-taste-gap)*
