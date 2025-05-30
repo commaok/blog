@@ -17,7 +17,7 @@ It is time to add:
 
 [Agent loops are simple](https://sketch.dev/blog/agent-loop). But that simplicity hides some depth. An agent's behavior is deeply influenced by its environment. (The same is true of humans.) To build a setting in which an agent is effective, it helps to view the world from its point of view.
 
-The primary components of AX are obvious and familiar: the system prompt, and the tool selection, naming, design, and documentation. All of these must be designed for how LLMs process information, with [an strong emphasis on clarity and precision](https://sketch.dev/blog/prompt-engineering-and-the-taste-gap).
+The primary components of AX are obvious and familiar: the system prompt, and the tool selection, naming, design, and documentation. All of these must be designed for how LLMs process information, with [an strong emphasis on clarity and precision](https://commaok.xyz/ai/prompt-engineering-and-the-taste-gap/).
 
 There are less obvious components, though, such as [communication design](https://sketch.dev/blog/push-pull-respond-restart): what information you give an agent and when.
 
@@ -26,3 +26,7 @@ And some of it, as with any form of UX, comes down to polish. We [just added aut
 AX is in some sense easier than UX/DX, because you have captive users that you can watch any time you want! It is so much easier that we sometimes call it “eval” instead.
 
 But it’s not just eval. To improve the AX, you have to actually watch and empathize, just like you would with human users…while bearing in mind the ever-changing ways in which they can be decidedly non-human.
+
+
+
+*Also published at [sketch.dev/blog/ax](https://sketch.dev/blog/ax)*

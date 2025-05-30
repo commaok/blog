@@ -28,11 +28,12 @@
 &lt;p&gt;Agent experience (AX) is a user experience from an AI agent’s point of view.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;&lt;a href=&#34;https://sketch.dev/blog/agent-loop&#34;&gt;Agent loops are simple&lt;/a&gt;. But that simplicity hides some depth. An agent&amp;rsquo;s behavior is deeply influenced by its environment. (The same is true of humans.) To build a setting in which an agent is effective, it helps to view the world from its point of view.&lt;/p&gt;
-&lt;p&gt;The primary components of AX are obvious and familiar: the system prompt, and the tool selection, naming, design, and documentation. All of these must be designed for how LLMs process information, with &lt;a href=&#34;https://sketch.dev/blog/prompt-engineering-and-the-taste-gap&#34;&gt;an strong emphasis on clarity and precision&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The primary components of AX are obvious and familiar: the system prompt, and the tool selection, naming, design, and documentation. All of these must be designed for how LLMs process information, with &lt;a href=&#34;https://commaok.xyz/ai/prompt-engineering-and-the-taste-gap/&#34;&gt;an strong emphasis on clarity and precision&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;There are less obvious components, though, such as &lt;a href=&#34;https://sketch.dev/blog/push-pull-respond-restart&#34;&gt;communication design&lt;/a&gt;: what information you give an agent and when.&lt;/p&gt;
 &lt;p&gt;And some of it, as with any form of UX, comes down to polish. We &lt;a href=&#34;https://github.com/boldsoftware/sketch/commit/495c1fa247565e21b36bcb847c6cd3f08e0e196f&#34;&gt;just added auto-installation of common tools&lt;/a&gt; to &lt;a href=&#34;https://sketch.dev&#34;&gt;sketch&lt;/a&gt;. If an agent executes yamllint, and yamllint isn’t present, it is silently, magically installed in the container, and the bash command succeeds the first time. Instead of having to pause its work to futz with apt/snap/yum/brew, which is &lt;a href=&#34;https://arxiv.org/abs/2505.06120&#34;&gt;a distraction&lt;/a&gt;, things Just Work. AI agents suffer from yak shaving too.&lt;/p&gt;
 &lt;p&gt;AX is in some sense easier than UX/DX, because you have captive users that you can watch any time you want! It is so much easier that we sometimes call it “eval” instead.&lt;/p&gt;
 &lt;p&gt;But it’s not just eval. To improve the AX, you have to actually watch and empathize, just like you would with human users…while bearing in mind the ever-changing ways in which they can be decidedly non-human.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Also published at &lt;a href=&#34;https://sketch.dev/blog/ax&#34;&gt;sketch.dev/blog/ax&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 </description>
     </item>
     
