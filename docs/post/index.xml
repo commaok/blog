@@ -5,10 +5,78 @@
     <description>Recent content in Posts on Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 23 May 2025 05:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Fri, 30 May 2025 07:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Simpler backoff</title>
+      <link>https://commaok.xyz/post/simple-backoff/</link>
+      <pubDate>Fri, 30 May 2025 07:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/post/simple-backoff/</guid>
+      <description>&lt;p&gt;Exponential backoff with jitter is de rigeur for making service calls. This code, or something like it, probably looks really familiar:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;func do(ctx context.Context) error {
+	const (
+		maxAttempts = 10
+		baseDelay   = 1 * time.Second
+		maxDelay    = 60 * time.Second
+	)
+
+	delay := baseDelay
+	for attempt := range maxAttempts {
+		err := request(ctx)
+		if err == nil {
+			return nil
+		}
+
+		delay *= 2
+		delay = min(delay, maxDelay)
+
+		jitter := time.Duration(rand.Float64()*0.5-0.25) * delay // ±25% random variation
+		sleepTime := delay + jitter
+
+		select {
+		case &amp;lt;-ctx.Done():
+			return ctx.Err()
+		case &amp;lt;-time.After(sleepTime):
+		}
+	}
+
+	return fmt.Errorf(&amp;#34;failed after %d attempts&amp;#34;, maxAttempts)
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But we can make this much nicer with a simple &lt;a href=&#34;https://commaok.xyz/post/lookup_tables/&#34;&gt;lookup table&lt;/a&gt;.&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;func do(ctx context.Context) error {
+	delays := []time.Duration{
+		1 * time.Second, 2 * time.Second,
+		4 * time.Second, 8 * time.Second,
+		16 * time.Second, 32 * time.Second,
+		60 * time.Second, 60 * time.Second,
+		60 * time.Second, 60 * time.Second,
+	}
+
+	for _, delay := range delays {
+		err := request(ctx)
+		if err == nil {
+			return nil
+		}
+
+		delay *= time.Duration(0.75 + rand.Float64()*0.5) // jitter: ±25% random variation
+		select {
+		case &amp;lt;-ctx.Done():
+			return ctx.Err()
+		case &amp;lt;-time.After(delay):
+		}
+	}
+
+	return fmt.Errorf(&amp;#34;failed after %d attempts&amp;#34;, len(delays))
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is much simpler. There are fewer variables, with smaller scope. There&amp;rsquo;s no need to reasoning about behavior across loops, and if there&amp;rsquo;s a bug in the calculations, it won&amp;rsquo;t affect subsequent iterations.&lt;/p&gt;
+&lt;p&gt;It is more readable. It is obvious how it will behave. It is also more editable. Changing the backoff schedule and number of attempts now feels safe and trivial.&lt;/p&gt;
+&lt;p&gt;Don&amp;rsquo;t write code that generates a small, fixed set of values. Use a lookup table instead.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Blog schism</title>

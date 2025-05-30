@@ -7,7 +7,7 @@
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go and software">
 		<meta name="generator" content="Hugo 0.122.0-DEV">
-		<title>Sometimes Software is Done, or Why Hugo Why &middot; Don&#39;t Panic</title>
+		<title>Simpler backoff &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
 		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
@@ -21,33 +21,24 @@
 		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
 		
 
-		<meta property="og:title" content="Sometimes Software is Done, or Why Hugo Why" />
-<meta property="og:description" content="I didn&rsquo;t sit down this morning planning to write a grouchy blog post about Hugo.
-When I first used Hugo I loved it. It was fast. It was simple. It just worked, as much as any software does, and it solved a real problem.
-It was done.
-But people kept working on it.
-I&rsquo;m sure that it has been improved in countless ways. But along the way it has gotten bigger and more complicated, and has broken backwards compatibility repeatedly." />
+		<meta property="og:title" content="Simpler backoff" />
+<meta property="og:description" content="Exponential backoff with jitter is de rigeur for making service calls. This code, or something like it, probably looks really familiar:
+func do(ctx context.Context) error { const ( maxAttempts = 10 baseDelay = 1 * time.Second maxDelay = 60 * time.Second ) delay := baseDelay for attempt := range maxAttempts { err := request(ctx) if err == nil { return nil } delay *= 2 delay = min(delay, maxDelay) jitter := time." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://commaok.xyz/post/on_hugo/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2024-01-09T09:12:48-07:00" />
-<meta property="article:modified_time" content="2024-01-09T09:12:48-07:00" />
+<meta property="og:url" content="https://commaok.xyz/post/simple-backoff/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2025-05-30T07:12:48-07:00" />
+<meta property="article:modified_time" content="2025-05-30T07:12:48-07:00" />
 
 
-	    <meta itemprop="name" content="Sometimes Software is Done, or Why Hugo Why">
-<meta itemprop="description" content="I didn&rsquo;t sit down this morning planning to write a grouchy blog post about Hugo.
-When I first used Hugo I loved it. It was fast. It was simple. It just worked, as much as any software does, and it solved a real problem.
-It was done.
-But people kept working on it.
-I&rsquo;m sure that it has been improved in countless ways. But along the way it has gotten bigger and more complicated, and has broken backwards compatibility repeatedly."><meta itemprop="datePublished" content="2024-01-09T09:12:48-07:00" />
-<meta itemprop="dateModified" content="2024-01-09T09:12:48-07:00" />
-<meta itemprop="wordCount" content="288">
+	    <meta itemprop="name" content="Simpler backoff">
+<meta itemprop="description" content="Exponential backoff with jitter is de rigeur for making service calls. This code, or something like it, probably looks really familiar:
+func do(ctx context.Context) error { const ( maxAttempts = 10 baseDelay = 1 * time.Second maxDelay = 60 * time.Second ) delay := baseDelay for attempt := range maxAttempts { err := request(ctx) if err == nil { return nil } delay *= 2 delay = min(delay, maxDelay) jitter := time."><meta itemprop="datePublished" content="2025-05-30T07:12:48-07:00" />
+<meta itemprop="dateModified" content="2025-05-30T07:12:48-07:00" />
+<meta itemprop="wordCount" content="274">
 <meta itemprop="keywords" content="" />
-	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Sometimes Software is Done, or Why Hugo Why"/>
-<meta name="twitter:description" content="I didn&rsquo;t sit down this morning planning to write a grouchy blog post about Hugo.
-When I first used Hugo I loved it. It was fast. It was simple. It just worked, as much as any software does, and it solved a real problem.
-It was done.
-But people kept working on it.
-I&rsquo;m sure that it has been improved in countless ways. But along the way it has gotten bigger and more complicated, and has broken backwards compatibility repeatedly."/>
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Simpler backoff"/>
+<meta name="twitter:description" content="Exponential backoff with jitter is de rigeur for making service calls. This code, or something like it, probably looks really familiar:
+func do(ctx context.Context) error { const ( maxAttempts = 10 baseDelay = 1 * time.Second maxDelay = 60 * time.Second ) delay := baseDelay for attempt := range maxAttempts { err := request(ctx) if err == nil { return nil } delay *= 2 delay = min(delay, maxDelay) jitter := time."/>
 
 	</head>
 
@@ -69,37 +60,73 @@ I&rsquo;m sure that it has been improved in countless ways. But along the way it
         <section id="wrapper">
             <article class="post">
                 <header>
-                    <h1>Sometimes Software is Done, or Why Hugo Why</h1>
+                    <h1>Simpler backoff</h1>
                     <h2 class="headline">
-                    January 9, 2024 
+                    May 30, 2025 
                     <br>
                     
                     </h2>
                 </header>
                 <section id="post-body">
-                    <p>I didn&rsquo;t sit down this morning planning to write a grouchy blog post about Hugo.</p>
-<p>When I first used Hugo I loved it. It was fast. It was simple. It just worked, as much as any software does, and it solved a real problem.</p>
-<p>It was done.</p>
-<hr>
-<p>But people kept working on it.</p>
-<p>I&rsquo;m sure that it has been improved in countless ways. But along the way it has gotten bigger and more complicated, and has broken backwards compatibility repeatedly.</p>
-<hr>
-<p>I am only inspired to write a blog post every few months. It takes a lot of self control to forgo the glittering pile of side projects and use my precious free time to write some words instead of code.</p>
-<p>I commit to myself: Today is the day! I will finally tackle one of the items from my blog post idea list!</p>
-<p>And then&hellip;</p>
-<p>I run <code>hugo</code>&hellip;</p>
-<p>And it scribbles all over my files, a slew of unimportant changes, unfortunately occasionally interspersed with a few that matter&hellip;</p>
-<p>And it warns me of new deprecations, often with unusable upgrade instructions&hellip;</p>
-<p>And things flat out break.</p>
-<p>(Often, they were deprecated and then broken entirely between two subsequent blog posts, so I never ever saw the deprecation.)</p>
-<p>Instead of writing a blog post, I spend hours fixing build failures.</p>
-<p>Build failures of my static site, which has maybe a few dozen posts.</p>
-<p>I don&rsquo;t care about Hugo&rsquo;s internals. I have never cared. I just want a blog that works.</p>
-<hr>
-<p>Enough complaining. Hugo is officially on the chopping block. Suggestions for alternatives welcome.</p>
-<p>And in the meantime, I&rsquo;ll just compile Hugo myself from source, never update it, and live in the ever receding past.</p>
-<hr>
-<p>Backwards compatibility matters. And sometimes, software is done.</p>
+                    <p>Exponential backoff with jitter is de rigeur for making service calls. This code, or something like it, probably looks really familiar:</p>
+<pre tabindex="0"><code>func do(ctx context.Context) error {
+	const (
+		maxAttempts = 10
+		baseDelay   = 1 * time.Second
+		maxDelay    = 60 * time.Second
+	)
+
+	delay := baseDelay
+	for attempt := range maxAttempts {
+		err := request(ctx)
+		if err == nil {
+			return nil
+		}
+
+		delay *= 2
+		delay = min(delay, maxDelay)
+
+		jitter := time.Duration(rand.Float64()*0.5-0.25) * delay // ±25% random variation
+		sleepTime := delay + jitter
+
+		select {
+		case &lt;-ctx.Done():
+			return ctx.Err()
+		case &lt;-time.After(sleepTime):
+		}
+	}
+
+	return fmt.Errorf(&#34;failed after %d attempts&#34;, maxAttempts)
+}
+</code></pre><p>But we can make this much nicer with a simple <a href="/post/lookup_tables/">lookup table</a>.</p>
+<pre tabindex="0"><code>func do(ctx context.Context) error {
+	delays := []time.Duration{
+		1 * time.Second, 2 * time.Second,
+		4 * time.Second, 8 * time.Second,
+		16 * time.Second, 32 * time.Second,
+		60 * time.Second, 60 * time.Second,
+		60 * time.Second, 60 * time.Second,
+	}
+
+	for _, delay := range delays {
+		err := request(ctx)
+		if err == nil {
+			return nil
+		}
+
+		delay *= time.Duration(0.75 + rand.Float64()*0.5) // jitter: ±25% random variation
+		select {
+		case &lt;-ctx.Done():
+			return ctx.Err()
+		case &lt;-time.After(delay):
+		}
+	}
+
+	return fmt.Errorf(&#34;failed after %d attempts&#34;, len(delays))
+}
+</code></pre><p>This is much simpler. There are fewer variables, with smaller scope. There&rsquo;s no need to reasoning about behavior across loops, and if there&rsquo;s a bug in the calculations, it won&rsquo;t affect subsequent iterations.</p>
+<p>It is more readable. It is obvious how it will behave. It is also more editable. Changing the backoff schedule and number of attempts now feels safe and trivial.</p>
+<p>Don&rsquo;t write code that generates a small, fixed set of values. Use a lookup table instead.</p>
 
                 </section>
             </article>
