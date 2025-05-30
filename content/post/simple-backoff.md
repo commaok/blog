@@ -23,7 +23,7 @@ func do(ctx context.Context) error {
 		delay *= 2
 		delay = min(delay, maxDelay)
 
-		jitter := time.Duration(rand.Float64()*0.5-0.25) * delay // ±25% random variation
+		jitter := time.Duration(rand.Float64()*0.5-0.25) * delay // ±25%
 		sleepTime := delay + jitter
 
 		select {
@@ -55,7 +55,7 @@ func do(ctx context.Context) error {
 			return nil
 		}
 
-		delay *= time.Duration(0.75 + rand.Float64()*0.5) // jitter: ±25% random variation
+		delay *= time.Duration(0.75 + rand.Float64()*0.5) // ±25%
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
