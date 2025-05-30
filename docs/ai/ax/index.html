@@ -1,0 +1,197 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go and software">
+		<meta name="generator" content="Hugo 0.122.0-DEV">
+		<title>AX: Agent Experience &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="AX: Agent Experience" />
+<meta property="og:description" content="Wikipedia:
+User experience (UX) is how a user interacts with and experiences a product, system, or service.
+Developer experience (DX) is a user experience from a developer&rsquo;s point of view.
+It is time to add:
+Agent experience (AX) is a user experience from an AI agent’s point of view.
+Agent loops are simple. But that simplicity hides some depth. An agent&rsquo;s behavior is deeply influenced by its environment. (The same is true of humans." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://commaok.xyz/ai/ax/" /><meta property="article:section" content="ai" />
+<meta property="article:published_time" content="2025-05-30T07:12:48-07:00" />
+<meta property="article:modified_time" content="2025-05-30T07:12:48-07:00" />
+
+
+	    <meta itemprop="name" content="AX: Agent Experience">
+<meta itemprop="description" content="Wikipedia:
+User experience (UX) is how a user interacts with and experiences a product, system, or service.
+Developer experience (DX) is a user experience from a developer&rsquo;s point of view.
+It is time to add:
+Agent experience (AX) is a user experience from an AI agent’s point of view.
+Agent loops are simple. But that simplicity hides some depth. An agent&rsquo;s behavior is deeply influenced by its environment. (The same is true of humans."><meta itemprop="datePublished" content="2025-05-30T07:12:48-07:00" />
+<meta itemprop="dateModified" content="2025-05-30T07:12:48-07:00" />
+<meta itemprop="wordCount" content="294">
+<meta itemprop="keywords" content="" />
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="AX: Agent Experience"/>
+<meta name="twitter:description" content="Wikipedia:
+User experience (UX) is how a user interacts with and experiences a product, system, or service.
+Developer experience (DX) is a user experience from a developer&rsquo;s point of view.
+It is time to add:
+Agent experience (AX) is a user experience from an AI agent’s point of view.
+Agent loops are simple. But that simplicity hides some depth. An agent&rsquo;s behavior is deeply influenced by its environment. (The same is true of humans."/>
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://commaok.xyz/ai/'>Home</a>
+	
+
+	
+	<a class="cta" href="https://commaok.xyz/index.xml">RSS</a>
+	
+</nav>
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>AX: Agent Experience</h1>
+                    <h2 class="headline">
+                    May 30, 2025 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p><a href="https://en.wikipedia.org/wiki/User_experience">Wikipedia</a>:</p>
+<blockquote>
+<p>User experience (UX) is how a user interacts with and experiences a product, system, or service.</p>
+</blockquote>
+<blockquote>
+<p>Developer experience (DX) is a user experience from a developer&rsquo;s point of view.</p>
+</blockquote>
+<p>It is time to add:</p>
+<blockquote>
+<p>Agent experience (AX) is a user experience from an AI agent’s point of view.</p>
+</blockquote>
+<p><a href="https://sketch.dev/blog/agent-loop">Agent loops are simple</a>. But that simplicity hides some depth. An agent&rsquo;s behavior is deeply influenced by its environment. (The same is true of humans.) To build a setting in which an agent is effective, it helps to view the world from its point of view.</p>
+<p>The primary components of AX are obvious and familiar: the system prompt, and the tool selection, naming, design, and documentation. All of these must be designed for how LLMs process information, with <a href="https://sketch.dev/blog/prompt-engineering-and-the-taste-gap">an strong emphasis on clarity and precision</a>.</p>
+<p>There are less obvious components, though, such as <a href="https://sketch.dev/blog/push-pull-respond-restart">communication design</a>: what information you give an agent and when.</p>
+<p>And some of it, as with any form of UX, comes down to polish. We <a href="https://github.com/boldsoftware/sketch/commit/495c1fa247565e21b36bcb847c6cd3f08e0e196f">just added auto-installation of common tools</a> to <a href="https://sketch.dev">sketch</a>. If an agent executes yamllint, and yamllint isn’t present, it is silently, magically installed in the container, and the bash command succeeds the first time. Instead of having to pause its work to futz with apt/snap/yum/brew, which is <a href="https://arxiv.org/abs/2505.06120">a distraction</a>, things Just Work. AI agents suffer from yak shaving too.</p>
+<p>AX is in some sense easier than UX/DX, because you have captive users that you can watch any time you want! It is so much easier that we sometimes call it “eval” instead.</p>
+<p>But it’s not just eval. To improve the AX, you have to actually watch and empathize, just like you would with human users…while bearing in mind the ever-changing ways in which they can be decidedly non-human.</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                
+                        <img class="avatar" src="https://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>It&#39;s me.</span>
+                        </div>
+                    
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+        
+    
+    
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/ax/">AX: Agent Experience<aside class="dates">May 30</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/prompt-engineering-and-the-taste-gap/">Prompt Engineering and the Taste Gap<aside class="dates">May 29</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/push-pull-respond-restart/">How and when to talk with your AI Agent<aside class="dates">May 27</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/is-claude-a-compiler/">Is Claude a compiler?<aside class="dates">May 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/blog-schism/">Blog schism<aside class="dates">May 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/manners/">Of manners and machines<aside class="dates">Apr 3</aside></a>
+        </li>
+        
+   
+</ul>
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/josharian">
+        <i class="fa fa-github"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2025 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://commaok.xyz/js/main.js"></script>
+<script src="https://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+    </body>
+</html>
