@@ -23,7 +23,7 @@
 
 		<meta property="og:title" content="Simpler backoff" />
 <meta property="og:description" content="Exponential backoff with jitter is de rigeur for making service calls. This code, or something like it, probably looks really familiar:
-func do(ctx context.Context) error { const ( maxAttempts = 10 baseDelay = 1 * time.Second maxDelay = 60 * time.Second ) delay := baseDelay for attempt := range maxAttempts { err := request(ctx) if err == nil { return nil } delay *= 2 delay = min(delay, maxDelay) jitter := time." />
+func do(ctx context.Context) error { const ( maxAttempts = 10 baseDelay = 1 * time.Second maxDelay = 60 * time.Second ) delay := baseDelay for attempt := range maxAttempts { err := request(ctx) if err == nil { return nil } delay *= 2 delay = min(delay, maxDelay) jitter := multiplyDuration(delay, rand." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://commaok.xyz/post/simple-backoff/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2025-05-30T07:12:48-07:00" />
@@ -32,13 +32,13 @@ func do(ctx context.Context) error { const ( maxAttempts = 10 baseDelay = 1 * ti
 
 	    <meta itemprop="name" content="Simpler backoff">
 <meta itemprop="description" content="Exponential backoff with jitter is de rigeur for making service calls. This code, or something like it, probably looks really familiar:
-func do(ctx context.Context) error { const ( maxAttempts = 10 baseDelay = 1 * time.Second maxDelay = 60 * time.Second ) delay := baseDelay for attempt := range maxAttempts { err := request(ctx) if err == nil { return nil } delay *= 2 delay = min(delay, maxDelay) jitter := time."><meta itemprop="datePublished" content="2025-05-30T07:12:48-07:00" />
+func do(ctx context.Context) error { const ( maxAttempts = 10 baseDelay = 1 * time.Second maxDelay = 60 * time.Second ) delay := baseDelay for attempt := range maxAttempts { err := request(ctx) if err == nil { return nil } delay *= 2 delay = min(delay, maxDelay) jitter := multiplyDuration(delay, rand."><meta itemprop="datePublished" content="2025-05-30T07:12:48-07:00" />
 <meta itemprop="dateModified" content="2025-05-30T07:12:48-07:00" />
-<meta itemprop="wordCount" content="269">
+<meta itemprop="wordCount" content="281">
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Simpler backoff"/>
 <meta name="twitter:description" content="Exponential backoff with jitter is de rigeur for making service calls. This code, or something like it, probably looks really familiar:
-func do(ctx context.Context) error { const ( maxAttempts = 10 baseDelay = 1 * time.Second maxDelay = 60 * time.Second ) delay := baseDelay for attempt := range maxAttempts { err := request(ctx) if err == nil { return nil } delay *= 2 delay = min(delay, maxDelay) jitter := time."/>
+func do(ctx context.Context) error { const ( maxAttempts = 10 baseDelay = 1 * time.Second maxDelay = 60 * time.Second ) delay := baseDelay for attempt := range maxAttempts { err := request(ctx) if err == nil { return nil } delay *= 2 delay = min(delay, maxDelay) jitter := multiplyDuration(delay, rand."/>
 
 	</head>
 
@@ -86,7 +86,7 @@ func do(ctx context.Context) error { const ( maxAttempts = 10 baseDelay = 1 * ti
 		delay *= 2
 		delay = min(delay, maxDelay)
 
-		jitter := time.Duration(rand.Float64()*0.5-0.25) * delay // ±25%
+		jitter := multiplyDuration(delay, rand.Float64()*0.5-0.25) // ±25%
 		sleepTime := delay + jitter
 
 		select {
@@ -97,6 +97,10 @@ func do(ctx context.Context) error { const ( maxAttempts = 10 baseDelay = 1 * ti
 	}
 
 	return fmt.Errorf(&#34;failed after %d attempts&#34;, maxAttempts)
+}
+
+func multiplyDuration(d time.Duration, mul float64) time.Duration {
+	return time.Duration(float64(d) * mul)
 }
 </code></pre><p>But we can make this much nicer with a simple <a href="/post/lookup_tables/">lookup table</a>.</p>
 <pre tabindex="0"><code>func do(ctx context.Context) error {
@@ -114,7 +118,7 @@ func do(ctx context.Context) error { const ( maxAttempts = 10 baseDelay = 1 * ti
 			return nil
 		}
 
-		delay *= time.Duration(0.75 + rand.Float64()*0.5) // ±25%
+		delay = multiplyDuration(delay, 0.75 + rand.Float64()*0.5) // ±25%
 		select {
 		case &lt;-ctx.Done():
 			return ctx.Err()
