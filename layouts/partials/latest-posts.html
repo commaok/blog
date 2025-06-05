@@ -7,7 +7,8 @@
     {{ else }}
         {{ $pages = where $pages "Section" "!=" "ai" }}
     {{ end }}
-    {{ range first 10 (where $pages "Params.hidden" "ne" "true") }}
+    {{ $filteredPages := where $pages "Params.hidden" "ne" "true" }}
+    {{ range first 10 $filteredPages }}
     {{ $url := replace .Permalink .Site.BaseURL "" }}
         {{ if and (ne $url "about/") }}
         <li>
