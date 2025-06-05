@@ -5,10 +5,44 @@
     <description>AI-related posts from Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 30 May 2025 07:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Thu, 05 Jun 2025 07:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/ai/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Exponentials are not destiny</title>
+      <link>https://commaok.xyz/ai/exponential-destiny/</link>
+      <pubDate>Thu, 05 Jun 2025 07:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/ai/exponential-destiny/</guid>
+      <description>&lt;p&gt;AI enthusiasts (and doomers) like to focus on exponentials.&lt;/p&gt;
+&lt;p&gt;Exponentials are worth paying attention to. And humans don&amp;rsquo;t have good intuitions about them.&lt;/p&gt;
+&lt;p&gt;But the raw fact of exponential growth means nothing.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Herbert_Stein#Stein&#39;s_Law&#34;&gt;Stein&amp;rsquo;s Law&lt;/a&gt; reminds us:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If something cannot go on forever, it will stop.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Exponentials cannot continue forever. In fact, precisely because of their explosive growth, they&amp;rsquo;re likely to hit their limits quickly.&lt;/p&gt;
+&lt;p&gt;At some point, exponential growth meets some form of resource exhaustion, such as food or space for bacteria or fissile material for nuclear reactions. Every exponential is only an exponential until it&amp;rsquo;s a logistic. This is &lt;a href=&#34;https://en.wikipedia.org/wiki/Logistic_function#Applications&#34;&gt;very well understood&lt;/a&gt;, and shows up repeatedly across a wide variety of fields.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://www.thoughtco.com/thmb/0Uv9YnVuve2zqB0yWr5Cd-CbOIo%3D/1500x1000/filters%3Ano_upscale%28%29%3Amax_bytes%28150000%29%3Astrip_icc%28%29/bacterial_growth_curve-5b56356d4cedfd00371b477b.jpg&#34; alt=&#34;Bacterial growth curve showing exponential and stationary phases&#34;&gt;&lt;/p&gt;
+&lt;p&gt;The critical questions when faced with exponential growth are: When, why, and how will it stop? A raw appeal to &amp;ldquo;but exponential!&amp;rdquo; is sloppy at best.&lt;/p&gt;
+&lt;p&gt;What resource will AI exhaust? Hard to say. The limitation could be technical, physical, informational, economic, social, political, or something else. When? We don&amp;rsquo;t know. What will the inevitable slowdown look like? Depends. How rapidly will it occur? Shrug. &amp;ldquo;Exponentials!&amp;rdquo; doesn&amp;rsquo;t tell us.&lt;/p&gt;
+&lt;p&gt;There, however, is a more nuanced point about exponentials that is worth taking seriously.&lt;/p&gt;
+&lt;p&gt;It is:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;When exponentials are involved, things change extremely rapidly.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;There&amp;rsquo;s a lag between advances in AI and its visibility to the broader world.&lt;/p&gt;
+&lt;p&gt;Diffusion of information takes time: It works its way from people who work at the cutting edge, to people active in the industry, to people interested in the industry, to people aware of the industry, to people for whom AI is nothing but an obnoxiously persistent chyron.&lt;/p&gt;
+&lt;p&gt;This lag creates skew between the world we live in, and the world that is already foreseeable.&lt;/p&gt;
+&lt;p&gt;And actually adopting and integrating is far slower yet. It takes time for systems to adjust. Rapid changes break things.&lt;/p&gt;
+&lt;p&gt;And exponential growth means the rate of change increases in line with the change itself.&lt;/p&gt;
+&lt;p&gt;We live in a world where most of us don&amp;rsquo;t know large parts &lt;em&gt;what has happened already&lt;/em&gt;, and &lt;em&gt;what has happened already&lt;/em&gt; will be incredibly disruptive.&lt;/p&gt;
+&lt;p&gt;If AI were to freeze, right now, we would continue to feel the shock waves for years to come. The further along the exponential we go, the bigger and longer and less predictable the shock wave will be.&lt;/p&gt;
+&lt;p&gt;Exponentials are not destiny; they do not last forever; curves do not predict the future. But they do create informational gaps and high impact changes. That is the fact that warrants attention.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>AX: Agent Experience</title>
