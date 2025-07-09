@@ -1,6 +1,6 @@
 <ul id="post-list">
     {{ $filteredPages := where (where .Site.RegularPages "Section" "!=" "ai") "Params.hidden" "ne" "true" }}
-    {{ range first 10 $filteredPages }}
+    {{ range $filteredPages }}
     {{ $url := replace .Permalink .Site.BaseURL "" }}
         {{ if ne $url "about/" }}
             <li>
