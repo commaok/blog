@@ -10,7 +10,9 @@
       "Bash(hugo list:*)",
       "Bash(hugo:*)",
       "Bash(mv:*)",
-      "WebFetch(domain:localhost)"
+      "WebFetch(domain:localhost)",
+      "Bash(grep:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   },
