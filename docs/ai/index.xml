@@ -5,10 +5,35 @@
     <description>AI-related posts from Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 05 Jun 2025 07:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Tue, 23 Sep 2025 07:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/ai/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Filter outputs and prime the pump</title>
+      <link>https://commaok.xyz/ai/context-management/</link>
+      <pubDate>Tue, 23 Sep 2025 07:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/ai/context-management/</guid>
+      <description>&lt;p&gt;Two small context management tricks.&lt;/p&gt;
+&lt;h3 id=&#34;filter-outputs&#34;&gt;Filter outputs&lt;/h3&gt;
+&lt;p&gt;Some build tools are noisy. (Yes, I&amp;rsquo;m looking at you, &lt;code&gt;xcodebuild&lt;/code&gt;.)&lt;/p&gt;
+&lt;p&gt;We &lt;em&gt;want&lt;/em&gt; our agents to re-build our projects regularly&amp;hellip;but not at the cost of destroying their context window.&lt;/p&gt;
+&lt;p&gt;So I had an agent write a tiny shell script wrapper that strips away &lt;em&gt;everything but the error messages&lt;/em&gt; when builds fail. Successful build output is merely: &amp;ldquo;Build succeeded&amp;rdquo;. It uses some awful regexps that only an LLM would write&amp;hellip;but it&amp;rsquo;s fast and it works.&lt;/p&gt;
+&lt;p&gt;My token use instantly dropped and the agent got more noticeably effective. And it turns out I prefer it too.&lt;/p&gt;
+&lt;p&gt;This is not new! The Unix philosophy says that when a program has nothing to report, it should remain silent.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.catb.org/esr/writings/taoup/html/ch01s06.html#id2878450&#34;&gt;ESR&amp;rsquo;s comment&lt;/a&gt; on this rule is spot-on for both humans and LLMs:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Well-designed programs treat the user&amp;rsquo;s attention and concentration as a precious and limited resource, only to be claimed when necessary.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;If your agent runs a build tool that wasn&amp;rsquo;t designed by Rob Pike, invest in a dedicated wrapper to trim its output.&lt;/p&gt;
+&lt;h3 id=&#34;prime-the-pump&#34;&gt;Prime the pump&lt;/h3&gt;
+&lt;p&gt;Even frontier models don&amp;rsquo;t always listen, particularly if there are several important rules, and some of those rules fly in the face of their instincts (no mocks! use elemwise comparisons, not summary statistics!).&lt;/p&gt;
+&lt;p&gt;One way to drive a set of rules home is to ask the agent to start by looking for &lt;em&gt;violations of those rules&lt;/em&gt;, knowing it won&amp;rsquo;t find any. That fills the context window with a bunch of text about those rules, in effect showing&amp;ndash;instead of telling&amp;ndash;the agent what (not) to do.&lt;/p&gt;
+&lt;p&gt;This burns useful context window, but it significantly improves compliance. Sometimes this is a worthwhile trade-off. In constrast, I have found the opposite approach (wait for an agent to violate a rule, then ask it to self-correct) to be completely ineffective.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Exponentials are not destiny</title>

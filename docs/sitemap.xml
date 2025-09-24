@@ -2,17 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://commaok.xyz/ai/</loc>
+    <lastmod>2025-09-23T07:12:48-07:00</lastmod>
+  </url><url>
     <loc>https://commaok.xyz/</loc>
-    <lastmod>2025-09-15T07:12:48-07:00</lastmod>
+    <lastmod>2025-09-23T07:12:48-07:00</lastmod>
+  </url><url>
+    <loc>https://commaok.xyz/ai/context-management/</loc>
+    <lastmod>2025-09-23T07:12:48-07:00</lastmod>
   </url><url>
     <loc>https://commaok.xyz/post/</loc>
     <lastmod>2025-09-15T07:12:48-07:00</lastmod>
   </url><url>
     <loc>https://commaok.xyz/post/security-through-redundancy/</loc>
     <lastmod>2025-09-15T07:12:48-07:00</lastmod>
-  </url><url>
-    <loc>https://commaok.xyz/ai/</loc>
-    <lastmod>2025-06-05T07:12:48-07:00</lastmod>
   </url><url>
     <loc>https://commaok.xyz/ai/exponential-destiny/</loc>
     <lastmod>2025-06-05T07:12:48-07:00</lastmod>
