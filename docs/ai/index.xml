@@ -5,10 +5,46 @@
     <description>AI-related posts from Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 23 Sep 2025 07:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Tue, 21 Oct 2025 07:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/ai/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Prompt injection is not about delimiters</title>
+      <link>https://commaok.xyz/ai/outside-tokens/</link>
+      <pubDate>Tue, 21 Oct 2025 07:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/ai/outside-tokens/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://www.schneier.com/blog/archives/2025/10/agentic-ais-ooda-loop-problem.html&#34;&gt;Bruce Schneier and Barath Raghavan&lt;/a&gt; (via &lt;a href=&#34;https://simonwillison.net/2025/Oct/21/ooda-loop/&#34;&gt;Simon Willison&lt;/a&gt;) write:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;LLMs process token sequences, but no mechanism exists to mark token privileges. Every solution proposed introduces new injection vectors: Delimiter? Attackers include delimiters. Instruction hierarchy? Attackers claim priority. [&amp;hellip;] Security requires boundaries, but LLMs dissolve boundaries.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;This is a common theme in &lt;a href=&#34;https://www.alignmentforum.org/posts/D7PumeYTDPfBTp3i7/the-waluigi-effect-mega-post#Derrida___il_n_y_a_pas_de_hors_texte&#34;&gt;discussions of prompt injection&lt;/a&gt;. There is no text that we can write that the attacker cannot write, so the battle is fundamentally unwinnable.&lt;/p&gt;
+&lt;p&gt;And it also seems&amp;hellip;straightforwardly technically fixable?&lt;/p&gt;
+&lt;p&gt;This problem &lt;em&gt;is&lt;/em&gt; unsolvable if your entire LLM interface is text in / text out. But it doesn&amp;rsquo;t need to be.&lt;/p&gt;
+&lt;p&gt;At least for open weights models, a simplified trace of an API call looks roughly like this:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Start with JSON containing a list of messages, each of which has text and some metadata (e.g. who wrote the message).&lt;/li&gt;
+&lt;li&gt;Assemble that JSON into a single textual string, inserting special magic strings (like &lt;code&gt;&amp;lt;|assistant|&amp;gt;&lt;/code&gt;) to represent non-textual tokens.&lt;/li&gt;
+&lt;li&gt;Tokenize that string.&lt;/li&gt;
+&lt;li&gt;Send those tokens into the LLM.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&amp;hellip;&lt;/p&gt;
+&lt;p&gt;Aside from &lt;a href=&#34;https://en.wikipedia.org/wiki/Conway%27s_law&#34;&gt;Conway&amp;rsquo;s Law&lt;/a&gt;, however, there&amp;rsquo;s no reason to squish everything into a single string before turning it into tokens.&lt;/p&gt;
+&lt;p&gt;How does this help?&lt;/p&gt;
+&lt;p&gt;The metadata could include whether the message is untrusted text, which gets translated directly (outside the tokenizer) into a trusted or an untrusted token. Each message&amp;rsquo;s text would be separately tokenized. And then the final list of tokens could be assembled from the trust tokens and the text tokens. Then send that into the LLM.&lt;/p&gt;
+&lt;p&gt;That is, instead of:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;llm(tokenize(concat(message)))
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We could do:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;llm(concat([special_tokens(metadata), tokenize(text)]))
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This lets metadata flow in a completely tamper-proof way from the API caller to the LLM. There is no text that an attacker can provide that will be translated into a trust token.&lt;/p&gt;
+&lt;p&gt;The LLM could then be post-trained (perhaps including using adversarial RL) to treat untrusted input positions as, well, untrusted.&lt;/p&gt;
+&lt;p&gt;Why does nobody do this? My best guess is that it is not the crux of the problem. (And presentations of prompt injection should perhaps stop being centered on it; it is intuitive but also a red herring.)&lt;/p&gt;
+&lt;p&gt;The real problem is the much deeper, harder, more general problem of getting strong-enough reliability guarantees out of these uninterpretable, unimaginably complex, probabilistic systems.&lt;/p&gt;
+&lt;p&gt;The alignment problem is the halting problem of LLMs, and I strongly suspect that solving prompt injection is equivalent to solving alignment.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Filter outputs and prime the pump</title>

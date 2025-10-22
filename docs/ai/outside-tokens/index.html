@@ -1,0 +1,220 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go and software">
+		<meta name="generator" content="Hugo 0.122.0-DEV">
+		<title>Prompt injection is not about delimiters &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="Prompt injection is not about delimiters" />
+<meta property="og:description" content="Bruce Schneier and Barath Raghavan (via Simon Willison) write:
+LLMs process token sequences, but no mechanism exists to mark token privileges. Every solution proposed introduces new injection vectors: Delimiter? Attackers include delimiters. Instruction hierarchy? Attackers claim priority. [&hellip;] Security requires boundaries, but LLMs dissolve boundaries.
+This is a common theme in discussions of prompt injection. There is no text that we can write that the attacker cannot write, so the battle is fundamentally unwinnable." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://commaok.xyz/ai/outside-tokens/" /><meta property="article:section" content="ai" />
+<meta property="article:published_time" content="2025-10-21T07:12:48-07:00" />
+<meta property="article:modified_time" content="2025-10-21T07:12:48-07:00" />
+
+
+	    <meta itemprop="name" content="Prompt injection is not about delimiters">
+<meta itemprop="description" content="Bruce Schneier and Barath Raghavan (via Simon Willison) write:
+LLMs process token sequences, but no mechanism exists to mark token privileges. Every solution proposed introduces new injection vectors: Delimiter? Attackers include delimiters. Instruction hierarchy? Attackers claim priority. [&hellip;] Security requires boundaries, but LLMs dissolve boundaries.
+This is a common theme in discussions of prompt injection. There is no text that we can write that the attacker cannot write, so the battle is fundamentally unwinnable."><meta itemprop="datePublished" content="2025-10-21T07:12:48-07:00" />
+<meta itemprop="dateModified" content="2025-10-21T07:12:48-07:00" />
+<meta itemprop="wordCount" content="392">
+<meta itemprop="keywords" content="" />
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Prompt injection is not about delimiters"/>
+<meta name="twitter:description" content="Bruce Schneier and Barath Raghavan (via Simon Willison) write:
+LLMs process token sequences, but no mechanism exists to mark token privileges. Every solution proposed introduces new injection vectors: Delimiter? Attackers include delimiters. Instruction hierarchy? Attackers claim priority. [&hellip;] Security requires boundaries, but LLMs dissolve boundaries.
+This is a common theme in discussions of prompt injection. There is no text that we can write that the attacker cannot write, so the battle is fundamentally unwinnable."/>
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://commaok.xyz/ai/'>Home</a>
+	
+
+	
+	<a class="cta" href="https://commaok.xyz/index.xml">RSS</a>
+	
+</nav>
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>Prompt injection is not about delimiters</h1>
+                    <h2 class="headline">
+                    October 21, 2025 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p><a href="https://www.schneier.com/blog/archives/2025/10/agentic-ais-ooda-loop-problem.html">Bruce Schneier and Barath Raghavan</a> (via <a href="https://simonwillison.net/2025/Oct/21/ooda-loop/">Simon Willison</a>) write:</p>
+<blockquote>
+<p>LLMs process token sequences, but no mechanism exists to mark token privileges. Every solution proposed introduces new injection vectors: Delimiter? Attackers include delimiters. Instruction hierarchy? Attackers claim priority. [&hellip;] Security requires boundaries, but LLMs dissolve boundaries.</p>
+</blockquote>
+<p>This is a common theme in <a href="https://www.alignmentforum.org/posts/D7PumeYTDPfBTp3i7/the-waluigi-effect-mega-post#Derrida___il_n_y_a_pas_de_hors_texte">discussions of prompt injection</a>. There is no text that we can write that the attacker cannot write, so the battle is fundamentally unwinnable.</p>
+<p>And it also seems&hellip;straightforwardly technically fixable?</p>
+<p>This problem <em>is</em> unsolvable if your entire LLM interface is text in / text out. But it doesn&rsquo;t need to be.</p>
+<p>At least for open weights models, a simplified trace of an API call looks roughly like this:</p>
+<ol>
+<li>Start with JSON containing a list of messages, each of which has text and some metadata (e.g. who wrote the message).</li>
+<li>Assemble that JSON into a single textual string, inserting special magic strings (like <code>&lt;|assistant|&gt;</code>) to represent non-textual tokens.</li>
+<li>Tokenize that string.</li>
+<li>Send those tokens into the LLM.</li>
+</ol>
+<p>&hellip;</p>
+<p>Aside from <a href="https://en.wikipedia.org/wiki/Conway%27s_law">Conway&rsquo;s Law</a>, however, there&rsquo;s no reason to squish everything into a single string before turning it into tokens.</p>
+<p>How does this help?</p>
+<p>The metadata could include whether the message is untrusted text, which gets translated directly (outside the tokenizer) into a trusted or an untrusted token. Each message&rsquo;s text would be separately tokenized. And then the final list of tokens could be assembled from the trust tokens and the text tokens. Then send that into the LLM.</p>
+<p>That is, instead of:</p>
+<pre tabindex="0"><code>llm(tokenize(concat(message)))
+</code></pre><p>We could do:</p>
+<pre tabindex="0"><code>llm(concat([special_tokens(metadata), tokenize(text)]))
+</code></pre><p>This lets metadata flow in a completely tamper-proof way from the API caller to the LLM. There is no text that an attacker can provide that will be translated into a trust token.</p>
+<p>The LLM could then be post-trained (perhaps including using adversarial RL) to treat untrusted input positions as, well, untrusted.</p>
+<p>Why does nobody do this? My best guess is that it is not the crux of the problem. (And presentations of prompt injection should perhaps stop being centered on it; it is intuitive but also a red herring.)</p>
+<p>The real problem is the much deeper, harder, more general problem of getting strong-enough reliability guarantees out of these uninterpretable, unimaginably complex, probabilistic systems.</p>
+<p>The alignment problem is the halting problem of LLMs, and I strongly suspect that solving prompt injection is equivalent to solving alignment.</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                
+                        <img class="avatar" src="https://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>It&#39;s me.</span>
+                        </div>
+                    
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+        
+    
+    
+    
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/outside-tokens/">Prompt injection is not about delimiters<aside class="dates">Oct 21</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/context-management/">Filter outputs and prime the pump<aside class="dates">Sep 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/exponential-destiny/">Exponentials are not destiny<aside class="dates">Jun 5</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/ax/">AX: Agent Experience<aside class="dates">May 30</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/prompt-engineering-and-the-taste-gap/">Prompt Engineering and the Taste Gap<aside class="dates">May 29</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/push-pull-respond-restart/">How and when to talk with your AI Agent<aside class="dates">May 27</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/is-claude-a-compiler/">Is Claude a compiler?<aside class="dates">May 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/blog-schism/">Blog schism<aside class="dates">May 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/manners/">Of manners and machines<aside class="dates">Apr 3</aside></a>
+        </li>
+        
+   
+</ul>
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/josharian">
+        <i class="fa fa-github"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2025 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://commaok.xyz/js/main.js"></script>
+<script src="https://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+    </body>
+</html>
