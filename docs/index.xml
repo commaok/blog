@@ -5,10 +5,39 @@
     <description>Recent content on Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 21 Oct 2025 07:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Mon, 27 Oct 2025 07:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>How to make NYT Connections better</title>
+      <link>https://commaok.xyz/post/connections/</link>
+      <pubDate>Mon, 27 Oct 2025 07:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/post/connections/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve played nearly every &lt;em&gt;NYT Connections&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;The core game is rock solid, but category colors sap some of the joy. To maximize your score, you&amp;rsquo;re supposed to submit categories &lt;a href=&#34;https://www.nytimes.com/2024/08/27/upshot/connections-bot-faq.html&#34;&gt;from purple to yellow&lt;/a&gt;. But:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;After spotting an easy category, I waste mental energy filtering it out.&lt;/li&gt;
+&lt;li&gt;When I&amp;rsquo;ve solved the whole thing in my head, I must still &lt;em&gt;guess&lt;/em&gt; which category is which color.&lt;/li&gt;
+&lt;li&gt;I use &lt;a href=&#34;https://daylightcomputer.com/&#34;&gt;grayscale&lt;/a&gt; &lt;a href=&#34;https://blog.alexbeals.com/posts/make-your-phone-grayscale&#34;&gt;devices&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Here are some proposals to fix these frustrations.&lt;/p&gt;
+&lt;h1 id=&#34;let-me-select-more-than-four-tiles&#34;&gt;Let me select more than four tiles&lt;/h1&gt;
+&lt;p&gt;Right now, when you reach four selected tiles, the Submit button is enabled and no further tiles may be selected.&lt;/p&gt;
+&lt;p&gt;Instead, continue allowing tiles to be selected above four, but disable the Submit button whenever there aren&amp;rsquo;t exactly four tiles selected.&lt;/p&gt;
+&lt;p&gt;Then I could select all of the tiles that I have categorized, and easily focus on what remains.&lt;/p&gt;
+&lt;h1 id=&#34;add-gather&#34;&gt;Add Gather&lt;/h1&gt;
+&lt;p&gt;The Gather button gathers exactly four selected tiles to the top row, just like the Submit button, except that it doesn&amp;rsquo;t check for correctness and doesn&amp;rsquo;t Submit.&lt;/p&gt;
+&lt;p&gt;Then I could Gather my categories one at a time as I find them.&lt;/p&gt;
+&lt;h1 id=&#34;add-submit-all&#34;&gt;Add Submit All&lt;/h1&gt;
+&lt;p&gt;Once there is a Gather button, or drag-and-drop, or any other non-Submit way to organize tiles, add a Submit All button. This succeeds only if every row is a category; otherwise it fails outright. It is available only when no categories have been Submitted yet.&lt;/p&gt;
+&lt;p&gt;This removes any guesswork, and by being all-or-nothing, raises the stakes.&lt;/p&gt;
+&lt;h1 id=&#34;add-non-color-affordances&#34;&gt;Add non-color affordances&lt;/h1&gt;
+&lt;p&gt;Even small visual clues would make a big difference.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Security through intentional redundancy</title>

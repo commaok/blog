@@ -1,0 +1,223 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go and software">
+		<meta name="generator" content="Hugo 0.122.0-DEV">
+		<title>How to make NYT Connections better &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="How to make NYT Connections better" />
+<meta property="og:description" content="I&rsquo;ve played nearly every NYT Connections.
+The core game is rock solid, but category colors sap some of the joy. To maximize your score, you&rsquo;re supposed to submit categories from purple to yellow. But:
+After spotting an easy category, I waste mental energy filtering it out. When I&rsquo;ve solved the whole thing in my head, I must still guess which category is which color. I use grayscale devices. Here are some proposals to fix these frustrations." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://commaok.xyz/post/connections/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2025-10-27T07:12:48-07:00" />
+<meta property="article:modified_time" content="2025-10-27T07:12:48-07:00" />
+
+
+	    <meta itemprop="name" content="How to make NYT Connections better">
+<meta itemprop="description" content="I&rsquo;ve played nearly every NYT Connections.
+The core game is rock solid, but category colors sap some of the joy. To maximize your score, you&rsquo;re supposed to submit categories from purple to yellow. But:
+After spotting an easy category, I waste mental energy filtering it out. When I&rsquo;ve solved the whole thing in my head, I must still guess which category is which color. I use grayscale devices. Here are some proposals to fix these frustrations."><meta itemprop="datePublished" content="2025-10-27T07:12:48-07:00" />
+<meta itemprop="dateModified" content="2025-10-27T07:12:48-07:00" />
+<meta itemprop="wordCount" content="256">
+<meta itemprop="keywords" content="" />
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="How to make NYT Connections better"/>
+<meta name="twitter:description" content="I&rsquo;ve played nearly every NYT Connections.
+The core game is rock solid, but category colors sap some of the joy. To maximize your score, you&rsquo;re supposed to submit categories from purple to yellow. But:
+After spotting an easy category, I waste mental energy filtering it out. When I&rsquo;ve solved the whole thing in my head, I must still guess which category is which color. I use grayscale devices. Here are some proposals to fix these frustrations."/>
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://commaok.xyz/'>Home</a>
+	
+	
+
+	
+	
+		<a class="cta" href="https://commaok.xyz/index.xml">RSS</a>
+	
+	
+</nav>
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>How to make NYT Connections better</h1>
+                    <h2 class="headline">
+                    October 27, 2025 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p>I&rsquo;ve played nearly every <em>NYT Connections</em>.</p>
+<p>The core game is rock solid, but category colors sap some of the joy. To maximize your score, you&rsquo;re supposed to submit categories <a href="https://www.nytimes.com/2024/08/27/upshot/connections-bot-faq.html">from purple to yellow</a>. But:</p>
+<ul>
+<li>After spotting an easy category, I waste mental energy filtering it out.</li>
+<li>When I&rsquo;ve solved the whole thing in my head, I must still <em>guess</em> which category is which color.</li>
+<li>I use <a href="https://daylightcomputer.com/">grayscale</a> <a href="https://blog.alexbeals.com/posts/make-your-phone-grayscale">devices</a>.</li>
+</ul>
+<p>Here are some proposals to fix these frustrations.</p>
+<h1 id="let-me-select-more-than-four-tiles">Let me select more than four tiles</h1>
+<p>Right now, when you reach four selected tiles, the Submit button is enabled and no further tiles may be selected.</p>
+<p>Instead, continue allowing tiles to be selected above four, but disable the Submit button whenever there aren&rsquo;t exactly four tiles selected.</p>
+<p>Then I could select all of the tiles that I have categorized, and easily focus on what remains.</p>
+<h1 id="add-gather">Add Gather</h1>
+<p>The Gather button gathers exactly four selected tiles to the top row, just like the Submit button, except that it doesn&rsquo;t check for correctness and doesn&rsquo;t Submit.</p>
+<p>Then I could Gather my categories one at a time as I find them.</p>
+<h1 id="add-submit-all">Add Submit All</h1>
+<p>Once there is a Gather button, or drag-and-drop, or any other non-Submit way to organize tiles, add a Submit All button. This succeeds only if every row is a category; otherwise it fails outright. It is available only when no categories have been Submitted yet.</p>
+<p>This removes any guesswork, and by being all-or-nothing, raises the stakes.</p>
+<h1 id="add-non-color-affordances">Add non-color affordances</h1>
+<p>Even small visual clues would make a big difference.</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                
+                        <img class="avatar" src="https://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>It&#39;s me.</span>
+                        </div>
+                    
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+        
+    
+    
+    
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/connections/">How to make NYT Connections better<aside class="dates">Oct 27</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/security-through-redundancy/">Security through intentional redundancy<aside class="dates">Sep 15</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/simple-backoff/">Simpler backoff<aside class="dates">May 30</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/blog-schism/">Blog schism<aside class="dates">May 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/podcast/">Podcast ho!<aside class="dates">Jan 12</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/on_hugo/">Sometimes Software is Done, or Why Hugo Why<aside class="dates">Jan 9</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/type_specialization/">Type Specialization in Go<aside class="dates">Apr 3</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/tstruct/">Nicer struct literals in Go templates<aside class="dates">Jun 24</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/perf_files/">Performance and files full of code<aside class="dates">Apr 30</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/post/test-beta/">How to test a Go beta or RC<aside class="dates">Jun 13</aside></a>
+        </li>
+        
+   
+</ul>
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/josharian">
+        <i class="fa fa-github"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2025 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://commaok.xyz/js/main.js"></script>
+<script src="https://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+    </body>
+</html>
