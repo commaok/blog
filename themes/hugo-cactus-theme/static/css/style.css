@@ -182,6 +182,14 @@ a,
 	transition: all 0.15s ease;
 }
 
+/* Restore spacing between lists and following text inside posts */
+#post-body ul,
+#post-body ol,
+.post-body ul,
+.post-body ol {
+	margin-bottom: 20px;
+}
+
 ul 	{ margin:0; padding:0; }
 li	{ list-style-type:circle; list-style-position:inside; }
 
