@@ -1,0 +1,310 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go and software">
+		<meta name="generator" content="Hugo 0.122.0-DEV">
+		<title>Split a git commit with an agent &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="Split a git commit with an agent" />
+<meta property="og:description" content="I often sit down to write some code and then, four yaks, two shaves, and a haircut later, I realize my working tree contains several intertwined changes.
+This post shows a reliable workflow and shell script that let an agent split up such messy commits for you. The trick is to subtract changes instead of rebuilding them.
+Let&rsquo;s start with the shell script. Design notes follow.
+How to use it Commit your work on a branch." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://commaok.xyz/ai/split-commit/" /><meta property="article:section" content="ai" />
+<meta property="article:published_time" content="2025-11-17T07:12:48-07:00" />
+<meta property="article:modified_time" content="2025-11-17T07:12:48-07:00" />
+
+
+	    <meta itemprop="name" content="Split a git commit with an agent">
+<meta itemprop="description" content="I often sit down to write some code and then, four yaks, two shaves, and a haircut later, I realize my working tree contains several intertwined changes.
+This post shows a reliable workflow and shell script that let an agent split up such messy commits for you. The trick is to subtract changes instead of rebuilding them.
+Let&rsquo;s start with the shell script. Design notes follow.
+How to use it Commit your work on a branch."><meta itemprop="datePublished" content="2025-11-17T07:12:48-07:00" />
+<meta itemprop="dateModified" content="2025-11-17T07:12:48-07:00" />
+<meta itemprop="wordCount" content="723">
+<meta itemprop="keywords" content="" />
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Split a git commit with an agent"/>
+<meta name="twitter:description" content="I often sit down to write some code and then, four yaks, two shaves, and a haircut later, I realize my working tree contains several intertwined changes.
+This post shows a reliable workflow and shell script that let an agent split up such messy commits for you. The trick is to subtract changes instead of rebuilding them.
+Let&rsquo;s start with the shell script. Design notes follow.
+How to use it Commit your work on a branch."/>
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://commaok.xyz/ai/'>Home</a>
+	
+
+	
+	<a class="cta" href="https://commaok.xyz/index.xml">RSS</a>
+	
+</nav>
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>Split a git commit with an agent</h1>
+                    <h2 class="headline">
+                    November 17, 2025 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p>I often sit down to write some code and then, four yaks, two shaves, and a haircut later, I realize my working tree contains several intertwined changes.</p>
+<p>This post shows a reliable workflow and shell script that let an agent split up such messy commits for you. The trick is to <em>subtract</em> changes instead of rebuilding them.</p>
+<p>Let&rsquo;s start with the shell script. Design notes follow.</p>
+<h2 id="how-to-use-it">How to use it</h2>
+<ul>
+<li>Commit your work on a branch. That branch stays untouched, so you can always safely abandon ship.</li>
+<li>Create a new git branch at the commit immediately before the messy work began. This is where the agent will build the clean commits. (The shell script can&rsquo;t guess the base.)</li>
+<li><em>This runs in dangerous mode!</em> Run it in a sandbox if security matters.</li>
+<li>Run the shell script. By default it uses codex. To use claude, set the environment variable <code>AGENT=claude</code>.</li>
+<li>Wait.</li>
+<li>Review.</li>
+</ul>
+<h2 id="the-code">The code</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/env bash
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># SPDX-License-Identifier: MIT</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># https://commaok.xyz/ai/split-commit/</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>set -euo pipefail
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> ! repo_root<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>git rev-parse --show-toplevel 2&gt;/dev/null<span style="color:#66d9ef">)</span>; <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>  echo <span style="color:#e6db74">&#34;error: not inside a git repository&#34;</span> &gt;&amp;<span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>  exit <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> <span style="color:#e6db74">&#34;</span>$repo_root<span style="color:#e6db74">&#34;</span> !<span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;</span><span style="color:#66d9ef">$(</span>pwd<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>  echo <span style="color:#e6db74">&#34;error: run this from the git root (</span>$repo_root<span style="color:#e6db74">)&#34;</span> &gt;&amp;<span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>  exit <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> -n <span style="color:#e6db74">&#34;</span><span style="color:#66d9ef">$(</span>git status --porcelain<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>  echo <span style="color:#e6db74">&#34;error: working tree is not clean&#34;</span> &gt;&amp;<span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>  exit <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> <span style="color:#e6db74">&#34;</span>$#<span style="color:#e6db74">&#34;</span> -ne <span style="color:#ae81ff">1</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>  echo <span style="color:#e6db74">&#34;usage: </span>$0<span style="color:#e6db74"> &lt;git-ref&gt;&#34;</span> &gt;&amp;<span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>  exit <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>ref<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>agent<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>AGENT<span style="color:#66d9ef">:-</span>codex<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> -n <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>AGENT<span style="color:#66d9ef">:-</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">]</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">[</span> <span style="color:#e6db74">&#34;</span>$agent<span style="color:#e6db74">&#34;</span> !<span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;codex&#34;</span> <span style="color:#f92672">]</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">[</span> <span style="color:#e6db74">&#34;</span>$agent<span style="color:#e6db74">&#34;</span> !<span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;claude&#34;</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>  echo <span style="color:#e6db74">&#34;error: unknown AGENT &#39;</span>$AGENT<span style="color:#e6db74">&#39; (expected codex or claude)&#34;</span> &gt;&amp;<span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>  exit <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>prompt<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>cat <span style="color:#e6db74">&lt;&lt;&#39;EOF&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">You are splitting up work into a series of well-organized, atomic git commits.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">All the as-yet unsplit code changes are currently staged.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Please:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">- Analyze the staged changes.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">- Identify one cleanly separable commit. (Bear in mind that it is possible that no further separation is appropriate.)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">- Revert all other changes. (The other changes are saved elsewhere. Preserving them for future work is not your responsibility.)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">- Do minor cleanup as necessary to ensure that the current commit is a clear, coherent, standalone commit with passing tests, bearing in mind the other changes that you know will follow.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">- Commit those changes.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> true; <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  git checkout <span style="color:#e6db74">&#34;</span>$ref<span style="color:#e6db74">&#34;</span> -- .
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> git diff --quiet HEAD -- .; <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;no differences remain; all done&#34;</span>
+</span></span><span style="display:flex;"><span>    break
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># As of Nov 2025, there is no straightforward set of flags we can pass to</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># codex or to claude that enable them to run git commands (like &#39;git add&#39; and &#39;git commit&#39;)</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># without full-on YOLO mode. I&#39;m not interested in polluting this short, simple</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># script with complicated claude configs that will inevitably be fiddly and wrong and rot quickly,</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># and codex doesn&#39;t even have the option. I give up.</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;</span>$agent<span style="color:#e6db74">&#34;</span> in
+</span></span><span style="display:flex;"><span>    claude<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>      claude --print --dangerously-skip-permissions <span style="color:#e6db74">&#34;</span>$prompt<span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>      ;;
+</span></span><span style="display:flex;"><span>    codex<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>      codex exec --sandbox danger-full-access <span style="color:#e6db74">&#34;</span>$prompt<span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>      ;;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">esac</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span></code></pre></div><h2 id="design">Design</h2>
+<p>This script mirrors my own (human) workflow.</p>
+<p>There are two naive approaches, and neither works very well.</p>
+<p>One naive option is to say &ldquo;here&rsquo;s the end result, rebuild it from scratch&rdquo;. This is slow, error-prone, and tedious: halfway through, you&rsquo;re reasoning about diffs of diffs.</p>
+<p>Another naive approach is to unstage everything and then re-stage one hunk at a time, committing as appropriate. This works well as long as the changes are fully orthogonal. But often there will be multiple changes applied to the same line of code, which means merely staging hunks won&rsquo;t work. You end up juggling a pile of temporary paste buffers.</p>
+<p>Both these workflows risk drifting from the final code that you originally wrote and tested. And both demand executive function, state management, and long-term planning.</p>
+<p>There is a better way: repeatedly subtract everything except one clean change.</p>
+<p>Start in a fresh branch. Then:</p>
+<ul>
+<li>pull in the final code you want to end up at</li>
+<li>identify one clean atomic commit within it</li>
+<li>revert everything else!</li>
+<li>do any minor cleanup required to get the code looking good and tests passing</li>
+<li>repeat</li>
+</ul>
+<p>This works well because:</p>
+<ul>
+<li>each new commit can be extracted and cleaned up locally</li>
+<li>minor transient cleanups get overwritten each round, producing natural diffs</li>
+<li>the end state is reapplied each time, making drift nearly impossible</li>
+</ul>
+<p>Give it a try.</p>
+<hr>
+<p>Hat tip to <a href="https://bsky.app/profile/rog.bsky.social/post/3m5gptuzgj22g">Rog Peppe</a> for kicking this off.</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                
+                        <img class="avatar" src="https://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>It&#39;s me.</span>
+                        </div>
+                    
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+        
+    
+    
+    
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/split-commit/">Split a git commit with an agent<aside class="dates">Nov 17</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/outside-tokens/">Prompt injection is not about delimiters<aside class="dates">Oct 21</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/context-management/">Filter outputs and prime the pump<aside class="dates">Sep 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/exponential-destiny/">Exponentials are not destiny<aside class="dates">Jun 5</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/ax/">AX: Agent Experience<aside class="dates">May 30</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/prompt-engineering-and-the-taste-gap/">Prompt Engineering and the Taste Gap<aside class="dates">May 29</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/push-pull-respond-restart/">How and when to talk with your AI Agent<aside class="dates">May 27</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/is-claude-a-compiler/">Is Claude a compiler?<aside class="dates">May 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/blog-schism/">Blog schism<aside class="dates">May 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/manners/">Of manners and machines<aside class="dates">Apr 3</aside></a>
+        </li>
+        
+   
+</ul>
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/josharian">
+        <i class="fa fa-github"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2025 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://commaok.xyz/js/main.js"></script>
+<script src="https://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+    </body>
+</html>
