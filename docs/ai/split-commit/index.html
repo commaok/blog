@@ -40,7 +40,7 @@ This post shows a reliable workflow and shell script that let an agent split up 
 Let&rsquo;s start with the shell script. Design notes follow.
 How to use it Commit your work on a branch."><meta itemprop="datePublished" content="2025-11-17T07:12:48-07:00" />
 <meta itemprop="dateModified" content="2025-11-17T07:12:48-07:00" />
-<meta itemprop="wordCount" content="723">
+<meta itemprop="wordCount" content="738">
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Split a git commit with an agent"/>
 <meta name="twitter:description" content="I often sit down to write some code and then, four yaks, two shaves, and a haircut later, I realize my working tree contains several intertwined changes.
@@ -136,6 +136,9 @@ How to use it Commit your work on a branch."/>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">)</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> true; <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># Sleep for a moment so SIGINT can kill the script between iterations</span>
+</span></span><span style="display:flex;"><span>  sleep <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>  git checkout <span style="color:#e6db74">&#34;</span>$ref<span style="color:#e6db74">&#34;</span> -- .
 </span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> git diff --quiet HEAD -- .; <span style="color:#66d9ef">then</span>
 </span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;no differences remain; all done&#34;</span>

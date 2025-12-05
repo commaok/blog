@@ -71,6 +71,9 @@ EOF
 )
 
 while true; do
+  # Sleep for a moment so SIGINT can kill the script between iterations
+  sleep 1
+
   git checkout "$ref" -- .
   if git diff --quiet HEAD -- .; then
     echo "no differences remain; all done"
