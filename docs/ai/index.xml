@@ -5,10 +5,35 @@
     <description>AI-related posts from Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 17 Nov 2025 07:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Tue, 16 Dec 2025 07:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/ai/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Self-healing software</title>
+      <link>https://commaok.xyz/ai/self-healing-software/</link>
+      <pubDate>Tue, 16 Dec 2025 07:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/ai/self-healing-software/</guid>
+      <description>&lt;p&gt;Traditional software is &lt;a href=&#34;https://commaok.xyz/ai/is-claude-a-compiler/&#34;&gt;repeatable&lt;/a&gt;, fast, and efficient, but brittle.&lt;/p&gt;
+&lt;p&gt;LLM agents are flexible, but &lt;a href=&#34;https://www.dbreunig.com/2025/12/06/the-state-of-agents.html&#34;&gt;unreliable&lt;/a&gt;, slow, and inefficient.&lt;/p&gt;
+&lt;p&gt;I have started using a hybrid model, &lt;em&gt;self-healing software&lt;/em&gt;: traditional software whose failures trigger coding agent intervention. The agent examines what went wrong, edits the software until it works again, and retries. [1]&lt;/p&gt;
+&lt;p&gt;Weirdly, for self-healing software, brittleness is a feature. The resiliency comes from the agent. You &lt;em&gt;want&lt;/em&gt; their judgment involved when conditions change. Make lots of assertions, accept no fallbacks.&lt;/p&gt;
+&lt;p&gt;(All of this obviously has serious prompt injection problems! As always, consider the provenance of your inputs and the blast radius of failures.)&lt;/p&gt;
+&lt;p&gt;To make this more concrete, here&amp;rsquo;s a recent example.&lt;/p&gt;
+&lt;p&gt;I wanted to scrape my kids&amp;rsquo; report cards from their school&amp;rsquo;s website. I trust the website, but it is unstable, unpleasant to use, and has no API.&lt;/p&gt;
+&lt;p&gt;I started an &lt;a href=&#34;https://exe.dev&#34;&gt;exe.dev&lt;/a&gt; VM for isolation and set up a cron that runs a shell script:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;start a headless browser&lt;/li&gt;
+&lt;li&gt;run a series of Playwright scripts&lt;/li&gt;
+&lt;li&gt;on success, send me the results&lt;/li&gt;
+&lt;li&gt;on error, invoke yolo claude with the error log and the goals&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Normal runs are fast and effective. When something goes wrong, Claude patiently struggles with query selectors and screenshots until it works again, and commits the changes. I remain blissfully unaware.&lt;/p&gt;
+&lt;p&gt;[1] This sounds superficially similar to the &lt;a href=&#34;https://ghuntley.com/ralph/&#34;&gt;Ralph Wiggum&lt;/a&gt; approach to software. But here, the agent is mostly dormant: it only engages when something goes wrong, which means that most runs go smoothly. And the self-healing component can be scoped more narrowly to fit as a smaller piece of a larger project.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Split a git commit with an agent</title>

@@ -1,0 +1,223 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go and software">
+		<meta name="generator" content="Hugo 0.122.0-DEV">
+		<title>Self-healing software &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
+		
+		<link rel="stylesheet" href="https://commaok.xyz/css/copy-code.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="Self-healing software" />
+<meta property="og:description" content="Traditional software is repeatable, fast, and efficient, but brittle.
+LLM agents are flexible, but unreliable, slow, and inefficient.
+I have started using a hybrid model, self-healing software: traditional software whose failures trigger coding agent intervention. The agent examines what went wrong, edits the software until it works again, and retries. [1]
+Weirdly, for self-healing software, brittleness is a feature. The resiliency comes from the agent. You want their judgment involved when conditions change." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://commaok.xyz/ai/self-healing-software/" /><meta property="article:section" content="ai" />
+<meta property="article:published_time" content="2025-12-16T07:12:48-07:00" />
+<meta property="article:modified_time" content="2025-12-16T07:12:48-07:00" />
+
+
+	    <meta itemprop="name" content="Self-healing software">
+<meta itemprop="description" content="Traditional software is repeatable, fast, and efficient, but brittle.
+LLM agents are flexible, but unreliable, slow, and inefficient.
+I have started using a hybrid model, self-healing software: traditional software whose failures trigger coding agent intervention. The agent examines what went wrong, edits the software until it works again, and retries. [1]
+Weirdly, for self-healing software, brittleness is a feature. The resiliency comes from the agent. You want their judgment involved when conditions change."><meta itemprop="datePublished" content="2025-12-16T07:12:48-07:00" />
+<meta itemprop="dateModified" content="2025-12-16T07:12:48-07:00" />
+<meta itemprop="wordCount" content="266">
+<meta itemprop="keywords" content="" />
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Self-healing software"/>
+<meta name="twitter:description" content="Traditional software is repeatable, fast, and efficient, but brittle.
+LLM agents are flexible, but unreliable, slow, and inefficient.
+I have started using a hybrid model, self-healing software: traditional software whose failures trigger coding agent intervention. The agent examines what went wrong, edits the software until it works again, and retries. [1]
+Weirdly, for self-healing software, brittleness is a feature. The resiliency comes from the agent. You want their judgment involved when conditions change."/>
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://commaok.xyz/ai/'>Home</a>
+	
+
+	
+	<a class="cta" href="https://commaok.xyz/index.xml">RSS</a>
+	
+</nav>
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>Self-healing software</h1>
+                    <h2 class="headline">
+                    December 16, 2025 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p>Traditional software is <a href="https://commaok.xyz/ai/is-claude-a-compiler/">repeatable</a>, fast, and efficient, but brittle.</p>
+<p>LLM agents are flexible, but <a href="https://www.dbreunig.com/2025/12/06/the-state-of-agents.html">unreliable</a>, slow, and inefficient.</p>
+<p>I have started using a hybrid model, <em>self-healing software</em>: traditional software whose failures trigger coding agent intervention. The agent examines what went wrong, edits the software until it works again, and retries. [1]</p>
+<p>Weirdly, for self-healing software, brittleness is a feature. The resiliency comes from the agent. You <em>want</em> their judgment involved when conditions change. Make lots of assertions, accept no fallbacks.</p>
+<p>(All of this obviously has serious prompt injection problems! As always, consider the provenance of your inputs and the blast radius of failures.)</p>
+<p>To make this more concrete, here&rsquo;s a recent example.</p>
+<p>I wanted to scrape my kids&rsquo; report cards from their school&rsquo;s website. I trust the website, but it is unstable, unpleasant to use, and has no API.</p>
+<p>I started an <a href="https://exe.dev">exe.dev</a> VM for isolation and set up a cron that runs a shell script:</p>
+<ul>
+<li>start a headless browser</li>
+<li>run a series of Playwright scripts</li>
+<li>on success, send me the results</li>
+<li>on error, invoke yolo claude with the error log and the goals</li>
+</ul>
+<p>Normal runs are fast and effective. When something goes wrong, Claude patiently struggles with query selectors and screenshots until it works again, and commits the changes. I remain blissfully unaware.</p>
+<p>[1] This sounds superficially similar to the <a href="https://ghuntley.com/ralph/">Ralph Wiggum</a> approach to software. But here, the agent is mostly dormant: it only engages when something goes wrong, which means that most runs go smoothly. And the self-healing component can be scoped more narrowly to fit as a smaller piece of a larger project.</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                
+                        <img class="avatar" src="https://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>It&#39;s me.</span>
+                        </div>
+                    
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+        
+    
+    
+    
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/self-healing-software/">Self-healing software<aside class="dates">Dec 16</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/split-commit/">Split a git commit with an agent<aside class="dates">Nov 17</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/outside-tokens/">Prompt injection is not about delimiters<aside class="dates">Oct 21</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/context-management/">Filter outputs and prime the pump<aside class="dates">Sep 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/exponential-destiny/">Exponentials are not destiny<aside class="dates">Jun 5</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/ax/">AX: Agent Experience<aside class="dates">May 30</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/prompt-engineering-and-the-taste-gap/">Prompt Engineering and the Taste Gap<aside class="dates">May 29</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/push-pull-respond-restart/">How and when to talk with your AI Agent<aside class="dates">May 27</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/is-claude-a-compiler/">Is Claude a compiler?<aside class="dates">May 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/blog-schism/">Blog schism<aside class="dates">May 23</aside></a>
+        </li>
+        
+   
+</ul>
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/josharian">
+        <i class="fa fa-github"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2025 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://commaok.xyz/js/main.js"></script>
+<script src="https://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script src="https://commaok.xyz/js/copy-code.js"></script>
+
+
+
+
+    </body>
+</html>
