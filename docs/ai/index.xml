@@ -5,10 +5,50 @@
     <description>AI-related posts from Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 16 Dec 2025 07:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Sat, 20 Dec 2025 07:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/ai/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Just in time software</title>
+      <link>https://commaok.xyz/ai/just-in-time-software/</link>
+      <pubDate>Sat, 20 Dec 2025 07:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/ai/just-in-time-software/</guid>
+      <description>&lt;p&gt;I didn&amp;rsquo;t plan to write software in the grocery store last night.&lt;/p&gt;
+&lt;p&gt;I was tired and hungry, kids in tow. My long shopping list sat in a text message. I wished I could check items off as I found them. Ideas filtered through my head:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;I could transfer the list to a piece of paper: too tedious&lt;/li&gt;
+&lt;li&gt;I could copy/paste it into a notes app or an email draft and delete items: too much tapping&lt;/li&gt;
+&lt;li&gt;I could search the web and app store for a thing that would do what I want (of which there were no doubt a great many): slow and painful and annoying&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Nope nope nope nope nope.&lt;/p&gt;
+&lt;p&gt;Instead, I skulked over to a corner of the produce section, opened up &lt;a href=&#34;https://exe.dev&#34;&gt;exe.dev&lt;/a&gt;, tapped &amp;ldquo;New&amp;rdquo; to spin up a VM, put on my best &amp;ldquo;crazy person talking to himself&amp;rdquo; face, and dictated into my phone:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Please make me a simple shopping list app. Here’s how it works. I can paste in the shopping list freeform, it splits it up into separate items then I can quickly tap a checkbox next to an item to strike it through. That’s it. All state is persisted entirely on the client.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Two minutes later, over in dairy, I pulled my phone back out; the site was ready. I copy/pasted in the text message. It worked. I checked off some items and kept shopping.&lt;/p&gt;
+&lt;p&gt;After grabbing some pasta, I got annoyed that I had to scroll up and down to see the items I was still missing. I hate UIs that move elements around on me, but still. I pulled up Shelley (the exe.dev per-VM coding agent) and dictated again:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Please add a button that I can click to sort the completed items to the bottom of the list I don&amp;rsquo;t want it to do this automatically because I want UI stability but I do want the option to say OK please go ahead and do the appropriate sorting don&amp;rsquo;t filter them away don&amp;rsquo;t get rid of them just sort them to the bottom&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;I returned to shopping. A minute later, a &amp;ldquo;Sort Completed to Bottom&amp;rdquo; button appeared. I tapped it. It worked. I finished shopping.&lt;/p&gt;
+&lt;h3 id=&#34;creating-is-faster-than-searching&#34;&gt;Creating is faster than searching&lt;/h3&gt;
+&lt;p&gt;My &lt;a href=&#34;https://shopping.exe.xyz&#34;&gt;ad hoc shopping app&lt;/a&gt; is not exactly groundbreaking. What&amp;rsquo;s interesting is that I could summon exactly what I wanted into existence faster and with much less effort than finding a pre-built solution&amp;hellip;or than doing my task without software, which is my usual go-to approach.&lt;/p&gt;
+&lt;p&gt;Many years ago, we visited a friend&amp;rsquo;s mother&amp;rsquo;s house over Christmas. We decided to make cookies to use up a big bowl of hazelnuts. There was only one problem. My friend&amp;rsquo;s mother wandered around the house muttering &amp;ldquo;nutcracker, nutcracker, nutcracker&amp;rdquo;. The house was built in the late 1700s and had spent the intervening centuries accumulating stuff. I read the writing on the wall and popped over to the nearest store and bought us a simple metal nutcracker.&lt;/p&gt;
+&lt;p&gt;Hours later, the nuts shelled, the cookies baked and eaten, my friend&amp;rsquo;s mother yelled in delight: &amp;ldquo;I found it! The nutcracker drawer!&amp;rdquo; Yes, she had an entire drawer full of nutcrackers. In went the latest addition.&lt;/p&gt;
+&lt;p&gt;The internet is a giant colonial New England house, its innumerable drawers stuffed with things far weirder than nutcrackers.&lt;/p&gt;
+&lt;p&gt;If your needs are simple and easily explained, you are now best served by describing into existence the exact tool you want, at the moment you want it.&lt;/p&gt;
+&lt;h3 id=&#34;disposable-software&#34;&gt;Disposable software&lt;/h3&gt;
+&lt;p&gt;There&amp;rsquo;s a part of me that recoils in horror at the idea of single-use software. Disposable anything feels wasteful.&lt;/p&gt;
+&lt;p&gt;I knew someone who found that it was about the same price to buy new t-shirts as to wash the ones they had, so they filled landfills rather than walk to the laundromat. Ugghhh.&lt;/p&gt;
+&lt;p&gt;So I sat down today and did some rough order-of-magnitude calculations. The tokens used to build my website cost $0.34. (Or they would have if they were &lt;em&gt;a la carte&lt;/em&gt;; exe.dev includes some free tokens.) That probably translates to about 5g of CO₂e, or driving a gas car some 75 feet. This feels acceptable to me.&lt;/p&gt;
+&lt;p&gt;The only other scarce resource consumed is the name &lt;code&gt;shopping.exe.xyz&lt;/code&gt;. Oh well.&lt;/p&gt;
+&lt;p&gt;Also, I was using Claude Opus 4.5, the top of the line coding model, which was definitely overkill. And models are rapidly getting cheaper and more energy efficient.&lt;/p&gt;
+&lt;p&gt;Waste is waste, but also, hoarding is hoarding. Just in time software, written in the moment to match your needs, is the future.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Self-healing software</title>

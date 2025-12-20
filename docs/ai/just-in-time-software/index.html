@@ -1,0 +1,235 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go and software">
+		<meta name="generator" content="Hugo 0.122.0-DEV">
+		<title>Just in time software &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
+		
+		<link rel="stylesheet" href="https://commaok.xyz/css/copy-code.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="Just in time software" />
+<meta property="og:description" content="I didn&rsquo;t plan to write software in the grocery store last night.
+I was tired and hungry, kids in tow. My long shopping list sat in a text message. I wished I could check items off as I found them. Ideas filtered through my head:
+I could transfer the list to a piece of paper: too tedious I could copy/paste it into a notes app or an email draft and delete items: too much tapping I could search the web and app store for a thing that would do what I want (of which there were no doubt a great many): slow and painful and annoying Nope nope nope nope nope." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://commaok.xyz/ai/just-in-time-software/" /><meta property="article:section" content="ai" />
+<meta property="article:published_time" content="2025-12-20T07:12:48-07:00" />
+<meta property="article:modified_time" content="2025-12-20T07:12:48-07:00" />
+
+
+	    <meta itemprop="name" content="Just in time software">
+<meta itemprop="description" content="I didn&rsquo;t plan to write software in the grocery store last night.
+I was tired and hungry, kids in tow. My long shopping list sat in a text message. I wished I could check items off as I found them. Ideas filtered through my head:
+I could transfer the list to a piece of paper: too tedious I could copy/paste it into a notes app or an email draft and delete items: too much tapping I could search the web and app store for a thing that would do what I want (of which there were no doubt a great many): slow and painful and annoying Nope nope nope nope nope."><meta itemprop="datePublished" content="2025-12-20T07:12:48-07:00" />
+<meta itemprop="dateModified" content="2025-12-20T07:12:48-07:00" />
+<meta itemprop="wordCount" content="747">
+<meta itemprop="keywords" content="" />
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Just in time software"/>
+<meta name="twitter:description" content="I didn&rsquo;t plan to write software in the grocery store last night.
+I was tired and hungry, kids in tow. My long shopping list sat in a text message. I wished I could check items off as I found them. Ideas filtered through my head:
+I could transfer the list to a piece of paper: too tedious I could copy/paste it into a notes app or an email draft and delete items: too much tapping I could search the web and app store for a thing that would do what I want (of which there were no doubt a great many): slow and painful and annoying Nope nope nope nope nope."/>
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://commaok.xyz/ai/'>Home</a>
+	
+
+	
+	<a class="cta" href="https://commaok.xyz/index.xml">RSS</a>
+	
+</nav>
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>Just in time software</h1>
+                    <h2 class="headline">
+                    December 20, 2025 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p>I didn&rsquo;t plan to write software in the grocery store last night.</p>
+<p>I was tired and hungry, kids in tow. My long shopping list sat in a text message. I wished I could check items off as I found them. Ideas filtered through my head:</p>
+<ul>
+<li>I could transfer the list to a piece of paper: too tedious</li>
+<li>I could copy/paste it into a notes app or an email draft and delete items: too much tapping</li>
+<li>I could search the web and app store for a thing that would do what I want (of which there were no doubt a great many): slow and painful and annoying</li>
+</ul>
+<p>Nope nope nope nope nope.</p>
+<p>Instead, I skulked over to a corner of the produce section, opened up <a href="https://exe.dev">exe.dev</a>, tapped &ldquo;New&rdquo; to spin up a VM, put on my best &ldquo;crazy person talking to himself&rdquo; face, and dictated into my phone:</p>
+<blockquote>
+<p>Please make me a simple shopping list app. Here’s how it works. I can paste in the shopping list freeform, it splits it up into separate items then I can quickly tap a checkbox next to an item to strike it through. That’s it. All state is persisted entirely on the client.</p>
+</blockquote>
+<p>Two minutes later, over in dairy, I pulled my phone back out; the site was ready. I copy/pasted in the text message. It worked. I checked off some items and kept shopping.</p>
+<p>After grabbing some pasta, I got annoyed that I had to scroll up and down to see the items I was still missing. I hate UIs that move elements around on me, but still. I pulled up Shelley (the exe.dev per-VM coding agent) and dictated again:</p>
+<blockquote>
+<p>Please add a button that I can click to sort the completed items to the bottom of the list I don&rsquo;t want it to do this automatically because I want UI stability but I do want the option to say OK please go ahead and do the appropriate sorting don&rsquo;t filter them away don&rsquo;t get rid of them just sort them to the bottom</p>
+</blockquote>
+<p>I returned to shopping. A minute later, a &ldquo;Sort Completed to Bottom&rdquo; button appeared. I tapped it. It worked. I finished shopping.</p>
+<h3 id="creating-is-faster-than-searching">Creating is faster than searching</h3>
+<p>My <a href="https://shopping.exe.xyz">ad hoc shopping app</a> is not exactly groundbreaking. What&rsquo;s interesting is that I could summon exactly what I wanted into existence faster and with much less effort than finding a pre-built solution&hellip;or than doing my task without software, which is my usual go-to approach.</p>
+<p>Many years ago, we visited a friend&rsquo;s mother&rsquo;s house over Christmas. We decided to make cookies to use up a big bowl of hazelnuts. There was only one problem. My friend&rsquo;s mother wandered around the house muttering &ldquo;nutcracker, nutcracker, nutcracker&rdquo;. The house was built in the late 1700s and had spent the intervening centuries accumulating stuff. I read the writing on the wall and popped over to the nearest store and bought us a simple metal nutcracker.</p>
+<p>Hours later, the nuts shelled, the cookies baked and eaten, my friend&rsquo;s mother yelled in delight: &ldquo;I found it! The nutcracker drawer!&rdquo; Yes, she had an entire drawer full of nutcrackers. In went the latest addition.</p>
+<p>The internet is a giant colonial New England house, its innumerable drawers stuffed with things far weirder than nutcrackers.</p>
+<p>If your needs are simple and easily explained, you are now best served by describing into existence the exact tool you want, at the moment you want it.</p>
+<h3 id="disposable-software">Disposable software</h3>
+<p>There&rsquo;s a part of me that recoils in horror at the idea of single-use software. Disposable anything feels wasteful.</p>
+<p>I knew someone who found that it was about the same price to buy new t-shirts as to wash the ones they had, so they filled landfills rather than walk to the laundromat. Ugghhh.</p>
+<p>So I sat down today and did some rough order-of-magnitude calculations. The tokens used to build my website cost $0.34. (Or they would have if they were <em>a la carte</em>; exe.dev includes some free tokens.) That probably translates to about 5g of CO₂e, or driving a gas car some 75 feet. This feels acceptable to me.</p>
+<p>The only other scarce resource consumed is the name <code>shopping.exe.xyz</code>. Oh well.</p>
+<p>Also, I was using Claude Opus 4.5, the top of the line coding model, which was definitely overkill. And models are rapidly getting cheaper and more energy efficient.</p>
+<p>Waste is waste, but also, hoarding is hoarding. Just in time software, written in the moment to match your needs, is the future.</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                
+                        <img class="avatar" src="https://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>It&#39;s me.</span>
+                        </div>
+                    
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+        
+    
+    
+    
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/just-in-time-software/">Just in time software<aside class="dates">Dec 20</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/self-healing-software/">Self-healing software<aside class="dates">Dec 16</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/split-commit/">Split a git commit with an agent<aside class="dates">Nov 17</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/outside-tokens/">Prompt injection is not about delimiters<aside class="dates">Oct 21</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/context-management/">Filter outputs and prime the pump<aside class="dates">Sep 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/exponential-destiny/">Exponentials are not destiny<aside class="dates">Jun 5</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/ax/">AX: Agent Experience<aside class="dates">May 30</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/prompt-engineering-and-the-taste-gap/">Prompt Engineering and the Taste Gap<aside class="dates">May 29</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/push-pull-respond-restart/">How and when to talk with your AI Agent<aside class="dates">May 27</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/is-claude-a-compiler/">Is Claude a compiler?<aside class="dates">May 23</aside></a>
+        </li>
+        
+   
+</ul>
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/josharian">
+        <i class="fa fa-github"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2025 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://commaok.xyz/js/main.js"></script>
+<script src="https://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script src="https://commaok.xyz/js/copy-code.js"></script>
+
+
+
+
+    </body>
+</html>
