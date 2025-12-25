@@ -24,7 +24,7 @@
 &lt;li&gt;I could search the web and app store for a thing that would do what I want (of which there were no doubt a great many): slow and painful and annoying&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Nope nope nope nope nope.&lt;/p&gt;
-&lt;p&gt;Instead, I skulked over to a corner of the produce section, opened up &lt;a href=&#34;https://exe.dev&#34;&gt;exe.dev&lt;/a&gt;, tapped &amp;ldquo;New&amp;rdquo; to spin up a VM, put on my best &amp;ldquo;crazy person talking to himself&amp;rdquo; face, and dictated into my phone:&lt;/p&gt;
+&lt;p&gt;Instead, I skulked over to a corner of the produce section, opened up &lt;a href=&#34;https://exe.dev&#34;&gt;exe.dev&lt;/a&gt; (the company I&amp;rsquo;m working at/on), tapped &amp;ldquo;New&amp;rdquo; to spin up a VM, put on my best &amp;ldquo;crazy person talking to himself&amp;rdquo; face, and dictated into my phone:&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Please make me a simple shopping list app. Here’s how it works. I can paste in the shopping list freeform, it splits it up into separate items then I can quickly tap a checkbox next to an item to strike it through. That’s it. All state is persisted entirely on the client.&lt;/p&gt;
 &lt;/blockquote&gt;

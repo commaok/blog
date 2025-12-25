@@ -13,7 +13,7 @@ I was tired and hungry, kids in tow. My long shopping list sat in a text message
 
 Nope nope nope nope nope.
 
-Instead, I skulked over to a corner of the produce section, opened up [exe.dev](https://exe.dev), tapped "New" to spin up a VM, put on my best "crazy person talking to himself" face, and dictated into my phone:
+Instead, I skulked over to a corner of the produce section, opened up [exe.dev](https://exe.dev) (the company I'm working at/on), tapped "New" to spin up a VM, put on my best "crazy person talking to himself" face, and dictated into my phone:
 
 > Please make me a simple shopping list app. Here’s how it works. I can paste in the shopping list freeform, it splits it up into separate items then I can quickly tap a checkbox next to an item to strike it through. That’s it. All state is persisted entirely on the client.
 
