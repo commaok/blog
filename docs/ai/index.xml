@@ -5,10 +5,49 @@
     <description>AI-related posts from Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 20 Dec 2025 07:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Tue, 06 Jan 2026 07:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/ai/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Vibe-coded Go static analysis tools</title>
+      <link>https://commaok.xyz/ai/vibed-static-analysis/</link>
+      <pubDate>Tue, 06 Jan 2026 07:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/ai/vibed-static-analysis/</guid>
+      <description>&lt;p&gt;Ideas are now a major bottleneck for vibe-coding. There are whole categories of software that simply don&amp;rsquo;t occur to me to write.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://philz.dev&#34;&gt;Philip Zeyliger&lt;/a&gt; pointed me at one: Go static analysis tools.&lt;/p&gt;
+&lt;p&gt;These are great candidates:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;easy to describe&lt;/li&gt;
+&lt;li&gt;easy to test&lt;/li&gt;
+&lt;li&gt;high value&lt;/li&gt;
+&lt;li&gt;low risk&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;He created a checker that requires &lt;code&gt;slog.InfoContext&lt;/code&gt; instead of &lt;code&gt;slog.Info&lt;/code&gt; when a context is available, to improve our telemetry/observability.&lt;/p&gt;
+&lt;p&gt;I followed up with a checker that lets you annotate a Go struct as requiring complete, explicit annotation.&lt;/p&gt;
+&lt;p&gt;I wanted to convert some long function signatures to use structs, but I worried about losing type safety. Change &lt;code&gt;func Foo(s string)&lt;/code&gt; to &lt;code&gt;func Foo(s string, i int)&lt;/code&gt; and the compiler will make you update every call site. But with &lt;code&gt;func Foo(x FooArgs)&lt;/code&gt;, if you add an &lt;code&gt;i int&lt;/code&gt; field to &lt;code&gt;FooArgs&lt;/code&gt;, existing call sites will silently use the zero value. Configuration-y structs have the same problem.&lt;/p&gt;
+&lt;p&gt;Now in our codebase at &lt;a href=&#34;https://exe.dev&#34;&gt;exe.dev&lt;/a&gt;, if you write:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//exe:completeinit
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;T&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;A&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;B&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;then it will accept &lt;code&gt;T{A: 0, B:1}&lt;/code&gt;, but reject &lt;code&gt;T{B:1}&lt;/code&gt;, &lt;code&gt;T{0, 1}&lt;/code&gt;, and &lt;code&gt;T{}&lt;/code&gt;. (Other forms of initialization are possible, but unlikely for the kinds of places we use such structs. So we can ignore them!)&lt;/p&gt;
+&lt;p&gt;In case you&amp;rsquo;re curious, here is the entirety of the text that I typed to get my analysis tool up and running:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;we have one custom go analyzer (slogcontext). i want to add another. i want to be able to annotate structs as requiring complete initialization, i.e., any time it appears in a struct literal every single field must be syntactically present (complete with keys). the use case is preventing accidents in which we add an important field to (say) a config struct param but forget to update a use because the code still compiles. write the analyzer (complete with tests), and hook it up to CI. and then&amp;ndash;and only then&amp;ndash;look for promising candidates that out to be annotated, and annotate them. remmber that this annotation will be annoying, so we only want ot do it for the sorts of cases that will be error-prone.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;let&amp;rsquo;s rename the annotation to //exe:completeinit (with no space). please annotate preCreateBoxOptions and run the analyzers. this is the kind of config struct i have in mind. surely there are others.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;great. now that we have it, please extract execore.NewServer&amp;rsquo;s args into a config struct, appropriately annotated.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;It has been chugging along merrily for weeks, catching the (rare) mistake.&lt;/p&gt;
+&lt;p&gt;Now you have this idea too.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Just in time software</title>
