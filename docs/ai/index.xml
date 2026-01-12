@@ -5,10 +5,86 @@
     <description>AI-related posts from Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 06 Jan 2026 07:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Mon, 12 Jan 2026 07:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/ai/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Differential spec analysis</title>
+      <link>https://commaok.xyz/ai/differential-spec/</link>
+      <pubDate>Mon, 12 Jan 2026 07:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/ai/differential-spec/</guid>
+      <description>&lt;p&gt;Differential techniques are chronically underappreciated in software. And they pair incredibly well with coding agents. Agents are now good enough that differential analysis can even be used to refine a spec, not just code.&lt;/p&gt;
+&lt;p&gt;The &lt;a href=&#34;http://www.incompleteideas.net/IncIdeas/BitterLesson.html&#34;&gt;Bitter Lesson&lt;/a&gt; is, as-written, about AI. It begins:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The biggest lesson that can be read from 70 years of AI research is [&amp;hellip;]&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;But the end of that sentence is far more broadly applicable than just AI. It continues:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;that general methods that leverage computation are ultimately the most effective, and by a large margin.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Even without billions of dollars of GPUs, and even without being able to utilize arbitrary amounts of compute, the ability to leverage computational power is phenomenally useful.&lt;/p&gt;
+&lt;p&gt;Differential testing and fuzz testing are prime examples. (Formal methods and theorem solvers too.) Differential techniques have many flavors, such as &lt;a href=&#34;https://research.swtch.com/diffcover&#34;&gt;differential coverage&lt;/a&gt;. One lesser-known one is &lt;em&gt;differential spec analysis&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;In differential spec analysis, you write multiple implementations from a spec and then compare their behavior. It is most powerful when paired with fuzzing, but as we&amp;rsquo;ll see, it even works without fuzzing.&lt;/p&gt;
+&lt;p&gt;Once any harness bugs have been resolved, deviations in behavior fall into two categories:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;implementation bugs, in which case your spec likely needs more unit tests or details&lt;/li&gt;
+&lt;li&gt;ambiguity, in which case your spec is under-specified&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Both outcomes teach you useful things about your spec, without ever looking at a single line of code, in any language.&lt;/p&gt;
+&lt;p&gt;Here&amp;rsquo;s a worked example.&lt;/p&gt;
+&lt;p&gt;Drew Breunig recently published &lt;a href=&#34;https://github.com/dbreunig/whenwords&#34;&gt;whenwords&lt;/a&gt;, which is a fun exploration of a &lt;a href=&#34;https://www.dbreunig.com/2026/01/08/a-software-library-with-no-code.html&#34;&gt;codeless open source repo&lt;/a&gt;. The idea is that agents are now so good that publishing an excellent spec is sufficient to have top quality implementations on demand in any language you want.&lt;/p&gt;
+&lt;p&gt;A codeless repo is the perfect opportunity to try out differential spec analysis!&lt;/p&gt;
+&lt;p&gt;I cloned whenwords and asked Opus:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Please write implementations of this in a half dozen languages, including Go. Prefer languages I already have installed on this machine. Use subagents for each language, and DO NOT LET THEM LOOK AT THE OTHER IMPLEMENTATIONS. I want each implementation to be de-novo. Then, using &lt;a href=&#34;https://github.com/dvyukov/go-fuzz&#34;&gt;https://github.com/dvyukov/go-fuzz&lt;/a&gt;, write differential fuzz tests that invoke all the different implementations. Investigate any deviation between implementations. Note &lt;em&gt;all&lt;/em&gt; deviations. Deviations that are &amp;ldquo;just bugs&amp;rdquo; would be useful to add to the acceptance tests. Deviations that aren&amp;rsquo;t &amp;ldquo;just bugs&amp;rdquo; but are instead differing reasonable interpretations of the spec would be useful to clarify in the spec. Keep a running document on disk of both kinds of failures.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Sadly, it didn&amp;rsquo;t end up using fuzz testing, choosing instead to hand-roll the test suites, but it nevertheless came back with some interesting material.&lt;/p&gt;
+&lt;p&gt;It didn&amp;rsquo;t quite finish the analysis, though, so I followed up with:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Nice.&lt;/p&gt;
+&lt;p&gt;So for the bugs, were there existing unit tests in tests.yaml that the sub-agents simply missed, or does it need new unit tests added? If the latter, please add them.&lt;/p&gt;
+&lt;p&gt;For the ambiguities&amp;hellip;please re-read the spec and triple-check that the spec is actually ambiguous about this. If it isn&amp;rsquo;t ambiguous, then it&amp;rsquo;s a bug, in which case, see the prior question (just a bug or a missing tests.yaml case?). If actually ambiguous, please make a judgment call about the best behavior and add it to the spec and also add &amp;ldquo;just enough&amp;rdquo; tests.yaml cases to cover it.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Here&amp;rsquo;s what it found.&lt;/p&gt;
+&lt;p&gt;There were missing test cases around zero durations, which manifested as Swift crashes. Opus added these test cases:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;  - name: &amp;#34;zero seconds&amp;#34;
+    input: &amp;#34;0s&amp;#34;
+    output: 0
+
+  - name: &amp;#34;zero hours and minutes&amp;#34;
+    input: &amp;#34;0h 0m&amp;#34;
+    output: 0
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There were missing test cases around month rounding, which manifested as incorrect Go outputs. Opus added:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;  - name: &amp;#34;8 months ago - 229 days (tests rounding)&amp;#34;
+    input: { timestamp: 1684281600, reference: 1704067200 }
+    output: &amp;#34;8 months ago&amp;#34;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And there was an ambiguity in the spec about what to do with non-integer inputs to duration.&lt;/p&gt;
+&lt;p&gt;Opus suggested specifying rounding thus:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;### Fractional input handling
+
+When `duration()` receives a non-integer seconds value, first round to the nearest whole second using half-up rounding before decomposing into units. Examples:
+- `duration(59.4)` → &amp;#34;59 seconds&amp;#34; (rounds to 59)
+- `duration(59.5)` → &amp;#34;1 minute&amp;#34; (rounds to 60 seconds = 1 minute)
+- `duration(0.4)` → &amp;#34;0 seconds&amp;#34; (rounds to 0)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With corresponding test cases:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;  - name: &amp;#34;fractional - rounds down&amp;#34;
+    input: { seconds: 59.4 }
+    output: &amp;#34;59 seconds&amp;#34;
+
+  - name: &amp;#34;fractional - rounds up to minute&amp;#34;
+    input: { seconds: 59.5 }
+    output: &amp;#34;1 minute&amp;#34;
+
+  - name: &amp;#34;fractional - rounds to zero&amp;#34;
+    input: { seconds: 0.4 }
+    output: &amp;#34;0 seconds&amp;#34;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are limitations. If your spec is clear but encodes the wrong decisions, differential spec analysis won&amp;rsquo;t help.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Thanks to Shaun Loo for providing feedback on a draft of this post.&lt;/em&gt;&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Vibe-coded Go static analysis tools</title>
