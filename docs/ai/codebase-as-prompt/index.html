@@ -7,7 +7,7 @@
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go and software">
 		<meta name="generator" content="Hugo 0.122.0-DEV">
-		<title>Blog schism &middot; Don&#39;t Panic</title>
+		<title>Your codebase is the prompt &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
 		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
@@ -23,33 +23,27 @@
 		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
 		
 
-		<meta property="og:title" content="Blog schism" />
-<meta property="og:description" content="Lots of people don&rsquo;t want to read about AI.
-I respect that.
-But I&rsquo;m currently steeped in the world of AI, for better or for worse, and I want to blog about it. So I&rsquo;ve split this blog in half.
-You are reading the AI half.
-There&rsquo;s another, at / that contains non-AI posts. It has its own RSS feed." />
+		<meta property="og:title" content="Your codebase is the prompt" />
+<meta property="og:description" content="When Claude writes code I don&rsquo;t like, I used to mutter: &ldquo;Oh Claude, what did you do?&rdquo; I now ask instead: &ldquo;Claude, what did you see?&rdquo; And then I go address that.
+Here&rsquo;s a concrete example.
+At exe.dev, we have a very substantial end-to-end test suite. It is deeply empiricist: It only performs actions a user (including an admin) can perform, and it only observes state that a user (including an admin) can observe." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://commaok.xyz/ai/blog-schism/" /><meta property="article:section" content="ai" />
-<meta property="article:published_time" content="2025-05-23T05:12:48-07:00" />
-<meta property="article:modified_time" content="2025-05-23T05:12:48-07:00" />
+<meta property="og:url" content="https://commaok.xyz/ai/codebase-as-prompt/" /><meta property="article:section" content="ai" />
+<meta property="article:published_time" content="2026-01-27T07:12:48-07:00" />
+<meta property="article:modified_time" content="2026-01-27T07:12:48-07:00" />
 
 
-	    <meta itemprop="name" content="Blog schism">
-<meta itemprop="description" content="Lots of people don&rsquo;t want to read about AI.
-I respect that.
-But I&rsquo;m currently steeped in the world of AI, for better or for worse, and I want to blog about it. So I&rsquo;ve split this blog in half.
-You are reading the AI half.
-There&rsquo;s another, at / that contains non-AI posts. It has its own RSS feed."><meta itemprop="datePublished" content="2025-05-23T05:12:48-07:00" />
-<meta itemprop="dateModified" content="2025-05-23T05:12:48-07:00" />
-<meta itemprop="wordCount" content="60">
+	    <meta itemprop="name" content="Your codebase is the prompt">
+<meta itemprop="description" content="When Claude writes code I don&rsquo;t like, I used to mutter: &ldquo;Oh Claude, what did you do?&rdquo; I now ask instead: &ldquo;Claude, what did you see?&rdquo; And then I go address that.
+Here&rsquo;s a concrete example.
+At exe.dev, we have a very substantial end-to-end test suite. It is deeply empiricist: It only performs actions a user (including an admin) can perform, and it only observes state that a user (including an admin) can observe."><meta itemprop="datePublished" content="2026-01-27T07:12:48-07:00" />
+<meta itemprop="dateModified" content="2026-01-27T07:12:48-07:00" />
+<meta itemprop="wordCount" content="228">
 <meta itemprop="keywords" content="" />
-	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Blog schism"/>
-<meta name="twitter:description" content="Lots of people don&rsquo;t want to read about AI.
-I respect that.
-But I&rsquo;m currently steeped in the world of AI, for better or for worse, and I want to blog about it. So I&rsquo;ve split this blog in half.
-You are reading the AI half.
-There&rsquo;s another, at / that contains non-AI posts. It has its own RSS feed."/>
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Your codebase is the prompt"/>
+<meta name="twitter:description" content="When Claude writes code I don&rsquo;t like, I used to mutter: &ldquo;Oh Claude, what did you do?&rdquo; I now ask instead: &ldquo;Claude, what did you see?&rdquo; And then I go address that.
+Here&rsquo;s a concrete example.
+At exe.dev, we have a very substantial end-to-end test suite. It is deeply empiricist: It only performs actions a user (including an admin) can perform, and it only observes state that a user (including an admin) can observe."/>
 
 	</head>
 
@@ -68,19 +62,20 @@ There&rsquo;s another, at / that contains non-AI posts. It has its own RSS feed.
         <section id="wrapper">
             <article class="post">
                 <header>
-                    <h1>Blog schism</h1>
+                    <h1>Your codebase is the prompt</h1>
                     <h2 class="headline">
-                    May 23, 2025 
+                    January 27, 2026 
                     <br>
                     
                     </h2>
                 </header>
                 <section id="post-body">
-                    <p>Lots of people don&rsquo;t want to read about AI.</p>
-<p>I respect that.</p>
-<p>But I&rsquo;m currently steeped in the world of AI, for better or for worse, and I want to blog about it. So I&rsquo;ve split this blog in half.</p>
-<p>You are reading the AI half.</p>
-<p>There&rsquo;s another, at <a href="/">/</a> that contains non-AI posts. It has its own RSS feed.</p>
+                    <p>When Claude writes code I don&rsquo;t like, I used to mutter: &ldquo;Oh Claude, what did you do?&rdquo; I now ask instead: &ldquo;Claude, what did you see?&rdquo; And then I go address <em>that</em>.</p>
+<p>Here&rsquo;s a concrete example.</p>
+<p>At <a href="https://exe.dev">exe.dev</a>, we have a very substantial end-to-end test suite. It is deeply empiricist: It only performs actions a user (including an admin) can perform, and it only observes state that a user (including an admin) can observe. This works very well with coding agents.</p>
+<p>Recently, Claude started writing end-to-end tests that reach into the database. At first, I told Claude not to do that, and it fixed it. Then I got smart. I asked Claude what tests it had modeled its new code on. Sure enough, they were also directly executing queries! Claude wasn&rsquo;t being sloppy; it was being consistent. I fixed the old tests and shut down the loophole in the test infrastructure.</p>
+<p>My typical prompt to a coding agent is a few sentences. Maybe a couple of paragraphs, if I&rsquo;m doing something really involved. The LLM then goes and reads thousands of lines or more from our codebase. Prompts come and go; your code endures.</p>
+<p>Agents mirror local style. Your codebase is the prompt. If you&rsquo;re using a state-of-the-art agent, and you don&rsquo;t like the code it generates, don&rsquo;t correct the agent. Instead, improve the code it learned from.</p>
 
                 </section>
             </article>
