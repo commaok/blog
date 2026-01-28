@@ -14,3 +14,5 @@ Recently, Claude started writing end-to-end tests that reach into the database. 
 My typical prompt to a coding agent is a few sentences. Maybe a couple of paragraphs, if I'm doing something really involved. The LLM then goes and reads thousands of lines or more from our codebase. Prompts come and go; your code endures.
 
 Agents mirror local style. Your codebase is the prompt. If you're using a state-of-the-art agent, and you don't like the code it generates, don't correct the agent. Instead, improve the code it learned from.
+
+*cross-posted at [blog.exe.dev/codebase-as-prompt](https://blog.exe.dev/codebase-as-prompt)*

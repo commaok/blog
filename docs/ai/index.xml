@@ -22,6 +22,7 @@
 &lt;p&gt;Recently, Claude started writing end-to-end tests that reach into the database. At first, I told Claude not to do that, and it fixed it. Then I got smart. I asked Claude what tests it had modeled its new code on. Sure enough, they were also directly executing queries! Claude wasn&amp;rsquo;t being sloppy; it was being consistent. I fixed the old tests and shut down the loophole in the test infrastructure.&lt;/p&gt;
 &lt;p&gt;My typical prompt to a coding agent is a few sentences. Maybe a couple of paragraphs, if I&amp;rsquo;m doing something really involved. The LLM then goes and reads thousands of lines or more from our codebase. Prompts come and go; your code endures.&lt;/p&gt;
 &lt;p&gt;Agents mirror local style. Your codebase is the prompt. If you&amp;rsquo;re using a state-of-the-art agent, and you don&amp;rsquo;t like the code it generates, don&amp;rsquo;t correct the agent. Instead, improve the code it learned from.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;cross-posted at &lt;a href=&#34;https://blog.exe.dev/codebase-as-prompt&#34;&gt;blog.exe.dev/codebase-as-prompt&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 </description>
     </item>
     

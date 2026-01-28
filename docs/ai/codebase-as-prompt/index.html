@@ -38,7 +38,7 @@ At exe.dev, we have a very substantial end-to-end test suite. It is deeply empir
 Here&rsquo;s a concrete example.
 At exe.dev, we have a very substantial end-to-end test suite. It is deeply empiricist: It only performs actions a user (including an admin) can perform, and it only observes state that a user (including an admin) can observe."><meta itemprop="datePublished" content="2026-01-27T07:12:48-07:00" />
 <meta itemprop="dateModified" content="2026-01-27T07:12:48-07:00" />
-<meta itemprop="wordCount" content="228">
+<meta itemprop="wordCount" content="231">
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Your codebase is the prompt"/>
 <meta name="twitter:description" content="When Claude writes code I don&rsquo;t like, I used to mutter: &ldquo;Oh Claude, what did you do?&rdquo; I now ask instead: &ldquo;Claude, what did you see?&rdquo; And then I go address that.
@@ -76,6 +76,7 @@ At exe.dev, we have a very substantial end-to-end test suite. It is deeply empir
 <p>Recently, Claude started writing end-to-end tests that reach into the database. At first, I told Claude not to do that, and it fixed it. Then I got smart. I asked Claude what tests it had modeled its new code on. Sure enough, they were also directly executing queries! Claude wasn&rsquo;t being sloppy; it was being consistent. I fixed the old tests and shut down the loophole in the test infrastructure.</p>
 <p>My typical prompt to a coding agent is a few sentences. Maybe a couple of paragraphs, if I&rsquo;m doing something really involved. The LLM then goes and reads thousands of lines or more from our codebase. Prompts come and go; your code endures.</p>
 <p>Agents mirror local style. Your codebase is the prompt. If you&rsquo;re using a state-of-the-art agent, and you don&rsquo;t like the code it generates, don&rsquo;t correct the agent. Instead, improve the code it learned from.</p>
+<p><em>cross-posted at <a href="https://blog.exe.dev/codebase-as-prompt">blog.exe.dev/codebase-as-prompt</a></em></p>
 
                 </section>
             </article>
