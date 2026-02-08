@@ -42,7 +42,7 @@ Compounding correctness long-horizon agentic coding workflows [now] compound cor
 This is a big, empirical claim.
 I&rsquo;m already convinced by my own experiences that agents, suitably scaffolded, can form a Brownian ratchet, such that pouring on more compute helps, on balance."><meta itemprop="datePublished" content="2026-02-07T07:12:48-07:00" />
 <meta itemprop="dateModified" content="2026-02-07T07:12:48-07:00" />
-<meta itemprop="wordCount" content="1236">
+<meta itemprop="wordCount" content="1237">
 <meta itemprop="keywords" content="" />
 	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Serpentine software"/>
 <meta name="twitter:description" content="I don&rsquo;t usually write hot takes. But StrongDM&rsquo;s Software Factory post is worth it, so here goes.
@@ -138,7 +138,7 @@ I&rsquo;m already convinced by my own experiences that agents, suitably scaffold
 <p>A test, stored in the codebase, can be lazily rewritten to match the code.</p>
 </blockquote>
 <p>StrongDM&rsquo;s efforts started with Sonnet 3.5. Reward hacking was far more prevalent then. It&rsquo;s rare now, and adding agents cross-checking work eliminates it.</p>
-<p>We have <a href="https://commaok.xyz/ai/codebase-as-prompt/">mostly-hermetic integration suite</a> at <a href="exe.dev">https://exe.dev</a>. It is proving to be one of the better investments we made. It also takes a lot of work to maintain: it grows with the software, and CI speed matters, whether it&rsquo;s generating a pass/fail grade or a satisfaction ratio.</p>
+<p>We have a <a href="https://commaok.xyz/ai/codebase-as-prompt/">mostly-hermetic integration suite</a> at <a href="https://exe.dev">exe.dev</a>. It is proving to be one of the better investments we made. It also takes a lot of work to maintain: it grows with the software, and CI speed matters, whether it&rsquo;s generating a pass/fail grade or a satisfaction ratio.</p>
 <p>We store it alongside the code. Claude adds to it, usefully. At some point, good overlapping test coverage and momentum means it will always be more appealing to make the tests pass by fixing the code than cheating.</p>
 <p>And sometimes humans in teams decide to &ldquo;cheat&rdquo;, but we call it &ldquo;making a sensible engineering decision&rdquo;. The distinction between cheating and exercising judgment is very blurry.</p>
 <p>I have never once felt a need to externalize our tests. This feels like path-dependence in StrongDM&rsquo;s journey.</p>

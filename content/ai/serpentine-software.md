@@ -91,7 +91,7 @@ For now, I'm convinced that my time doing that is a net win, even with a giant t
 
 StrongDM's efforts started with Sonnet 3.5. Reward hacking was far more prevalent then. It's rare now, and adding agents cross-checking work eliminates it.
 
-We have [mostly-hermetic integration suite](https://commaok.xyz/ai/codebase-as-prompt/) at [https://exe.dev](exe.dev). It is proving to be one of the better investments we made. It also takes a lot of work to maintain: it grows with the software, and CI speed matters, whether it's generating a pass/fail grade or a satisfaction ratio.
+We have a [mostly-hermetic integration suite](https://commaok.xyz/ai/codebase-as-prompt/) at [exe.dev](https://exe.dev). It is proving to be one of the better investments we made. It also takes a lot of work to maintain: it grows with the software, and CI speed matters, whether it's generating a pass/fail grade or a satisfaction ratio.
 
 We store it alongside the code. Claude adds to it, usefully. At some point, good overlapping test coverage and momentum means it will always be more appealing to make the tests pass by fixing the code than cheating.
 
