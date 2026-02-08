@@ -1,0 +1,286 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go and software">
+		<meta name="generator" content="Hugo 0.122.0-DEV">
+		<title>Serpentine software &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
+		
+		<link rel="stylesheet" href="https://commaok.xyz/css/copy-code.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="Serpentine software" />
+<meta property="og:description" content="I don&rsquo;t usually write hot takes. But StrongDM&rsquo;s Software Factory post is worth it, so here goes.
+Their post is elegant, short, and well-written, so I&rsquo;m going to just go through a bunch of pull quotes.
+Compounding correctness long-horizon agentic coding workflows [now] compound correctness rather than error
+This is a big, empirical claim.
+I&rsquo;m already convinced by my own experiences that agents, suitably scaffolded, can form a Brownian ratchet, such that pouring on more compute helps, on balance." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://commaok.xyz/ai/serpentine-software/" /><meta property="article:section" content="ai" />
+<meta property="article:published_time" content="2026-02-07T07:12:48-07:00" />
+<meta property="article:modified_time" content="2026-02-07T07:12:48-07:00" />
+
+
+	    <meta itemprop="name" content="Serpentine software">
+<meta itemprop="description" content="I don&rsquo;t usually write hot takes. But StrongDM&rsquo;s Software Factory post is worth it, so here goes.
+Their post is elegant, short, and well-written, so I&rsquo;m going to just go through a bunch of pull quotes.
+Compounding correctness long-horizon agentic coding workflows [now] compound correctness rather than error
+This is a big, empirical claim.
+I&rsquo;m already convinced by my own experiences that agents, suitably scaffolded, can form a Brownian ratchet, such that pouring on more compute helps, on balance."><meta itemprop="datePublished" content="2026-02-07T07:12:48-07:00" />
+<meta itemprop="dateModified" content="2026-02-07T07:12:48-07:00" />
+<meta itemprop="wordCount" content="1236">
+<meta itemprop="keywords" content="" />
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Serpentine software"/>
+<meta name="twitter:description" content="I don&rsquo;t usually write hot takes. But StrongDM&rsquo;s Software Factory post is worth it, so here goes.
+Their post is elegant, short, and well-written, so I&rsquo;m going to just go through a bunch of pull quotes.
+Compounding correctness long-horizon agentic coding workflows [now] compound correctness rather than error
+This is a big, empirical claim.
+I&rsquo;m already convinced by my own experiences that agents, suitably scaffolded, can form a Brownian ratchet, such that pouring on more compute helps, on balance."/>
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://commaok.xyz/ai/'>Home</a>
+	
+
+	
+	<a class="cta" href="https://commaok.xyz/index.xml">RSS</a>
+	
+</nav>
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>Serpentine software</h1>
+                    <h2 class="headline">
+                    February 7, 2026 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p>I don&rsquo;t usually write hot takes. But <a href="https://factory.strongdm.ai">StrongDM&rsquo;s Software Factory post</a> is worth it, so here goes.</p>
+<p>Their post is elegant, short, and well-written, so I&rsquo;m going to just go through a bunch of pull quotes.</p>
+<h2 id="compounding-correctness">Compounding correctness</h2>
+<blockquote>
+<p>long-horizon agentic coding workflows [now] compound correctness rather than error</p>
+</blockquote>
+<p>This is a big, empirical claim.</p>
+<p>I&rsquo;m already convinced by my own experiences that agents, suitably scaffolded, can form a <a href="https://en.wikipedia.org/wiki/Brownian_ratchet">Brownian ratchet</a>, such that pouring on more compute helps, on balance.</p>
+<p>The claim that it compounds (implying exponentials!) is a <em>lot</em> stronger. There&rsquo;s also an implicit claim that that exponent is far enough above 1 to matter quickly. I don&rsquo;t see evidence of this yet.</p>
+<p>And even if it is exponential, that might not by itself be enough. Experience suggests that software systems get non-linearly more difficult as they grow and age. And so far, experience suggests that adding more coding agents means that projects grow faster than usual. Even compounded, will the correctness added outrun the complexity they induce? The answer is not obvious, either way, and history suggests a modicum of skepticism.</p>
+<p><a href="https://research.swtch.com/vgo-eng">Russ Cox</a>:</p>
+<blockquote>
+<p>Software engineering is what happens to programming when you add time and other programmers.</p>
+</blockquote>
+<p>The <a href="https://factory.strongdm.ai/techniques">StrongDM techniques</a> is a fascinating take on what software engineering for agents looks like. But making all that work in practice means building a lot of mechanism around your software: serious black box integration tests, substantial CI infrastructure.</p>
+<p>If you&rsquo;re building a significant piece of software, you might be able to amortize that investment. But that&rsquo;s just the traditional economic model of software: high fixed cost, low marginal cost. The lump under the rug may have shrunk, but it&rsquo;s still there.</p>
+<p>But there&rsquo;s a different timeline available: <a href="/ai/just-in-time-software/">small, highly bespoke, disposal software</a>. You don&rsquo;t need software engineering for that, it works today, and it&rsquo;s cheap. And we&rsquo;ve known for decades that this was a good idea. Worse is better.</p>
+<p>Not all software can be small. Large projects enable small projects! But if I had to place bets, I&rsquo;d say <a href="https://en.wikipedia.org/wiki/Zipf%27s_law">Zipf&rsquo;s Law</a> will apply, and almost all software in the future will be small.</p>
+<h2 id="unlearning-helplessness">Unlearning helplessness</h2>
+<blockquote>
+<p>Those of us building software factories must practice a deliberate naivete</p>
+</blockquote>
+<p>This applies to all software engineers. I am not building software factories, and I am still frantically unlearning habits of a lifetime. <a href="https://commaok.xyz/ai/vibed-static-analysis/">It&rsquo;s hard</a>.</p>
+<h2 id="sometimes-you-have-to-ship">Sometimes you have to ship</h2>
+<blockquote>
+<p>Why am I doing this? (implied: the model should be doing this instead)</p>
+</blockquote>
+<p>Overhead matters. <a href="https://xkcd.com/1205/">xkcd&rsquo;s Is It Worth the Time</a> is evergreen. That chart may have shifted, but it&rsquo;s still real. I should be in the loop less, but dead reckoning still has its limits.</p>
+<h2 id="we-dont-even-need-goodharts-law">We don&rsquo;t even need Goodhart&rsquo;s Law</h2>
+<blockquote>
+<p>If you haven&rsquo;t spent at least $1,000 on tokens today per human engineer, your software factory has room for improvement.</p>
+</blockquote>
+<p><a href="https://simonwillison.net/2026/Feb/7/software-factory/">Simon Willison</a> comments on this:</p>
+<blockquote>
+<p>If these patterns really do add $20,000/month per engineer to your budget they’re far less interesting to me.</p>
+</blockquote>
+<p>These are both facially rather silly, because the units are nonsense. As Warren Buffet points out: &ldquo;Price is what you pay, value is what you get.&rdquo;</p>
+<p>I could hit $1,000/engineer-day easily by signing up for Anthropic&rsquo;s new <a href="https://code.claude.com/docs/en/fast-mode">10x more expensive fast plan</a>. The real point here, I assume, is that we (outside StrongDM) are currently so underinvested in LLM spend that a big head-turning number is guaranteed to be both directionally and magnitudinally correct.</p>
+<p>The response also misses the important metric. If an engineer spends $20k/month to generate the equivalent of hiring 10 more engineers, this is hugely interesting. Particularly so when you take into account the management and coordination overhead of every additional engineer.</p>
+<p>The relevant metric is a hopelessly squishy combination of execution speed, quality, predictability, overhead, and all the other factors that software teams juggle (cf <a href="https://www.seangoedecke.com">Sean Goedecke&rsquo;s writing</a>).</p>
+<p>Plus, we have two battling exponentials: hardware gets cheaper and models get bigger. Will tokens get cheaper? Maybe. Will &ldquo;code impact per dollar&rdquo; go up? Yes. Will it go up exponentially? Maybe.</p>
+<h2 id="better-not-cheaper">Better, not cheaper</h2>
+<blockquote>
+<p>Code must not be written by humans</p>
+</blockquote>
+<p>Indeed.</p>
+<p>As of Opus 4.5, I read a lot of code. I write almost no code.</p>
+<p>I loved writing code. I&rsquo;m good at it. But Claude now makes fewer basic code-level mistakes than I do, by a country mile.</p>
+<p>I even use English to describe changes I want to see that I could make in fewer keystrokes and in less time by editing the code directly. But I don&rsquo;t, because I <em>screw up basic things</em> at a rate far higher than Claude. I still wield refactoring tools, including vibe-coded refactoring tools, because they&rsquo;re solid and faster than Claude.</p>
+<blockquote>
+<p>Code must not be reviewed by humans</p>
+</blockquote>
+<p>When I said above that I read a lot of code, what I meant was that I skim it.</p>
+<p>I don&rsquo;t look for simple mistakes; the <a href="https://en.wikipedia.org/wiki/Prevalence_effect">prevalence effect</a> means that even if there are any, I won&rsquo;t see them.</p>
+<p>Also, I don&rsquo;t read code until an agent has read it a few times first.</p>
+<p>When I do finally skim, I look for architecture, for key decisions, for decisions that impact UX or DX: places where my experience and knowledge and judgment and taste has leverage.</p>
+<p>For now, I&rsquo;m convinced that my time doing that is a net win, even with a giant token budget. Importantly, it also enables me to continue to know enough to continue to meaningfully work on the code.</p>
+<h2 id="integrate-all-the-things">Integrate all the things</h2>
+<blockquote>
+<p>A test, stored in the codebase, can be lazily rewritten to match the code.</p>
+</blockquote>
+<p>StrongDM&rsquo;s efforts started with Sonnet 3.5. Reward hacking was far more prevalent then. It&rsquo;s rare now, and adding agents cross-checking work eliminates it.</p>
+<p>We have <a href="https://commaok.xyz/ai/codebase-as-prompt/">mostly-hermetic integration suite</a> at <a href="exe.dev">https://exe.dev</a>. It is proving to be one of the better investments we made. It also takes a lot of work to maintain: it grows with the software, and CI speed matters, whether it&rsquo;s generating a pass/fail grade or a satisfaction ratio.</p>
+<p>We store it alongside the code. Claude adds to it, usefully. At some point, good overlapping test coverage and momentum means it will always be more appealing to make the tests pass by fixing the code than cheating.</p>
+<p>And sometimes humans in teams decide to &ldquo;cheat&rdquo;, but we call it &ldquo;making a sensible engineering decision&rdquo;. The distinction between cheating and exercising judgment is very blurry.</p>
+<p>I have never once felt a need to externalize our tests. This feels like path-dependence in StrongDM&rsquo;s journey.</p>
+<h2 id="serpentine-vs-double-brick-walls">Serpentine vs double-brick walls</h2>
+<blockquote>
+<p>the Agentic Moment has profoundly changed the economics of software</p>
+</blockquote>
+<p><a href="https://kevinbarrett.org/blog/low-background-code/">Kevin Barrett</a> wonders whether code written before 2025 will turn out to be like <a href="https://en.wikipedia.org/wiki/Low-background_steel">low background steel</a>: useful because it is unpolluted by what humans have done to themselves.</p>
+<p>I suspect pre-2025 software will be more like <a href="https://en.wikipedia.org/wiki/Crinkle_crankle_wall">serpentine brick walls</a>.</p>
+<p>Wavy brick walls are cool, but they also have a more useful property: they can be built with fewer bricks, because the undulations add strength and stability. When bricks are expensive, but labor cheap, they make economic sense.</p>
+<p>Modern walls are double-brick straight masonry. They use more bricks, but they&rsquo;re much less labor intensive. Bricks are cheap nowadays, but labor is expensive.</p>
+<p>Pre-2025 software may prove to like crinkle crankle walls: economically rational for the constraints they were built under. Thin, elegant, surprisingly strong, and carefully designed to fit their landscape.</p>
+<p>Post-2025 software might end up like double-brick walls: thick, inelegant, solid through sheer volume, but fundamentally still a fine wall.</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                
+                        <img class="avatar" src="https://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>It&#39;s me.</span>
+                        </div>
+                    
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+        
+    
+    
+    
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/serpentine-software/">Serpentine software<aside class="dates">Feb 7</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/codebase-as-prompt/">Your codebase is the prompt<aside class="dates">Jan 27</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/differential-spec/">Differential spec analysis<aside class="dates">Jan 12</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/vibed-static-analysis/">Vibe-coded Go static analysis tools<aside class="dates">Jan 6</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/just-in-time-software/">Just in time software<aside class="dates">Dec 20</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/self-healing-software/">Self-healing software<aside class="dates">Dec 16</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/split-commit/">Split a git commit with an agent<aside class="dates">Nov 17</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/outside-tokens/">Prompt injection is not about delimiters<aside class="dates">Oct 21</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/context-management/">Filter outputs and prime the pump<aside class="dates">Sep 23</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/exponential-destiny/">Exponentials are not destiny<aside class="dates">Jun 5</aside></a>
+        </li>
+        
+   
+</ul>
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/josharian">
+        <i class="fa fa-github"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2026 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://commaok.xyz/js/main.js"></script>
+<script src="https://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script src="https://commaok.xyz/js/copy-code.js"></script>
+
+
+
+
+    </body>
+</html>

@@ -5,10 +5,95 @@
     <description>AI-related posts from Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 27 Jan 2026 07:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Sat, 07 Feb 2026 07:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/ai/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Serpentine software</title>
+      <link>https://commaok.xyz/ai/serpentine-software/</link>
+      <pubDate>Sat, 07 Feb 2026 07:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/ai/serpentine-software/</guid>
+      <description>&lt;p&gt;I don&amp;rsquo;t usually write hot takes. But &lt;a href=&#34;https://factory.strongdm.ai&#34;&gt;StrongDM&amp;rsquo;s Software Factory post&lt;/a&gt; is worth it, so here goes.&lt;/p&gt;
+&lt;p&gt;Their post is elegant, short, and well-written, so I&amp;rsquo;m going to just go through a bunch of pull quotes.&lt;/p&gt;
+&lt;h2 id=&#34;compounding-correctness&#34;&gt;Compounding correctness&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;long-horizon agentic coding workflows [now] compound correctness rather than error&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;This is a big, empirical claim.&lt;/p&gt;
+&lt;p&gt;I&amp;rsquo;m already convinced by my own experiences that agents, suitably scaffolded, can form a &lt;a href=&#34;https://en.wikipedia.org/wiki/Brownian_ratchet&#34;&gt;Brownian ratchet&lt;/a&gt;, such that pouring on more compute helps, on balance.&lt;/p&gt;
+&lt;p&gt;The claim that it compounds (implying exponentials!) is a &lt;em&gt;lot&lt;/em&gt; stronger. There&amp;rsquo;s also an implicit claim that that exponent is far enough above 1 to matter quickly. I don&amp;rsquo;t see evidence of this yet.&lt;/p&gt;
+&lt;p&gt;And even if it is exponential, that might not by itself be enough. Experience suggests that software systems get non-linearly more difficult as they grow and age. And so far, experience suggests that adding more coding agents means that projects grow faster than usual. Even compounded, will the correctness added outrun the complexity they induce? The answer is not obvious, either way, and history suggests a modicum of skepticism.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://research.swtch.com/vgo-eng&#34;&gt;Russ Cox&lt;/a&gt;:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Software engineering is what happens to programming when you add time and other programmers.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;The &lt;a href=&#34;https://factory.strongdm.ai/techniques&#34;&gt;StrongDM techniques&lt;/a&gt; is a fascinating take on what software engineering for agents looks like. But making all that work in practice means building a lot of mechanism around your software: serious black box integration tests, substantial CI infrastructure.&lt;/p&gt;
+&lt;p&gt;If you&amp;rsquo;re building a significant piece of software, you might be able to amortize that investment. But that&amp;rsquo;s just the traditional economic model of software: high fixed cost, low marginal cost. The lump under the rug may have shrunk, but it&amp;rsquo;s still there.&lt;/p&gt;
+&lt;p&gt;But there&amp;rsquo;s a different timeline available: &lt;a href=&#34;https://commaok.xyz/ai/just-in-time-software/&#34;&gt;small, highly bespoke, disposal software&lt;/a&gt;. You don&amp;rsquo;t need software engineering for that, it works today, and it&amp;rsquo;s cheap. And we&amp;rsquo;ve known for decades that this was a good idea. Worse is better.&lt;/p&gt;
+&lt;p&gt;Not all software can be small. Large projects enable small projects! But if I had to place bets, I&amp;rsquo;d say &lt;a href=&#34;https://en.wikipedia.org/wiki/Zipf%27s_law&#34;&gt;Zipf&amp;rsquo;s Law&lt;/a&gt; will apply, and almost all software in the future will be small.&lt;/p&gt;
+&lt;h2 id=&#34;unlearning-helplessness&#34;&gt;Unlearning helplessness&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Those of us building software factories must practice a deliberate naivete&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;This applies to all software engineers. I am not building software factories, and I am still frantically unlearning habits of a lifetime. &lt;a href=&#34;https://commaok.xyz/ai/vibed-static-analysis/&#34;&gt;It&amp;rsquo;s hard&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;sometimes-you-have-to-ship&#34;&gt;Sometimes you have to ship&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Why am I doing this? (implied: the model should be doing this instead)&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Overhead matters. &lt;a href=&#34;https://xkcd.com/1205/&#34;&gt;xkcd&amp;rsquo;s Is It Worth the Time&lt;/a&gt; is evergreen. That chart may have shifted, but it&amp;rsquo;s still real. I should be in the loop less, but dead reckoning still has its limits.&lt;/p&gt;
+&lt;h2 id=&#34;we-dont-even-need-goodharts-law&#34;&gt;We don&amp;rsquo;t even need Goodhart&amp;rsquo;s Law&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If you haven&amp;rsquo;t spent at least $1,000 on tokens today per human engineer, your software factory has room for improvement.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://simonwillison.net/2026/Feb/7/software-factory/&#34;&gt;Simon Willison&lt;/a&gt; comments on this:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If these patterns really do add $20,000/month per engineer to your budget they’re far less interesting to me.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;These are both facially rather silly, because the units are nonsense. As Warren Buffet points out: &amp;ldquo;Price is what you pay, value is what you get.&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;I could hit $1,000/engineer-day easily by signing up for Anthropic&amp;rsquo;s new &lt;a href=&#34;https://code.claude.com/docs/en/fast-mode&#34;&gt;10x more expensive fast plan&lt;/a&gt;. The real point here, I assume, is that we (outside StrongDM) are currently so underinvested in LLM spend that a big head-turning number is guaranteed to be both directionally and magnitudinally correct.&lt;/p&gt;
+&lt;p&gt;The response also misses the important metric. If an engineer spends $20k/month to generate the equivalent of hiring 10 more engineers, this is hugely interesting. Particularly so when you take into account the management and coordination overhead of every additional engineer.&lt;/p&gt;
+&lt;p&gt;The relevant metric is a hopelessly squishy combination of execution speed, quality, predictability, overhead, and all the other factors that software teams juggle (cf &lt;a href=&#34;https://www.seangoedecke.com&#34;&gt;Sean Goedecke&amp;rsquo;s writing&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;Plus, we have two battling exponentials: hardware gets cheaper and models get bigger. Will tokens get cheaper? Maybe. Will &amp;ldquo;code impact per dollar&amp;rdquo; go up? Yes. Will it go up exponentially? Maybe.&lt;/p&gt;
+&lt;h2 id=&#34;better-not-cheaper&#34;&gt;Better, not cheaper&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Code must not be written by humans&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Indeed.&lt;/p&gt;
+&lt;p&gt;As of Opus 4.5, I read a lot of code. I write almost no code.&lt;/p&gt;
+&lt;p&gt;I loved writing code. I&amp;rsquo;m good at it. But Claude now makes fewer basic code-level mistakes than I do, by a country mile.&lt;/p&gt;
+&lt;p&gt;I even use English to describe changes I want to see that I could make in fewer keystrokes and in less time by editing the code directly. But I don&amp;rsquo;t, because I &lt;em&gt;screw up basic things&lt;/em&gt; at a rate far higher than Claude. I still wield refactoring tools, including vibe-coded refactoring tools, because they&amp;rsquo;re solid and faster than Claude.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Code must not be reviewed by humans&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;When I said above that I read a lot of code, what I meant was that I skim it.&lt;/p&gt;
+&lt;p&gt;I don&amp;rsquo;t look for simple mistakes; the &lt;a href=&#34;https://en.wikipedia.org/wiki/Prevalence_effect&#34;&gt;prevalence effect&lt;/a&gt; means that even if there are any, I won&amp;rsquo;t see them.&lt;/p&gt;
+&lt;p&gt;Also, I don&amp;rsquo;t read code until an agent has read it a few times first.&lt;/p&gt;
+&lt;p&gt;When I do finally skim, I look for architecture, for key decisions, for decisions that impact UX or DX: places where my experience and knowledge and judgment and taste has leverage.&lt;/p&gt;
+&lt;p&gt;For now, I&amp;rsquo;m convinced that my time doing that is a net win, even with a giant token budget. Importantly, it also enables me to continue to know enough to continue to meaningfully work on the code.&lt;/p&gt;
+&lt;h2 id=&#34;integrate-all-the-things&#34;&gt;Integrate all the things&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;A test, stored in the codebase, can be lazily rewritten to match the code.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;StrongDM&amp;rsquo;s efforts started with Sonnet 3.5. Reward hacking was far more prevalent then. It&amp;rsquo;s rare now, and adding agents cross-checking work eliminates it.&lt;/p&gt;
+&lt;p&gt;We have &lt;a href=&#34;https://commaok.xyz/ai/codebase-as-prompt/&#34;&gt;mostly-hermetic integration suite&lt;/a&gt; at &lt;a href=&#34;exe.dev&#34;&gt;https://exe.dev&lt;/a&gt;. It is proving to be one of the better investments we made. It also takes a lot of work to maintain: it grows with the software, and CI speed matters, whether it&amp;rsquo;s generating a pass/fail grade or a satisfaction ratio.&lt;/p&gt;
+&lt;p&gt;We store it alongside the code. Claude adds to it, usefully. At some point, good overlapping test coverage and momentum means it will always be more appealing to make the tests pass by fixing the code than cheating.&lt;/p&gt;
+&lt;p&gt;And sometimes humans in teams decide to &amp;ldquo;cheat&amp;rdquo;, but we call it &amp;ldquo;making a sensible engineering decision&amp;rdquo;. The distinction between cheating and exercising judgment is very blurry.&lt;/p&gt;
+&lt;p&gt;I have never once felt a need to externalize our tests. This feels like path-dependence in StrongDM&amp;rsquo;s journey.&lt;/p&gt;
+&lt;h2 id=&#34;serpentine-vs-double-brick-walls&#34;&gt;Serpentine vs double-brick walls&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;the Agentic Moment has profoundly changed the economics of software&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://kevinbarrett.org/blog/low-background-code/&#34;&gt;Kevin Barrett&lt;/a&gt; wonders whether code written before 2025 will turn out to be like &lt;a href=&#34;https://en.wikipedia.org/wiki/Low-background_steel&#34;&gt;low background steel&lt;/a&gt;: useful because it is unpolluted by what humans have done to themselves.&lt;/p&gt;
+&lt;p&gt;I suspect pre-2025 software will be more like &lt;a href=&#34;https://en.wikipedia.org/wiki/Crinkle_crankle_wall&#34;&gt;serpentine brick walls&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Wavy brick walls are cool, but they also have a more useful property: they can be built with fewer bricks, because the undulations add strength and stability. When bricks are expensive, but labor cheap, they make economic sense.&lt;/p&gt;
+&lt;p&gt;Modern walls are double-brick straight masonry. They use more bricks, but they&amp;rsquo;re much less labor intensive. Bricks are cheap nowadays, but labor is expensive.&lt;/p&gt;
+&lt;p&gt;Pre-2025 software may prove to like crinkle crankle walls: economically rational for the constraints they were built under. Thin, elegant, surprisingly strong, and carefully designed to fit their landscape.&lt;/p&gt;
+&lt;p&gt;Post-2025 software might end up like double-brick walls: thick, inelegant, solid through sheer volume, but fundamentally still a fine wall.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Your codebase is the prompt</title>
