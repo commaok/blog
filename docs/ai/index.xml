@@ -5,10 +5,58 @@
     <description>AI-related posts from Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 12 Feb 2026 07:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Sun, 15 Feb 2026 07:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/ai/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Review the reviews</title>
+      <link>https://commaok.xyz/ai/review-the-reviews/</link>
+      <pubDate>Sun, 15 Feb 2026 07:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/ai/review-the-reviews/</guid>
+      <description>&lt;p&gt;When I was actively contributing to the Go project, my primary feed was the &lt;a href=&#34;https://go-review.googlesource.com/&#34;&gt;code review&lt;/a&gt; email firehose.&lt;/p&gt;
+&lt;p&gt;Issues, mailing lists, and Slack had low SNR. The finished commit history was better: it was finely polished work with some of the best written commit messages I have ever encountered. But it didn&amp;rsquo;t hold a candle to code reviews for operational learning.&lt;/p&gt;
+&lt;p&gt;The commit history could tell you what got done and why, in impressive technical detail. But the code review could also tell you about mid-stream direction changes; what concerns were taken seriously; what got started and not completed; what values drove decisions.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;I&amp;rsquo;m reflecting on that this morning because of &lt;a href=&#34;https://simonwillison.net/2026/Feb/15/cognitive-debt/&#34;&gt;Simon Willison&amp;rsquo;s comments about cognitive debt&lt;/a&gt;:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;I&amp;rsquo;ve been experimenting with prompting entire new features into existence without reviewing their implementations and, while it works surprisingly well, I&amp;rsquo;ve found myself getting lost in my own projects.&lt;/p&gt;
+&lt;p&gt;I no longer have a firm mental model of what they can do and how they work, which means each additional feature becomes harder to reason about, eventually leading me to lose the ability to make confident decisions about where to go next.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Having a human in the loop benefits the human. But where?&lt;/p&gt;
+&lt;p&gt;Reading code reviews was effective for the Go project. It still is.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;My workflow has churned over the last year. But here&amp;rsquo;s what I do now: I review reviews.&lt;/p&gt;
+&lt;p&gt;I ask an agent to do something. Code happens. I then ask an agent to review that code, without looking at it myself. Then I review the review.&lt;/p&gt;
+&lt;p&gt;The agent&amp;rsquo;s review typically contains design commentary, questions about decisions made, bugs, and nits. This is usually enough for me to get a clear idea about what&amp;rsquo;s going on in the code, at the right level of abstraction. And it enables me to very efficiently provide direction.&lt;/p&gt;
+&lt;p&gt;I have a heavily used code review skill that optimizes for this workflow:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Number all comments, questions, and suggestions for easy reference.
+Use an ever-incrementing scheme starting at 1.&lt;/p&gt;
+&lt;p&gt;Format:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Top-level items: &lt;code&gt;1.&lt;/code&gt;, &lt;code&gt;2.&lt;/code&gt;, &lt;code&gt;3.&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Sub-items: &lt;code&gt;2a.&lt;/code&gt;, &lt;code&gt;2b.&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This lets the user respond concisely and unambiguously: &amp;ldquo;3: please fix&amp;rdquo; or &amp;ldquo;2b: stet&amp;rdquo;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;An agent who has just done a code review has an ideally primed context window for working on that code. It makes fixes for me.&lt;/p&gt;
+&lt;p&gt;And as you might have guessed, when those fixes are done, I amend the commit unseen and start another code review cycle. When the code reviews stabilize, I skim the final commit. There are rarely any surprises.&lt;/p&gt;
+&lt;p&gt;The reviews rarely actually come back clean. Rather, they converge on commentary I&amp;rsquo;ve already decided to ignore, places where the model weights and I flatly disagree.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;The numbers bear this out. I just asked Claude to look over the entire history of the initial prompts I give it and do some light analysis.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Top 1-grams: &lt;a href=&#34;https://commaok.xyz/ai/manners/&#34;&gt;&lt;code&gt;please&lt;/code&gt;&lt;/a&gt; (2.03%), &lt;code&gt;codereview&lt;/code&gt; (0.64%), &lt;code&gt;look&lt;/code&gt; (0.61%), &lt;code&gt;use&lt;/code&gt; (0.58%), &lt;code&gt;make&lt;/code&gt; (0.51%)&lt;/p&gt;
+&lt;p&gt;Top 2-grams: &lt;code&gt;look at&lt;/code&gt; (0.41%), &lt;code&gt;please codereview&lt;/code&gt; (0.39%), &lt;code&gt;i want&lt;/code&gt; (0.34%), &lt;code&gt;want to&lt;/code&gt; (0.29%), &lt;code&gt;add a&lt;/code&gt; (0.21%)&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;I learned while writing this blog post that &amp;ldquo;code review&amp;rdquo; is two words. RIP stats.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;My life is now officially Seussian. I watch the watchers.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://images.squarespace-cdn.com/content/v1/52f51a96e4b0ec7646cd474a/1454616851462-7DGCFAZ7U4LV4PXCEQPB/beewatcher1.jpg&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Coding agents and the rules of the road</title>
