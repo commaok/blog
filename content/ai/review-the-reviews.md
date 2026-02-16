@@ -62,3 +62,5 @@ I learned while writing this blog post that "code review" is two words. RIP stat
 My life is now officially Seussian. I watch the watchers.
 
 ![](https://images.squarespace-cdn.com/content/v1/52f51a96e4b0ec7646cd474a/1454616851462-7DGCFAZ7U4LV4PXCEQPB/beewatcher1.jpg)
+
+*cross-posted at [blog.exe.dev/review-the-reviews](https://blog.exe.dev/review-the-reviews)*
