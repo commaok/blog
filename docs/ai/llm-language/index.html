@@ -1,0 +1,228 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go and software">
+		<meta name="generator" content="Hugo 0.122.0-DEV">
+		<title>Fight fire with pedantry &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
+		
+		<link rel="stylesheet" href="https://commaok.xyz/css/copy-code.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="Fight fire with pedantry" />
+<meta property="og:description" content="Over the last two years, I&rsquo;ve heard a bunch of speculation about how to design a programming language specifically for an LLM. It usually centers around typechecking, formal verifiability, or context engineering. It&rsquo;s a fun thought experiment, but always felt aimless.
+First, my experience has been that designing for humans is the best way to design for an LLM, as long as you restrict yourself to text. Second, being in-distribution is so critical that there&rsquo;s no point unless you&rsquo;re also training a frontier coding model." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://commaok.xyz/ai/llm-language/" /><meta property="article:section" content="ai" />
+<meta property="article:published_time" content="2026-02-22T07:12:48-07:00" />
+<meta property="article:modified_time" content="2026-02-22T07:12:48-07:00" />
+
+
+	    <meta itemprop="name" content="Fight fire with pedantry">
+<meta itemprop="description" content="Over the last two years, I&rsquo;ve heard a bunch of speculation about how to design a programming language specifically for an LLM. It usually centers around typechecking, formal verifiability, or context engineering. It&rsquo;s a fun thought experiment, but always felt aimless.
+First, my experience has been that designing for humans is the best way to design for an LLM, as long as you restrict yourself to text. Second, being in-distribution is so critical that there&rsquo;s no point unless you&rsquo;re also training a frontier coding model."><meta itemprop="datePublished" content="2026-02-22T07:12:48-07:00" />
+<meta itemprop="dateModified" content="2026-02-22T07:12:48-07:00" />
+<meta itemprop="wordCount" content="737">
+<meta itemprop="keywords" content="" />
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Fight fire with pedantry"/>
+<meta name="twitter:description" content="Over the last two years, I&rsquo;ve heard a bunch of speculation about how to design a programming language specifically for an LLM. It usually centers around typechecking, formal verifiability, or context engineering. It&rsquo;s a fun thought experiment, but always felt aimless.
+First, my experience has been that designing for humans is the best way to design for an LLM, as long as you restrict yourself to text. Second, being in-distribution is so critical that there&rsquo;s no point unless you&rsquo;re also training a frontier coding model."/>
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://commaok.xyz/ai/'>Home</a>
+	
+
+	
+	<a class="cta" href="https://commaok.xyz/index.xml">RSS</a>
+	
+</nav>
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>Fight fire with pedantry</h1>
+                    <h2 class="headline">
+                    February 22, 2026 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p>Over the last two years, I&rsquo;ve heard a bunch of speculation about how to design a programming language specifically for an LLM. It usually centers around typechecking, formal verifiability, or context engineering. It&rsquo;s a fun thought experiment, but always felt aimless.</p>
+<p>First, my experience has been that designing for humans is the best way to design for an LLM, as long as you restrict yourself to text. Second, being in-distribution is so critical that there&rsquo;s no point unless you&rsquo;re also training a frontier coding model. And in that case, what are you doing designing a programming language?</p>
+<p>But a suggestive <a href="https://inuh.net/@tao@mathstodon.xyz/116117405232069678">post by Terence Tao about AI slop in mathematics</a> offers a rich framework for thinking about this.</p>
+<blockquote>
+<p>One possible solution is to introduce <em>selective friction</em>, making it harder (or less convenient) to publish a mediocre AI-generated idea than a promising one. One can see this philosophy in the design of programming languages, which often tend to promote a certain set of &ldquo;good&rdquo; programming practices by making them easy to implement in the language, while &ldquo;bad&rdquo; practices, while not completely prohibited, are made to be inconvenient to adopt in that language. [Many] selective friction features of programming languages are in the process of being erased by the powerful coding abilities of modern AI.</p>
+</blockquote>
+<p>At its best, selective friction embeds hard-won wisdom, born of observing the long term consequences of engineering decisions at scale. It drives engineers towards better designs, left of boom. (Or more commonly, in the case of technical debt, left of a giant whimper.)</p>
+<p>This selective friction was designed with humans in mind. But humans are significantly more responsive to effort gradients and to cultural norms than coding agents.</p>
+<p>As models get more powerful, they will become <em>more</em> capable of powering through messes, which may further exacerbate this problem. This mirrors a problem that some very smart humans have: They are so good at explaining away inconvenient facts that they take longer to accept that they are wrong. Doing RL with extremely long time horizons&ndash;the evolution and maintenance of an entire codebase, not individual tasks&ndash;might result in models that don&rsquo;t benefit from nudges from their language. But I&rsquo;m not holding my breath.</p>
+<p>Designing a programming language for an LLM might mean recognizing this trend and leaning into it hard by cranking the coefficient of friction way past 11.</p>
+<p>Programming languages designed for humans have upper limits to what they can require, on pain of being too annoying to use. LLMs will power through requirements that humans find intolerable, so we can ask more of them.</p>
+<p>Here are some ideas:</p>
+<ul>
+<li>It could forbid variable shadowing. In the extreme form, all code must be in SSA form.</li>
+<li>It could enforce extremely strict naming conventions, in the interest of increasing local information density.</li>
+<li>It could require docs on absolutely everything.</li>
+<li>It could support extensive compiler-checked pre- and post-conditions.</li>
+<li>It could require annotating functions as being pure (or not), as being able to panic/throw (or not), as allocating memory (or not).</li>
+<li>It could limit the number of parameters to a function to three.</li>
+<li>It could require that all boolean parameters be named types with associated constants.</li>
+<li>It could require that every type and function be <a href="/post/perf_files/">in its own file</a> with a predictable filename.</li>
+</ul>
+<p>Much of this sounds roughly like &ldquo;more typechecking&rdquo; and &ldquo;formal verifiability&rdquo; and &ldquo;designed for efficient context use&rdquo;. But it does so around a unifying theme: giving up on human usability in order to add guardrails.</p>
+<p>All of these ideas come with trade-offs, and they might not be net wins. Or they might not go far enough: The models might manage to dance around them. These are empirical questions. With the advent of LLMs, the cost of testing them is within reach.</p>
+<p>The real point of this blog post is to open up the design space. Could an unbearably opinionated, pedantic programming language yield better agent-written code?</p>
+<p>Also: You don&rsquo;t need a new programming language for this. Start with a strongly-typed, tool-friendly language like Go or Rust and start layering on &ldquo;compile-time&rdquo; requirements, and see what happens. This keeps the code much more in-distribution and enables rapid prototyping.</p>
+<p>At exe.dev, we&rsquo;ve scratched the surface of this with some <a href="/ai/vibed-static-analysis/">vibe-coded static analysis tools hooked up to CI</a>. But I&rsquo;d be curious to see what happens when someone who loves pragmatic programming languages or frameworks adopts some <a href="https://factory.strongdm.ai">deliberate naivete</a>, lets out their inner language lawyers, and really plumbs these depths.</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                
+                        <img class="avatar" src="https://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>It&#39;s me.</span>
+                        </div>
+                    
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+        
+    
+    
+    
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/llm-language/">Fight fire with pedantry<aside class="dates">Feb 22</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/review-the-reviews/">Review the reviews<aside class="dates">Feb 15</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/rules-of-the-road/">Coding agents and the rules of the road<aside class="dates">Feb 12</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/serpentine-software/">Serpentine software<aside class="dates">Feb 7</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/codebase-as-prompt/">Your codebase is the prompt<aside class="dates">Jan 27</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/differential-spec/">Differential spec analysis<aside class="dates">Jan 12</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/vibed-static-analysis/">Vibe-coded Go static analysis tools<aside class="dates">Jan 6</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/just-in-time-software/">Just in time software<aside class="dates">Dec 20</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/self-healing-software/">Self-healing software<aside class="dates">Dec 16</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/split-commit/">Split a git commit with an agent<aside class="dates">Nov 17</aside></a>
+        </li>
+        
+   
+</ul>
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/josharian">
+        <i class="fa fa-github"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2026 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://commaok.xyz/js/main.js"></script>
+<script src="https://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script src="https://commaok.xyz/js/copy-code.js"></script>
+
+
+
+
+    </body>
+</html>
