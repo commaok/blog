@@ -1,0 +1,223 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Josh Bleecher Snyder">
+		<meta name="description" content="Words about Go and software">
+		<meta name="generator" content="Hugo 0.122.0-DEV">
+		<title>Bella Ciao with LLMs &middot; Don&#39;t Panic</title>
+		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
+		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
+		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
+		
+		<link rel="stylesheet" href="https://commaok.xyz/css/copy-code.css">
+		
+
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+		
+
+		
+		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
+		
+
+		<meta property="og:title" content="Bella Ciao with LLMs" />
+<meta property="og:description" content="&ldquo;Pelicans on bicycles&rdquo; is kinda saturated. (As would be &ldquo;Pelicans on bicycles jumping a shark.&rdquo;)
+But here&rsquo;s a thing that models are currently pretty terrible at: Generating tolerable music with nothing but normal linux tools.
+I spun up an exe.dev VM (disclosure: co-founder) and asked Shelley:
+Please spin up nginx and have it serve from ~/static. For every model available via the LLM gateway, spin up a subagent using that model with prompt: Without using the Internet, working in /tmp/MODELNAME, generate an audio file of Bella Ciao, playable in an average web browser, and then drop the final result in ~/static/bella_ciao_MODELNAME." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://commaok.xyz/ai/bella-ciao/" /><meta property="article:section" content="ai" />
+<meta property="article:published_time" content="2026-05-20T07:12:48-07:00" />
+<meta property="article:modified_time" content="2026-05-20T07:12:48-07:00" />
+
+
+	    <meta itemprop="name" content="Bella Ciao with LLMs">
+<meta itemprop="description" content="&ldquo;Pelicans on bicycles&rdquo; is kinda saturated. (As would be &ldquo;Pelicans on bicycles jumping a shark.&rdquo;)
+But here&rsquo;s a thing that models are currently pretty terrible at: Generating tolerable music with nothing but normal linux tools.
+I spun up an exe.dev VM (disclosure: co-founder) and asked Shelley:
+Please spin up nginx and have it serve from ~/static. For every model available via the LLM gateway, spin up a subagent using that model with prompt: Without using the Internet, working in /tmp/MODELNAME, generate an audio file of Bella Ciao, playable in an average web browser, and then drop the final result in ~/static/bella_ciao_MODELNAME."><meta itemprop="datePublished" content="2026-05-20T07:12:48-07:00" />
+<meta itemprop="dateModified" content="2026-05-20T07:12:48-07:00" />
+<meta itemprop="wordCount" content="225">
+<meta itemprop="keywords" content="" />
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Bella Ciao with LLMs"/>
+<meta name="twitter:description" content="&ldquo;Pelicans on bicycles&rdquo; is kinda saturated. (As would be &ldquo;Pelicans on bicycles jumping a shark.&rdquo;)
+But here&rsquo;s a thing that models are currently pretty terrible at: Generating tolerable music with nothing but normal linux tools.
+I spun up an exe.dev VM (disclosure: co-founder) and asked Shelley:
+Please spin up nginx and have it serve from ~/static. For every model available via the LLM gateway, spin up a subagent using that model with prompt: Without using the Internet, working in /tmp/MODELNAME, generate an audio file of Bella Ciao, playable in an average web browser, and then drop the final result in ~/static/bella_ciao_MODELNAME."/>
+
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://commaok.xyz/ai/'>Home</a>
+	
+
+	
+	<a class="cta" href="https://commaok.xyz/index.xml">RSS</a>
+	
+</nav>
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>Bella Ciao with LLMs</h1>
+                    <h2 class="headline">
+                    May 20, 2026 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p>&ldquo;Pelicans on bicycles&rdquo; is kinda saturated. (As would be &ldquo;Pelicans on bicycles jumping a shark.&rdquo;)</p>
+<p>But here&rsquo;s a thing that models are currently pretty terrible at: Generating tolerable music with nothing but normal linux tools.</p>
+<p>I spun up an <a href="https://exe.dev">exe.dev VM</a> (disclosure: co-founder) and asked <a href="https://blog.exe.dev/shelley">Shelley</a>:</p>
+<pre tabindex="0"><code>Please spin up nginx and have it serve from ~/static.
+
+For every model available via the LLM gateway, spin up a subagent using that model with prompt:
+
+Without using the Internet, working in /tmp/MODELNAME, generate an audio file of Bella Ciao, playable in an average web browser, and then drop the final result in ~/static/bella_ciao_MODELNAME.&lt;ext&gt;
+
+Once all those are done, make an index file for all of them, so I can see and play them all. Mobile friendly.
+</code></pre><p>You can hear the results at <a href="https://bella-ciao.exe.xyz">bella-ciao.exe.xyz</a>.</p>
+<p>Warning: They&rsquo;re pretty terrible and occasionally painful to listen to. Horrible synth, weird tempos, sometimes not even recognizably the right melody. That&rsquo;s kind of the point, though.</p>
+<p>I find GPT 5.5 to be the standout, and even that is&hellip;kinda ouch.</p>
+<p>You can hear the model improvements within a family, if you can hang on long enough, although I find Opus 4.6 to be nicer than Opus 4.7, perhaps because it&rsquo;s weirder.</p>
+<p>I also had Shelley add a table with details about the making of the musical sausage to the bottom of the page.</p>
+<p>Enjoy.</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                
+                        <img class="avatar" src="https://commaok.xyz/images/avatar.png">
+                        <div>
+                            <span class="dark">Josh Bleecher Snyder</span>
+                            <span>It&#39;s me.</span>
+                        </div>
+                    
+            </footer>
+
+            
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+
+    
+    
+        
+    
+    
+    
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/bella-ciao/">Bella Ciao with LLMs<aside class="dates">May 20</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/llm-language/">Fight fire with pedantry<aside class="dates">Feb 22</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/review-the-reviews/">Review the reviews<aside class="dates">Feb 15</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/rules-of-the-road/">Coding agents and the rules of the road<aside class="dates">Feb 12</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/serpentine-software/">Serpentine software<aside class="dates">Feb 7</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/codebase-as-prompt/">Your codebase is the prompt<aside class="dates">Jan 27</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/differential-spec/">Differential spec analysis<aside class="dates">Jan 12</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/vibed-static-analysis/">Vibe-coded Go static analysis tools<aside class="dates">Jan 6</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/just-in-time-software/">Just in time software<aside class="dates">Dec 20</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="https://commaok.xyz/ai/self-healing-software/">Self-healing software<aside class="dates">Dec 16</aside></a>
+        </li>
+        
+   
+</ul>
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.github.com/josharian">
+        <i class="fa fa-github"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2026 Josh Bleecher Snyder
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://commaok.xyz/js/main.js"></script>
+<script src="https://commaok.xyz/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<script src="https://commaok.xyz/js/copy-code.js"></script>
+
+
+
+
+    </body>
+</html>

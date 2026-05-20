@@ -5,10 +5,35 @@
     <description>AI-related posts from Don&#39;t Panic</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 22 Feb 2026 07:12:48 -0700</lastBuildDate>
+    <lastBuildDate>Wed, 20 May 2026 07:12:48 -0700</lastBuildDate>
     
         <atom:link href="https://commaok.xyz/ai/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Bella Ciao with LLMs</title>
+      <link>https://commaok.xyz/ai/bella-ciao/</link>
+      <pubDate>Wed, 20 May 2026 07:12:48 -0700</pubDate>
+      
+      <guid>https://commaok.xyz/ai/bella-ciao/</guid>
+      <description>&lt;p&gt;&amp;ldquo;Pelicans on bicycles&amp;rdquo; is kinda saturated. (As would be &amp;ldquo;Pelicans on bicycles jumping a shark.&amp;rdquo;)&lt;/p&gt;
+&lt;p&gt;But here&amp;rsquo;s a thing that models are currently pretty terrible at: Generating tolerable music with nothing but normal linux tools.&lt;/p&gt;
+&lt;p&gt;I spun up an &lt;a href=&#34;https://exe.dev&#34;&gt;exe.dev VM&lt;/a&gt; (disclosure: co-founder) and asked &lt;a href=&#34;https://blog.exe.dev/shelley&#34;&gt;Shelley&lt;/a&gt;:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;Please spin up nginx and have it serve from ~/static.
+
+For every model available via the LLM gateway, spin up a subagent using that model with prompt:
+
+Without using the Internet, working in /tmp/MODELNAME, generate an audio file of Bella Ciao, playable in an average web browser, and then drop the final result in ~/static/bella_ciao_MODELNAME.&amp;lt;ext&amp;gt;
+
+Once all those are done, make an index file for all of them, so I can see and play them all. Mobile friendly.
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You can hear the results at &lt;a href=&#34;https://bella-ciao.exe.xyz&#34;&gt;bella-ciao.exe.xyz&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Warning: They&amp;rsquo;re pretty terrible and occasionally painful to listen to. Horrible synth, weird tempos, sometimes not even recognizably the right melody. That&amp;rsquo;s kind of the point, though.&lt;/p&gt;
+&lt;p&gt;I find GPT 5.5 to be the standout, and even that is&amp;hellip;kinda ouch.&lt;/p&gt;
+&lt;p&gt;You can hear the model improvements within a family, if you can hang on long enough, although I find Opus 4.6 to be nicer than Opus 4.7, perhaps because it&amp;rsquo;s weirder.&lt;/p&gt;
+&lt;p&gt;I also had Shelley add a table with details about the making of the musical sausage to the bottom of the page.&lt;/p&gt;
+&lt;p&gt;Enjoy.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Fight fire with pedantry</title>
