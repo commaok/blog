@@ -7,7 +7,7 @@
 		<meta name="author" content="Josh Bleecher Snyder">
 		<meta name="description" content="Words about Go and software">
 		<meta name="generator" content="Hugo 0.122.0-DEV">
-		<title>Podcast ho! &middot; Don&#39;t Panic</title>
+		<title>Copy-on-write git worktrees &middot; Don&#39;t Panic</title>
 		<link rel="shortcut icon" href="https://commaok.xyz/images/favicon.ico">
 		<link rel="stylesheet" href="https://commaok.xyz/css/style.css">
 		<link rel="stylesheet" href="https://commaok.xyz/css/highlight.css">
@@ -23,27 +23,27 @@
 		<link href="https://commaok.xyz/index.xml" rel="alternate" type="application/rss+xml" title="Don&#39;t Panic" />
 		
 
-		<meta property="og:title" content="Podcast ho!" />
-<meta property="og:description" content="I have started a podcast, Significant Bits.
-The goal is to have substantive technical discussions about software engineering, very broadly defined.
-You can listen at https://sigpod.dev/" />
+		<meta property="og:title" content="Copy-on-write git worktrees" />
+<meta property="og:description" content="In the before times, I typically used a small, curated handful of git worktrees. Now the worktrees grow like bermuda grass, to the extent that they&rsquo;ve become a disk space problem.
+Git worktrees do share their git objects, but they don&rsquo;t share their working tree. That&rsquo;s the whole point: you can edit them independently.
+But conveniently, if you are using a filesystem that supports reflinking (APFS on macOS, some Linux filesystems), you can share most of the working tree as well!" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://commaok.xyz/post/podcast/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2024-01-12T15:12:48-07:00" />
-<meta property="article:modified_time" content="2024-01-12T15:12:48-07:00" />
+<meta property="og:url" content="https://commaok.xyz/post/git-cow-worktrees/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2026-05-24T05:12:48-07:00" />
+<meta property="article:modified_time" content="2026-05-24T05:12:48-07:00" />
 
 
-	    <meta itemprop="name" content="Podcast ho!">
-<meta itemprop="description" content="I have started a podcast, Significant Bits.
-The goal is to have substantive technical discussions about software engineering, very broadly defined.
-You can listen at https://sigpod.dev/"><meta itemprop="datePublished" content="2024-01-12T15:12:48-07:00" />
-<meta itemprop="dateModified" content="2024-01-12T15:12:48-07:00" />
-<meta itemprop="wordCount" content="26">
+	    <meta itemprop="name" content="Copy-on-write git worktrees">
+<meta itemprop="description" content="In the before times, I typically used a small, curated handful of git worktrees. Now the worktrees grow like bermuda grass, to the extent that they&rsquo;ve become a disk space problem.
+Git worktrees do share their git objects, but they don&rsquo;t share their working tree. That&rsquo;s the whole point: you can edit them independently.
+But conveniently, if you are using a filesystem that supports reflinking (APFS on macOS, some Linux filesystems), you can share most of the working tree as well!"><meta itemprop="datePublished" content="2026-05-24T05:12:48-07:00" />
+<meta itemprop="dateModified" content="2026-05-24T05:12:48-07:00" />
+<meta itemprop="wordCount" content="179">
 <meta itemprop="keywords" content="" />
-	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Podcast ho!"/>
-<meta name="twitter:description" content="I have started a podcast, Significant Bits.
-The goal is to have substantive technical discussions about software engineering, very broadly defined.
-You can listen at https://sigpod.dev/"/>
+	    <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Copy-on-write git worktrees"/>
+<meta name="twitter:description" content="In the before times, I typically used a small, curated handful of git worktrees. Now the worktrees grow like bermuda grass, to the extent that they&rsquo;ve become a disk space problem.
+Git worktrees do share their git objects, but they don&rsquo;t share their working tree. That&rsquo;s the whole point: you can edit them independently.
+But conveniently, if you are using a filesystem that supports reflinking (APFS on macOS, some Linux filesystems), you can share most of the working tree as well!"/>
 
 	</head>
 
@@ -65,17 +65,26 @@ You can listen at https://sigpod.dev/"/>
         <section id="wrapper">
             <article class="post">
                 <header>
-                    <h1>Podcast ho!</h1>
+                    <h1>Copy-on-write git worktrees</h1>
                     <h2 class="headline">
-                    January 12, 2024 
+                    May 24, 2026 
                     <br>
                     
                     </h2>
                 </header>
                 <section id="post-body">
-                    <p>I have started a podcast, Significant Bits.</p>
-<p>The goal is to have substantive technical discussions about software engineering, very broadly defined.</p>
-<p>You can listen at <a href="https://sigpod.dev/">https://sigpod.dev/</a></p>
+                    <p>In the before times, I typically used a small, curated handful of git worktrees. Now the worktrees grow like bermuda grass, to the extent that they&rsquo;ve become a disk space problem.</p>
+<p>Git worktrees do share their git objects, but they don&rsquo;t share their working tree. That&rsquo;s the whole point: you can edit them independently.</p>
+<p>But conveniently, if you are using a filesystem that supports reflinking (APFS on macOS, some Linux filesystems), you can share most of the working tree as well!</p>
+<p>Git doesn&rsquo;t offer this out of the box, although hopefully that&rsquo;ll change someday.</p>
+<p>In the meantime, you can approximate it:</p>
+<ul>
+<li>run <code>git worktree add</code> with <code>--no-checkout</code></li>
+<li>pick another worktree that probably has similar files</li>
+<li>simulate the checkout by doing CoW/reflink copies of git-tracked files from that worktree</li>
+<li>have git complete the checkout, to fill in missing or mismatched files and to refresh the index</li>
+</ul>
+<p>I bundled this all up in a vibe-engineered command at <a href="https://github.com/josharian/git-cow-worktree">https://github.com/josharian/git-cow-worktree</a>. It&rsquo;s a bit slower than using <code>git worktree</code> directly when there are lots of files, but otherwise I&rsquo;ve been pretty happy with it.</p>
 
                 </section>
             </article>
